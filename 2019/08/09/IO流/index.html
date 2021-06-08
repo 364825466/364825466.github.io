@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>IO流</title>
+  
+  
+  <meta property="og:title" content="IO流">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/08/09/IO%E6%B5%81/index.html">
+  
+  
+  <meta property="og:img" content="/blogImg/IO流/1.jpg">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;I-O-流&#34;&gt;&lt;a href=&#34;#I-O-流&#34; class=&#34;headerlink&#34; title=&#34;I/O 流&#34;&gt;&lt;/a&gt;I/O 流&lt;/h1&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-08-09">
+  <meta property="og:article:modified_time" content="2021-06-07">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="Java基础">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<div class="image-wrapper">
+  <img src="/blogImg/IO流/1.jpg" data-src="/blogImg/IO流/1.jpg"
+    srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
+    class="image lozad"
+    alt="thumbnail"
+  >
+</div>
+
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      IO流
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-08-09T10:20:10.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-08-09</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>3.4k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/Java%E5%9F%BA%E7%A1%80/" class="post-meta-link">Java基础</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="I-O-流"><a href="#I-O-流" class="headerlink" title="I/O 流"></a>I/O 流</h1><span id="more"></span> 
+
+<h2 id="字节流"><a href="#字节流" class="headerlink" title="字节流"></a>字节流</h2><p>读取文件步骤</p>
+<ol>
+<li>在当前程序与指定的文件之间建立流通道</li>
+<li>读写文件内容</li>
+<li>关闭流通道</li>
+</ol>
+<h3 id="InputStream-读"><a href="#InputStream-读" class="headerlink" title="InputStream    读"></a>InputStream    读</h3><p>网络中，发送请求到服务器获取数据，服务器返回的数据，一般要通过（输入）流来获取</p>
+<h4 id="文件输入流"><a href="#文件输入流" class="headerlink" title="文件输入流"></a>文件输入流</h4><p>FileInputStream    </p>
+<ul>
+<li>int read() 依次读一个字节</li>
+<li>int read(byte[] b)</li>
+<li>int read(byte[] b,offset,length)</li>
+</ul>
+<p>可以一个字节一个字节读</p>
+<pre class="highlight"><span class="line">public static void main(String[] args) throws IOException &#123;</span><br><span class="line">       // （1） 在当前程序与指定的文件之间建立流通道</span><br><span class="line">       // 读取d:/abc.txt文件的内容，通过构造方法指定要访问的文件，如果文件不存在则会抛出异常</span><br><span class="line">       FileInputStream fis = new FileInputStream(&quot;c:/DCIM/1.txt&quot;);</span><br><span class="line"></span><br><span class="line">       //（2）读取文件内容</span><br><span class="line">       // read（） 方法会从文件中读取一个字节，并把读到的字节返回，读到文件末尾返回-1</span><br><span class="line">       int cc = fis.read();</span><br><span class="line">       while(cc != -1)&#123;</span><br><span class="line">           System.out.print((char) cc);</span><br><span class="line">           cc = fis.read();</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       // （3） 关闭流通道</span><br><span class="line">       fis.close();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre>
+
+
+
+<p>也可以用字节数组读</p>
+<pre class="highlight"><span class="line">public static void main(String[] args) throws IOException &#123;</span><br><span class="line">     FileInputStream fis = new FileInputStream(&quot;c:/DCIM/1.txt&quot;);</span><br><span class="line"></span><br><span class="line">     byte[] bytes = new byte[1024];</span><br><span class="line">     int cc = fis.read(bytes);</span><br><span class="line">     while(cc&gt;0)&#123;</span><br><span class="line">         System.out.print(new String(bytes,0,cc));</span><br><span class="line">         cc = fis.read(bytes);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     fis.close();</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre>
+
+<p>把创建流 写在try（）里的资源块里，就自动释放，不用手动关闭流了,(是在jdk7之后，jdk6的话 就得在finally中关闭流)</p>
+<pre class="highlight"><span class="line">private static void m1()&#123;</span><br><span class="line"></span><br><span class="line">       try (       //try资源块，自动释放,就不用手动关闭流了(是在jdk7之后，jdk6的话 就得在finally中关闭流)</span><br><span class="line">                   FileInputStream fis = new FileInputStream(&quot;c:/DCIM/1.txt&quot;);</span><br><span class="line"></span><br><span class="line">               )&#123;</span><br><span class="line">           byte[] bytes = new byte[4];</span><br><span class="line">           int ss = fis.read(bytes);</span><br><span class="line">           while(ss != -1)&#123;</span><br><span class="line">               System.out.println(new String(bytes,0,ss));</span><br><span class="line">               ss = fis.read(bytes);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">       &#125; catch (Exception e)&#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre>
+
+
+
+<h3 id="OutputStream-写"><a href="#OutputStream-写" class="headerlink" title="OutputStream    写"></a>OutputStream    写</h3><h4 id="文件输出流"><a href="#文件输出流" class="headerlink" title="文件输出流"></a>文件输出流</h4><p>FileOutputStream</p>
+<ul>
+<li>write()</li>
+<li>write(byte[] b,offset, lengtj)</li>
+</ul>
+<pre class="highlight"><span class="line">/**</span><br><span class="line"> * FileOutputStream</span><br><span class="line"> * 以字节为单位，把数据保存到文件中</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">public class Test05 &#123;</span><br><span class="line">    public static void main(String[] args) throws IOException &#123;</span><br><span class="line"></span><br><span class="line">        // （1）建立流通道，通过构造方法的参数指定要访问的文件</span><br><span class="line">        // 如果访问文件不存在，系统会自动创建一个文件</span><br><span class="line">        //如果文件存在，会覆盖原来的文件内容</span><br><span class="line">        //后面加个true，会以追加的方式存文件（就是在文件的后面加上）</span><br><span class="line">        FileOutputStream fos = new FileOutputStream(&quot;c:/DCIM/2.txt&quot;,true);</span><br><span class="line"></span><br><span class="line">        //（2）写文件</span><br><span class="line"></span><br><span class="line">        //2.1 一次写一个字符</span><br><span class="line">        fos.write(65);  //把265对应的字符A保存到文件中</span><br><span class="line">        fos.write(66);</span><br><span class="line">        fos.write(67);</span><br><span class="line">        //换行 在windows系统中，换行需要使用 \r\n 两个字符</span><br><span class="line">        fos.write(&#x27;\r&#x27;);    //回车 13</span><br><span class="line">        fos.write(&#x27;\n&#x27;);    // 换行 10</span><br><span class="line"></span><br><span class="line">        //2.2一次写一个字节数组</span><br><span class="line">        byte[] bytes = &quot;sfasdaf&quot;.getBytes();</span><br><span class="line">        fos.write(bytes);</span><br><span class="line">        //换行</span><br><span class="line">        fos.write(13);</span><br><span class="line">        fos.write(10);</span><br><span class="line"></span><br><span class="line">        //2.3把字节数组的部分字节保存到文件中</span><br><span class="line">        fos.write(bytes,0,2);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        //（3）关闭流</span><br><span class="line">        fos.close();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+
+
+<h3 id="字节流文件复制"><a href="#字节流文件复制" class="headerlink" title="字节流文件复制"></a>字节流文件复制</h3><pre class="highlight"><span class="line">public class Test01 &#123;</span><br><span class="line">    public static void main(String[] args) throws IOException &#123;</span><br><span class="line">        String src = &quot;c:/DCIM/1.txt&quot;;</span><br><span class="line">        String deString = &quot;c:/DCIM/2.txt&quot;;</span><br><span class="line">        copyFile(src,deString);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public static void copyFile(String srcFilename,String destFilename)&#123;</span><br><span class="line">        //使用try-catch  然后创建流写try后面的()里，这样不需要关闭流，会自动关闭</span><br><span class="line">        try(FileInputStream fis = new FileInputStream(srcFilename);</span><br><span class="line">            FileOutputStream fos = new FileOutputStream(destFilename);)&#123;</span><br><span class="line">            byte[] byteArr = new byte[1024];        //一般是1024的偶数倍</span><br><span class="line">            int len = fis.read(byteArr);</span><br><span class="line">            while(len!= -1 )&#123;</span><br><span class="line">                //如果len不是-1 把cc保存到目标文件中</span><br><span class="line">                // 把读到的len 保存到输出流中</span><br><span class="line">                fos.write(byteArr,0,len);</span><br><span class="line">                len = fis.read(byteArr);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+
+
+<h2 id="字符流"><a href="#字符流" class="headerlink" title="字符流"></a>字符流</h2><p>以Reader     Writer为结尾的类，都是字符流    涉及到文本 用字符流    汉字和英文读取时没有差异，就是一个字符</p>
+<p>以Stream为结尾的类，都是字节流    多媒体：音频 视频 图片 只能用字节流</p>
+<p>​    网络交互——&gt;字节流 ——&gt;转换成字符流操作，方便</p>
+<h3 id="字符流文件复制"><a href="#字符流文件复制" class="headerlink" title="字符流文件复制"></a>字符流文件复制</h3><pre class="highlight"><span class="line">/**</span><br><span class="line"> * 文件字符流复制</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">public class FileCharCopy &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        // 这个目录下的1.txt  复制到 2.txt</span><br><span class="line">        fileCopy(&quot;c:/DCIM/1.txt&quot;,&quot;c:/DCIM/2.txt&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void fileCopy(String fileRead,String fileWrite)&#123;</span><br><span class="line"></span><br><span class="line">        try(</span><br><span class="line">                //使用try-catch  然后创建流写try后面的()里，这样不需要关闭流，会自动关闭</span><br><span class="line">                FileReader fr = new FileReader(fileRead);</span><br><span class="line">                FileWriter fw = new FileWriter(fileWrite);</span><br><span class="line">                )&#123;</span><br><span class="line"></span><br><span class="line">            char[] chrArr = new char[1024];</span><br><span class="line">            int len = fr.read(chrArr);</span><br><span class="line">            while(len != -1)&#123;</span><br><span class="line">                //如果len不是-1 把len保存到目标文件中</span><br><span class="line">                // 把读到的len 保存到输出流中</span><br><span class="line">                fw.write(chrArr,0,len);</span><br><span class="line">                len = fr.read(chrArr);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125; catch (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<h3 id="转换流"><a href="#转换流" class="headerlink" title="转换流"></a>转换流</h3><p>FileReader/FileWriter 只能读写与当前环境编码兼容的文件</p>
+<p>如果文本文件与当前环境编码不兼容，使用InputStreamReader/OutputStreamWriter转换流读写</p>
+<p>转换流采用了适配器设计模式</p>
+<p>字节流 -&gt; 字符流 -&gt; 字符流相关的方法进行操作</p>
+<p>字节流 FileInputStream -&gt; 字符流 BufferedReader</p>
+<pre class="highlight"><span class="line">public class Test06 &#123;</span><br><span class="line">    public static void main(String[] args) throws IOException &#123;</span><br><span class="line">            m1();   // 使用InputStreamReader读取文本内容</span><br><span class="line">        m2();   //  使用OutputStreamWriter 保存数据</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //当操作的文件编码与当前环境编码不兼容，使用InputStreamReader读取</span><br><span class="line">    public static void m1() throws IOException &#123;</span><br><span class="line">        // 在当前程序与指定的文件之间建立流通道</span><br><span class="line">        // InputStream 是父类，FileInputStream是子类，多态的应用</span><br><span class="line">        //因为要用InputStreamReader 把字节流转成字符流，InputStreamReader 里面传的参数是 InputStream ，而不是FileInputStream ，体现了多态的优点，减少代码冗余</span><br><span class="line">        InputStream in = new FileInputStream(&quot;c:/DCIM/1.txt&quot;);</span><br><span class="line"></span><br><span class="line">        // 使用UTF-8 编码 ，把in字节流中的数据转成字符流</span><br><span class="line">        InputStreamReader isr = new InputStreamReader(in,&quot;UTF-8&quot;);</span><br><span class="line"></span><br><span class="line">        int len = isr.read();</span><br><span class="line">        while(len != -1)&#123;</span><br><span class="line">            System.out.print((char)len);</span><br><span class="line">            len=isr.read();</span><br><span class="line">        &#125;</span><br><span class="line">        isr.close();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void m2() throws IOException &#123;</span><br><span class="line"></span><br><span class="line">        OutputStream os = new FileOutputStream(&quot;c:/DCIM/3.txt&quot;);</span><br><span class="line">        OutputStreamWriter osw = new OutputStreamWriter(os,&quot;UTF-8&quot;);</span><br><span class="line"></span><br><span class="line">        osw.write(&quot;\r\n&quot;);</span><br><span class="line">        osw.write(&quot;当前的内容是使用转换流保存到文件中&quot;);</span><br><span class="line"></span><br><span class="line">        osw.close();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+
+
+<h3 id="缓冲流"><a href="#缓冲流" class="headerlink" title="缓冲流"></a>缓冲流</h3><p><img src="/IO%E6%B5%81/%E7%BC%93%E5%86%B2%E6%B5%81.png" alt="缓冲流" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/IO%E6%B5%81/%E7%BC%93%E5%86%B2%E6%B5%81.png" class="lozad post-image"></p>
+<pre class="highlight"><span class="line">/**</span><br><span class="line"> * 字符缓冲流</span><br><span class="line"> * BufferedReader/BufferedWriter</span><br><span class="line"> * 也成为处理流/包装流</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">public class HuanChongLiu &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws IOException &#123;</span><br><span class="line">       m1();        //使用BufferedReader 读取文本文件内容</span><br><span class="line">        m2();       //使用BufferedWriter 保存文本到文件</span><br><span class="line">        m3();   //从键盘上输入文本，把这些文本保存到文件中</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void m1() throws IOException &#123;</span><br><span class="line"></span><br><span class="line">        Reader in = new FileReader(&quot;c:/DCIM/1.txt&quot;);</span><br><span class="line">        BufferedReader br = new BufferedReader(in);</span><br><span class="line"></span><br><span class="line">        // 从缓冲字符流中读取一行，读到文件末尾返回null</span><br><span class="line">        String line = br.readLine();</span><br><span class="line">        while(line!=null)&#123;</span><br><span class="line">            System.out.println(line);</span><br><span class="line">            line = br.readLine();</span><br><span class="line">        &#125;</span><br><span class="line">        //  把缓冲流关闭后，被包装的流也会关闭</span><br><span class="line">        br.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void m2() throws IOException &#123;</span><br><span class="line">        Writer out = new FileWriter(&quot;c:/DCIM/3.txt&quot;,true);</span><br><span class="line">        BufferedWriter bw = new BufferedWriter(out);</span><br><span class="line">        out.write(&quot;因为爱情，不会轻易悲伤&quot;);</span><br><span class="line"></span><br><span class="line">        bw.flush();    //清空缓冲区，把数据保存到文件中</span><br><span class="line">        //或者 写 bw.close();  因为close方法也提供flush</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void m3() throws IOException &#123;</span><br><span class="line">        BufferedWriter bw = new BufferedWriter(new FileWriter(&quot;c:/DCIM/3.txt&quot;));</span><br><span class="line">        // 使用BufferedReader 对键盘输入流缓冲</span><br><span class="line">        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));</span><br><span class="line">        //System.in 是字节流，InputStreamReader把字节流转换成字符流</span><br><span class="line"></span><br><span class="line">        String line = br.readLine();</span><br><span class="line">        while(line.length()&gt;0)&#123;     //键盘输入的长度大于0，表示你确实输入了</span><br><span class="line">            bw.write(line);</span><br><span class="line">            bw.newLine();</span><br><span class="line">            line = br.readLine();</span><br><span class="line">        &#125;</span><br><span class="line">        br.close();</span><br><span class="line">        bw.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre>
+
+
+
+
+
+
+
+<h2 id="对象流"><a href="#对象流" class="headerlink" title="对象流"></a>对象流</h2><p>对象序列化：把对象转换为01二进制序列就是对象序列化    </p>
+<p>对象反序列化：把一组01二进制序列转换为对象    </p>
+<p>注意：对象序列化/反序列化 前提是 对象的类 要实现 Serializable接口，该接口是一个标志性接口，没有任何方法</p>
+<p>目标：将对象保存到磁盘中，或允许在网络中直接传输对象</p>
+<p>Serializable 序列化，是一个接口，接口无内容，如果一个类实现了这个接口，那么就表示这个类的对象可以序列化</p>
+<p>网络中传输对象或者将对象保存到本地磁盘都需要序列化</p>
+<p>序列化与反序列化</p>
+<ul>
+<li>序列化    写的时候</li>
+<li>反序列化  读的时候，反序列化成对象</li>
+</ul>
+<p>ObjectOutputStream类 可以把对象序列化，把序列化后二进制保存到文件中（序列化）</p>
+<p>ObjectInputStream类 可以从文件读取01序列，把这组01序列转化为对象（反序列化）</p>
+<p>一般情况下，类实现了Serializable接口后，手动的添加一个序列化版本号字段</p>
+<pre class="highlight"><span class="line">private static final long serialVersionUID = -6849794470767710L;</span><br></pre>
+
+
+
+<p>序列化</p>
+<pre class="highlight"><span class="line">public class XuLieHua &#123;</span><br><span class="line">    public static void main(String[] args) throws IOException &#123;</span><br><span class="line">        Person p1 = new Person(&quot;yongge&quot;,36);</span><br><span class="line">        // 对象序列化,把p1对象保存到c:/DCIM/3.txt文件中</span><br><span class="line"></span><br><span class="line">        OutputStream out = new FileOutputStream(&quot;c:/DCIM/3.txt&quot;);</span><br><span class="line">        ObjectOutputStream os = new ObjectOutputStream(out);</span><br><span class="line"></span><br><span class="line">        os.writeObject(p1);</span><br><span class="line">        os.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+<p>反序列化</p>
+<pre class="highlight"><span class="line">/**</span><br><span class="line"> * 对象反序列化</span><br><span class="line"> *  简单的理解为把对象从文件中读取出来</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">public class FanXuliehua &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws IOException, ClassNotFoundException &#123;</span><br><span class="line">        InputStream in = new FileInputStream(&quot;c:/DCIM/3.txt&quot;);</span><br><span class="line">        ObjectInputStream ois = new ObjectInputStream(in);</span><br><span class="line"></span><br><span class="line">        //从文件中读取一个对象，obj是Object类型的，引用的是person对象</span><br><span class="line">        Object obj = ois.readObject();</span><br><span class="line">        System.out.println(obj);</span><br><span class="line">        ois.close();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         *  场景描述：</span><br><span class="line">         *      把对象序列化到文件后，又在Person类中添加了一个字段（String sex），再进行反序列化时产生以下异常</span><br><span class="line">         *      Exception in thread &quot;main&quot; java.io.InvalidClassException: day10.io.Person; local class incompatible:</span><br><span class="line">         *      stream classdesc serialVersionUID = -6042614482052494089,</span><br><span class="line">         *      local class serialVersionUID = -3602205828298551354</span><br><span class="line">         *</span><br><span class="line">         *  分析：</span><br><span class="line">         *      Person类实现了Serializable接口后，系统会给类自动添加一个serialVersionUID序列化版本号字段</span><br><span class="line">         *      当再Person类添加/删除了一个字段，重新编译，serialVersionUID字段会生成一个新的值</span><br><span class="line">         *</span><br><span class="line">         *  解决：</span><br><span class="line">         *      保证对象序列化时与反序列化时serialVersionUID字段的值要相同</span><br><span class="line">         *      可以手动的添加一个serialVersionUID字段</span><br><span class="line">         */</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class Person implements Serializable &#123;</span><br><span class="line">    /**</span><br><span class="line">     *  Person类的对象序列化/反序列化的前提是Person类实现Serializable接口</span><br><span class="line">     *  该接口没有任何方法</span><br><span class="line">     *  一般情况下，类实现了Serializable接口后，会手动添加一个serialVersionUID序列化版本号字段</span><br><span class="line">     *</span><br><span class="line">     *</span><br><span class="line">     */</span><br><span class="line"></span><br><span class="line">    String name;</span><br><span class="line">    int age;</span><br><span class="line"></span><br><span class="line">    String sex;</span><br><span class="line">    //手动添加一个序列化版本号字段</span><br><span class="line">    // 点开String类里 把这段话粘过来，然后把后面的字段自己随便删点改点</span><br><span class="line">    // serialVersionUID 是个常量 没有所有字母都大写，特殊</span><br><span class="line">    private static final long serialVersionUID = -6849794470767710L;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public Person(String name, int age) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">        this.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Person() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public String toString() &#123;</span><br><span class="line">        return &quot;Person&#123;&quot; +</span><br><span class="line">                &quot;name=&#x27;&quot; + name + &#x27;\&#x27;&#x27; +</span><br><span class="line">                &quot;, age=&quot; + age +</span><br><span class="line">                &#x27;&#125;&#x27;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+
+
+<h2 id="打印流"><a href="#打印流" class="headerlink" title="打印流"></a>打印流</h2><h3 id="PrintStream-字节打印流"><a href="#PrintStream-字节打印流" class="headerlink" title="PrintStream    字节打印流"></a>PrintStream    字节打印流</h3><pre class="highlight"><span class="line">/**</span><br><span class="line"> * PrintStream</span><br><span class="line"> * 打印字节流</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">public class PrintStreamDemo &#123;</span><br><span class="line">    public static void main(String[] args) throws FileNotFoundException &#123;</span><br><span class="line">        // 1）</span><br><span class="line">        OutputStream out = new FileOutputStream(&quot;c:/DCIM/3.txt&quot;);</span><br><span class="line">        PrintStream pStream = new PrintStream(out);</span><br><span class="line"></span><br><span class="line">        pStream.print(&quot;hello&quot;);</span><br><span class="line">        pStream.println(&quot; world&quot;);</span><br><span class="line"></span><br><span class="line">        // 2） System类的out成员就是PrintStream类型的打印流</span><br><span class="line">        //  System.out 默认系统的标准输出设备是显示器</span><br><span class="line">        System.out.println(&quot;默认在显示器上打印信息&quot;);</span><br><span class="line">        //可以修改Systen.out的打印方向</span><br><span class="line">        System.out.println(pStream);</span><br><span class="line">        System.out.println(&quot;这一行信息就不是在屏幕上显示，而是打印到pStream这个流中，即3.txt文件&quot;);</span><br><span class="line"></span><br><span class="line">        //3）经常把异常信息保存到日志文件中</span><br><span class="line">        try&#123;</span><br><span class="line">            FileInputStream fis = new FileInputStream(&quot;f:/asfas.txt&quot;);</span><br><span class="line">        &#125; catch (Exception e)&#123;</span><br><span class="line">            //在开发时，一般调用e.printStackTrace() 把异常信息打印到屏幕上方便程序员调试</span><br><span class="line">            //在部署后，会把异常信息打印到日志文件中</span><br><span class="line">            e.printStackTrace(pStream);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<h3 id="PrintWriter-字符打印流"><a href="#PrintWriter-字符打印流" class="headerlink" title="PrintWriter    字符打印流"></a>PrintWriter    字符打印流</h3><pre class="highlight"><span class="line">public class PrintDemo &#123;</span><br><span class="line">    public static void main(String[] args) throws IOException &#123;</span><br><span class="line">        PrintWriter pw = new PrintWriter(new FileWriter(&quot;c:/DCIM/3.txt&quot;));</span><br><span class="line">        pw.print(&quot;这是字符打印流&quot;);</span><br><span class="line">        try&#123;</span><br><span class="line">            FileInputStream fis = new FileInputStream(&quot;f:/3werwrf.txt&quot;);</span><br><span class="line">        &#125; catch(Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        pw.close();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+
+
+<h2 id="File类"><a href="#File类" class="headerlink" title="File类"></a>File类</h2><p>读取文件内容使用I/O流，操作文件/文件夹使用File类，如创建/遍历/删除文件夹，查看文件的相关属性等操作</p>
+<pre class="highlight"><span class="line">/**</span><br><span class="line"> * 创建File对象</span><br><span class="line"> */</span><br><span class="line">public class FileDemo &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws IOException &#123;</span><br><span class="line">        File f1 = new File(&quot;c:/DCIM/JAVA123&quot;);</span><br><span class="line">        f1.mkdir(); // 创建文件夹</span><br><span class="line"></span><br><span class="line">        File f2 = new File(&quot;c:/DCIM/JAVA123/sb1&quot;);</span><br><span class="line">        f2.mkdir();</span><br><span class="line"></span><br><span class="line">        File f3 = new File(&quot;c:/DCIM/JAVA123&quot;,&quot;sb2&quot;);</span><br><span class="line">        f3.createNewFile();</span><br><span class="line"></span><br><span class="line">        File f4 = new File(f2,&quot;sb3&quot;);</span><br><span class="line">        f4.createNewFile();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<pre class="highlight"><span class="line">/**</span><br><span class="line"> * 查看文件属性</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">public class FileShuxing &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        //File f1 = new File(&quot;c:/DCIM/2.txt&quot;);</span><br><span class="line">        File f1 = new File(&quot;2.txt&quot;);    //相对路径，要项目目录下的文件</span><br><span class="line"></span><br><span class="line">        System.out.println(f1.getAbsolutePath());   //返回绝对路径（从根目录开始的路径）</span><br><span class="line">        System.out.println(f1.getParent());   //  返回上一级文件夹</span><br><span class="line">        System.out.println(f1.getPath());   //  返回路径</span><br><span class="line">        System.out.println(f1.getName());      // 对象名</span><br><span class="line">        System.out.println(f1.length());    //文件大小</span><br><span class="line">        System.out.println(f1.exists());    //是否存在</span><br><span class="line">        System.out.println(f1.isFile());    //是否为文件</span><br><span class="line">        System.out.println(f1.isAbsolute());    //是否绝对路径</span><br><span class="line">        System.out.println(f1.lastModified());  // 最后一次修改的时间</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class WenjianJia&#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        listSub1(&quot;c:/DCIM&quot;);</span><br><span class="line">        listSub2(&quot;c:/DCIM&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //显示指定文件夹的内容</span><br><span class="line">    public static void listSub1(String dirname)&#123;</span><br><span class="line">            File dir = new File(dirname);</span><br><span class="line">            String[] subs = dir.list();</span><br><span class="line">        for (String s:subs</span><br><span class="line">             ) &#123;</span><br><span class="line">            System.out.println(s);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //显示绝对路径</span><br><span class="line">    public static void listSub2(String dirname)&#123;</span><br><span class="line">        File dir = new File(dirname);</span><br><span class="line">        File[] listFiles = dir.listFiles();</span><br><span class="line">        for (File file:listFiles</span><br><span class="line">             ) &#123;</span><br><span class="line">            System.out.println(file.getAbsolutePath());</span><br><span class="line">            //如果file对象时文件夹，显示该子文件夹的内容</span><br><span class="line">            if(file.isDirectory())&#123;</span><br><span class="line">                listSub2(file.getAbsolutePath());       //递归调用</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre>
+
+
+
+<h2 id="RandomAccessFile"><a href="#RandomAccessFile" class="headerlink" title="RandomAccessFile"></a>RandomAccessFile</h2><p>是Java输入/输出体系中功能最丰富的文件内容访问类</p>
+<p>支持随机访问的方式，程序可以直接跳转到文件的任意地方来读写数据</p>
+<p>RandomAccessFile体重了一个访问指针，而我们可以自由定位这个指针，程序若想已存在文件后追加内容，则应该使用RandowAccessFile</p>
+<h2 id="节点流-处理流"><a href="#节点流-处理流" class="headerlink" title="节点流/处理流"></a>节点流/处理流</h2><p>如果直接从设备（数据源）上读写数据就是节点流，处理流是对节点流的包装</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/08/09/IO%E6%B5%81/">http://www.codekop.com/2019/08/09/IO%E6%B5%81/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/08/10/HEXO%E5%8D%9A%E5%AE%A2%E7%9A%84%E6%90%AD%E5%BB%BA/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">HEXO博客的搭建 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/08/09/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%86%E8%A7%A3/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">冒泡排序的一些理解 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#I-O-%E6%B5%81"><span class="toc-text">I&#x2F;O 流</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E6%B5%81"><span class="toc-text">字节流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#InputStream-%E8%AF%BB"><span class="toc-text">InputStream    读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E8%BE%93%E5%85%A5%E6%B5%81"><span class="toc-text">文件输入流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OutputStream-%E5%86%99"><span class="toc-text">OutputStream    写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E8%BE%93%E5%87%BA%E6%B5%81"><span class="toc-text">文件输出流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E6%B5%81%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6"><span class="toc-text">字节流文件复制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E6%B5%81"><span class="toc-text">字符流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E6%B5%81%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6"><span class="toc-text">字符流文件复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AC%E6%8D%A2%E6%B5%81"><span class="toc-text">转换流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%86%B2%E6%B5%81"><span class="toc-text">缓冲流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E6%B5%81"><span class="toc-text">对象流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">打印流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PrintStream-%E5%AD%97%E8%8A%82%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">PrintStream    字节打印流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PrintWriter-%E5%AD%97%E7%AC%A6%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">PrintWriter    字符打印流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#File%E7%B1%BB"><span class="toc-text">File类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RandomAccessFile"><span class="toc-text">RandomAccessFile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E6%B5%81-%E5%A4%84%E7%90%86%E6%B5%81"><span class="toc-text">节点流&#x2F;处理流</span></a></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#I-O-%E6%B5%81"><span class="toc-text">I&#x2F;O 流</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E6%B5%81"><span class="toc-text">字节流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#InputStream-%E8%AF%BB"><span class="toc-text">InputStream    读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E8%BE%93%E5%85%A5%E6%B5%81"><span class="toc-text">文件输入流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OutputStream-%E5%86%99"><span class="toc-text">OutputStream    写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E8%BE%93%E5%87%BA%E6%B5%81"><span class="toc-text">文件输出流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E6%B5%81%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6"><span class="toc-text">字节流文件复制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E6%B5%81"><span class="toc-text">字符流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E6%B5%81%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6"><span class="toc-text">字符流文件复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AC%E6%8D%A2%E6%B5%81"><span class="toc-text">转换流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%86%B2%E6%B5%81"><span class="toc-text">缓冲流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E6%B5%81"><span class="toc-text">对象流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">打印流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PrintStream-%E5%AD%97%E8%8A%82%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">PrintStream    字节打印流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PrintWriter-%E5%AD%97%E7%AC%A6%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">PrintWriter    字符打印流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#File%E7%B1%BB"><span class="toc-text">File类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RandomAccessFile"><span class="toc-text">RandomAccessFile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E6%B5%81-%E5%A4%84%E7%90%86%E6%B5%81"><span class="toc-text">节点流&#x2F;处理流</span></a></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#I-O-%E6%B5%81"><span class="toc-text">I&#x2F;O 流</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E6%B5%81"><span class="toc-text">字节流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#InputStream-%E8%AF%BB"><span class="toc-text">InputStream    读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E8%BE%93%E5%85%A5%E6%B5%81"><span class="toc-text">文件输入流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OutputStream-%E5%86%99"><span class="toc-text">OutputStream    写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E8%BE%93%E5%87%BA%E6%B5%81"><span class="toc-text">文件输出流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E6%B5%81%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6"><span class="toc-text">字节流文件复制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E6%B5%81"><span class="toc-text">字符流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E6%B5%81%E6%96%87%E4%BB%B6%E5%A4%8D%E5%88%B6"><span class="toc-text">字符流文件复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AC%E6%8D%A2%E6%B5%81"><span class="toc-text">转换流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%86%B2%E6%B5%81"><span class="toc-text">缓冲流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E6%B5%81"><span class="toc-text">对象流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">打印流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PrintStream-%E5%AD%97%E8%8A%82%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">PrintStream    字节打印流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PrintWriter-%E5%AD%97%E7%AC%A6%E6%89%93%E5%8D%B0%E6%B5%81"><span class="toc-text">PrintWriter    字符打印流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#File%E7%B1%BB"><span class="toc-text">File类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RandomAccessFile"><span class="toc-text">RandomAccessFile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E6%B5%81-%E5%A4%84%E7%90%86%E6%B5%81"><span class="toc-text">节点流&#x2F;处理流</span></a></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

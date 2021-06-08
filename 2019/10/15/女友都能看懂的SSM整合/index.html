@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>女友都能看懂的SSM整合</title>
+  
+  
+  <meta property="og:title" content="女友都能看懂的SSM整合">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/index.html">
+  
+  
+  <meta property="og:img" content="/img/head2.png">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;SSM整合&#34;&gt;&lt;a href=&#34;#SSM整合&#34; class=&#34;headerlink&#34; title=&#34;SSM整合&#34;&gt;&lt;/a&gt;SSM整合&lt;/h1&gt;&lt;h2 id=&#34;1-创建java项目&#34;&gt;&lt;a href=&#34;#1-创建java项目&#34; class=&#34;headerlink&#34; title=&#34;1. 创建java项目&#34;&gt;&lt;/a&gt;1. 创建java项目&lt;/h2&gt;&lt;h2 id=&#34;2-创建maven-module-要选webapp&#34;&gt;&lt;a href=&#34;#2-创建maven-module-要选webapp&#34; class=&#34;headerlink&#34; title=&#34;2. 创建maven module 要选webapp&#34;&gt;&lt;/a&gt;2. 创建maven module 要选webapp&lt;/h2&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-10-15">
+  <meta property="og:article:modified_time" content="2019-10-15">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      女友都能看懂的SSM整合
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-10-15T09:57:25.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-10-15</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>2.4k 字</span>
+    
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="SSM整合"><a href="#SSM整合" class="headerlink" title="SSM整合"></a>SSM整合</h1><h2 id="1-创建java项目"><a href="#1-创建java项目" class="headerlink" title="1. 创建java项目"></a>1. 创建java项目</h2><h2 id="2-创建maven-module-要选webapp"><a href="#2-创建maven-module-要选webapp" class="headerlink" title="2. 创建maven module 要选webapp"></a>2. 创建maven module 要选webapp</h2><span id="more"></span>
+
+<h2 id="3-pom除了依赖-没用的模板的东西都删了"><a href="#3-pom除了依赖-没用的模板的东西都删了" class="headerlink" title="3. pom除了依赖 没用的模板的东西都删了"></a>3. pom除了依赖 没用的模板的东西都删了</h2><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091109.png" class="lozad post-image"src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091109.png"></p>
+<h2 id="4-建文件夹"><a href="#4-建文件夹" class="headerlink" title="4. 建文件夹"></a>4. 建文件夹</h2><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091324.png" class="lozad post-image"src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091324.png"></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091438.png" class="lozad post-image"src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091438.png"></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091522.png" class="lozad post-image"src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091522.png"></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091551.png" class="lozad post-image"src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907091551.png"></p>
+<p>然后ok</p>
+<h2 id="5-添加pom依赖"><a href="#5-添加pom依赖" class="headerlink" title="5. 添加pom依赖"></a>5. 添加pom依赖</h2><h3 id="添加properties"><a href="#添加properties" class="headerlink" title="添加properties"></a>添加properties</h3><pre class="highlight"><span class="line">&lt;properties&gt;</span><br><span class="line">        &lt;spring.version&gt;5.1.5.RELEASE&lt;/spring.version&gt;</span><br><span class="line">        &lt;commons.logging&gt;1.2&lt;/commons.logging&gt;</span><br><span class="line"></span><br><span class="line">        &lt;mybatis&gt;3.5.2&lt;/mybatis&gt;</span><br><span class="line">        &lt;mysql.connector&gt;5.1.47&lt;/mysql.connector&gt;</span><br><span class="line">        &lt;log4j&gt;1.2.17&lt;/log4j&gt;</span><br><span class="line"></span><br><span class="line">        &lt;mybatis.spring&gt;2.0.1&lt;/mybatis.spring&gt;</span><br><span class="line"></span><br><span class="line">        &lt;druid.version&gt;1.1.16&lt;/druid.version&gt;</span><br><span class="line"></span><br><span class="line">    &lt;/properties&gt;</span><br><span class="line"></span><br></pre>
+
+<h3 id="添加spring-mybatis依赖还有build"><a href="#添加spring-mybatis依赖还有build" class="headerlink" title="添加spring mybatis依赖还有build"></a>添加spring mybatis依赖还有build</h3><pre class="highlight"><span class="line">&lt;dependencies&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;junit&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;junit&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;4.11&lt;/version&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-context&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;spring.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">        &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;</span><br><span class="line">        &lt;version&gt;$&#123;spring.version&#125;&lt;/version&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-aspects&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;spring.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;commons-logging&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;commons-logging&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;commons.logging&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.mybatis&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mybatis&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;mybatis&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java --&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;mysql&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;mysql.connector&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;!-- https://mvnrepository.com/artifact/log4j/log4j --&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;log4j&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;log4j&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;log4j&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring --&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.mybatis&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mybatis-spring&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;mybatis.spring&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;!-- https://mvnrepository.com/artifact/com.alibaba/druid --&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;druid&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;druid.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;/dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;resources&gt;</span><br><span class="line">            &lt;resource&gt;</span><br><span class="line">                &lt;directory&gt;src/main/java&lt;/directory&gt;</span><br><span class="line">                &lt;!--此配置不可缺，否则mybatis的Mapper.xml将会丢失--&gt;</span><br><span class="line">                &lt;!--&lt;includes&gt;--&gt;</span><br><span class="line">                &lt;!--换成你所在xml文件的所在路径--&gt;</span><br><span class="line">                &lt;!--&lt;include&gt;com/elife/mapper/*.xml&lt;/include&gt;--&gt;</span><br><span class="line">                &lt;!--&lt;/includes&gt;--&gt;</span><br><span class="line">            &lt;/resource&gt;</span><br><span class="line">            &lt;!--指定资源的位置--&gt;</span><br><span class="line">            &lt;resource&gt;</span><br><span class="line">                &lt;directory&gt;src/main/resources&lt;/directory&gt;</span><br><span class="line">            &lt;/resource&gt;</span><br><span class="line">        &lt;/resources&gt;</span><br><span class="line">    &lt;/build&gt;</span><br></pre>
+
+<h3 id="添加springmvc依赖"><a href="#添加springmvc依赖" class="headerlink" title="添加springmvc依赖"></a>添加springmvc依赖</h3><pre class="highlight"><span class="line">&lt;dependency&gt;</span><br><span class="line">      &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">      &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;</span><br><span class="line">      &lt;version&gt;$&#123;spring.version&#125;&lt;/version&gt;</span><br><span class="line">      &lt;scope&gt;compile&lt;/scope&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- https://mvnrepository.com/artifact/javax.servlet/servlet-api --&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">      &lt;groupId&gt;javax.servlet&lt;/groupId&gt;</span><br><span class="line">      &lt;artifactId&gt;servlet-api&lt;/artifactId&gt;</span><br><span class="line">      &lt;version&gt;2.5&lt;/version&gt;</span><br><span class="line">      &lt;scope&gt;provided&lt;/scope&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">      &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;</span><br><span class="line">      &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;</span><br><span class="line">      &lt;version&gt;2.9.8&lt;/version&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br></pre>
+
+
+
+<h2 id="6-改web-xml"><a href="#6-改web-xml" class="headerlink" title="6. 改web.xml"></a>6. 改web.xml</h2><h3 id="添加springmvc核心控制器"><a href="#添加springmvc核心控制器" class="headerlink" title="添加springmvc核心控制器"></a>添加springmvc核心控制器</h3><pre class="highlight"><span class="line">&lt;!--核心/前端 控制器--&gt;</span><br><span class="line">  &lt;servlet&gt;</span><br><span class="line">    &lt;servlet-name&gt;dispatcher&lt;/servlet-name&gt;</span><br><span class="line">    &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;  &lt;!-- 应用启动时，加载servlet --&gt;</span><br><span class="line"></span><br><span class="line">    &lt;init-param&gt;</span><br><span class="line">      &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;</span><br><span class="line">      &lt;param-value&gt;classpath:dispatcher-servlet.xml&lt;/param-value&gt;</span><br><span class="line">    &lt;/init-param&gt;</span><br><span class="line"></span><br><span class="line">    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;</span><br><span class="line"></span><br><span class="line">  &lt;/servlet&gt;</span><br><span class="line">  &lt;servlet-mapping&gt;</span><br><span class="line">    &lt;!-- 约定优于配置，  Spring MVC框架默认加载/WEB-INF/&lt;servlet-name/&gt;开头-servlet.xml（即dispatcher-servlet.xml）作为配置文件载入Web工程中--&gt;</span><br><span class="line">    &lt;servlet-name&gt;dispatcher&lt;/servlet-name&gt;</span><br><span class="line">    &lt;!-- 拦截配置 --&gt;</span><br><span class="line">    &lt;url-pattern&gt;*.do&lt;/url-pattern&gt;</span><br><span class="line">  &lt;/servlet-mapping&gt;</span><br></pre>
+
+<h3 id="添加spring的xml"><a href="#添加spring的xml" class="headerlink" title="添加spring的xml"></a>添加spring的xml</h3><h4 id="resources下建xml"><a href="#resources下建xml" class="headerlink" title="resources下建xml"></a>resources下建xml</h4><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907094210.png" class="lozad post-image"src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907094210.png"></p>
+<h4 id="1-spring-dao-xml-用来配置数据库"><a href="#1-spring-dao-xml-用来配置数据库" class="headerlink" title="1.spring-dao.xml    用来配置数据库"></a>1.spring-dao.xml    用来配置数据库</h4><pre class="highlight"><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;</span><br><span class="line">       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">       xmlns:context=&quot;http://www.springframework.org/schema/context&quot;</span><br><span class="line">       xmlns:aop=&quot;http://www.springframework.org/schema/aop&quot;</span><br><span class="line">       xmlns:mybatis=&quot;http://mybatis.org/schema/mybatis-spring&quot;</span><br><span class="line">       xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;</span><br><span class="line"></span><br><span class="line">       xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans</span><br><span class="line">http://www.springframework.org/schema/beans/spring-beans.xsd</span><br><span class="line"> http://www.springframework.org/schema/context</span><br><span class="line"> http://www.springframework.org/schema/context/spring-context.xsd</span><br><span class="line"> http://www.springframework.org/schema/aop</span><br><span class="line"> http://www.springframework.org/schema/aop/spring-aop.xsd</span><br><span class="line">http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd</span><br><span class="line">http://www.springframework.org/schema/tx</span><br><span class="line"> http://www.springframework.org/schema/tx/spring-tx.xsd</span><br><span class="line"></span><br><span class="line">&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 注解与xml配置混合使用  相当于@CompomentScan--&gt;</span><br><span class="line">    &lt;context:component-scan base-package=&quot;com.elife.mapper&quot;&gt;&lt;/context:component-scan&gt;</span><br><span class="line">    &lt;!-- 扫描接口，与其同名的xml文件 映射文件--&gt;</span><br><span class="line">    &lt;mybatis:scan base-package=&quot;com.elife.mapper&quot;&gt;&lt;/mybatis:scan&gt;</span><br><span class="line">    &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;&gt;&lt;/context:property-placeholder&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;!-- 配置druid数据源连接池 --&gt;</span><br><span class="line">    &lt;bean id=&quot;dataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot; destroy-method=&quot;close&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;url&quot; value=&quot;$&#123;jdbc.url&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;username&quot; value=&quot;$&#123;jdbc.username&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;password&quot; value=&quot;$&#123;jdbc.password&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;filters&quot; value=&quot;$&#123;jdbc.filters&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;maxActive&quot; value=&quot;$&#123;jdbc.maxActive&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;initialSize&quot; value=&quot;$&#123;jdbc.initialSize&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;maxWait&quot; value=&quot;$&#123;jdbc.maxWait&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;minIdle&quot; value=&quot;$&#123;jdbc.minIdle&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;timeBetweenEvictionRunsMillis&quot; value=&quot;$&#123;jdbc.timeBetweenEvictionRunsMillis&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;minEvictableIdleTimeMillis&quot; value=&quot;$&#123;jdbc.minEvictableIdleTimeMillis&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;validationQuery&quot; value=&quot;$&#123;jdbc.validationQuery&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;testWhileIdle&quot; value=&quot;$&#123;jdbc.testWhileIdle&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;testOnBorrow&quot; value=&quot;$&#123;jdbc.testOnBorrow&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;testOnReturn&quot; value=&quot;$&#123;jdbc.testOnReturn&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;poolPreparedStatements&quot; value=&quot;$&#123;jdbc.poolPreparedStatements&#125;&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;maxPoolPreparedStatementPerConnectionSize&quot; value=&quot;$&#123;jdbc.maxPoolPreparedStatementPerConnectionSize&#125;&quot; /&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;bean id=&quot;sqlSessionFactory&quot; class=&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;</span><br><span class="line">        &lt;property name=&quot;configLocation&quot; value=&quot;classpath:mybatis-config.xml&quot;&gt;&lt;/property&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre>
+
+<h4 id="2-spring-service-xml-用来配置事务"><a href="#2-spring-service-xml-用来配置事务" class="headerlink" title="2.spring-service.xml  用来配置事务"></a>2.spring-service.xml  用来配置事务</h4><pre class="highlight"><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;</span><br><span class="line">       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">       xmlns:context=&quot;http://www.springframework.org/schema/context&quot;</span><br><span class="line">       xmlns:aop=&quot;http://www.springframework.org/schema/aop&quot;</span><br><span class="line">       xmlns:mybatis=&quot;http://mybatis.org/schema/mybatis-spring&quot;</span><br><span class="line">       xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;</span><br><span class="line"></span><br><span class="line">       xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans</span><br><span class="line">http://www.springframework.org/schema/beans/spring-beans.xsd</span><br><span class="line"> http://www.springframework.org/schema/context</span><br><span class="line"> http://www.springframework.org/schema/context/spring-context.xsd</span><br><span class="line"> http://www.springframework.org/schema/aop</span><br><span class="line"> http://www.springframework.org/schema/aop/spring-aop.xsd</span><br><span class="line">http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd</span><br><span class="line">http://www.springframework.org/schema/tx</span><br><span class="line"> http://www.springframework.org/schema/tx/spring-tx.xsd</span><br><span class="line"></span><br><span class="line">&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 注解与xml配置混合使用  相当于@CompomentScan--&gt;</span><br><span class="line">    &lt;context:component-scan base-package=&quot;com.elife.service.impl&quot;&gt;&lt;/context:component-scan&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 使用注解驱动 --&gt;</span><br><span class="line">    &lt;tx:annotation-driven transaction-manager=&quot;transactionManager&quot;&gt;&lt;/tx:annotation-driven&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;!--配置事务管理器--&gt;</span><br><span class="line">    &lt;bean id=&quot;transactionManager&quot;</span><br><span class="line">          class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;&gt;&lt;/property&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;tx:advice id=&quot;tx_advice&quot; transaction-manager=&quot;transactionManager&quot;&gt;</span><br><span class="line">    &lt;tx:attributes&gt;</span><br><span class="line">    &lt;tx:method name=&quot;find*&quot; read-only=&quot;true&quot; /&gt;</span><br><span class="line">    &lt;tx:method name=&quot;get*&quot; read-only=&quot;true&quot; /&gt;</span><br><span class="line">    &lt;tx:method name=&quot;query*&quot; read-only=&quot;true&quot; /&gt;</span><br><span class="line">    &lt;/tx:attributes&gt;</span><br><span class="line">    &lt;/tx:advice&gt;</span><br><span class="line"></span><br><span class="line">    &lt;aop:config&gt;</span><br><span class="line">    &lt;aop:pointcut expression=&quot;execution(* com.elife.service.impl.*.*(..))&quot;</span><br><span class="line">    id=&quot;tx_pc&quot; /&gt;</span><br><span class="line">    &lt;aop:advisor advice-ref=&quot;tx_advice&quot; pointcut-ref=&quot;tx_pc&quot;/&gt;</span><br><span class="line">    &lt;/aop:config&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre>
+
+<h4 id="3-spring-web-xml-用来配置springmvc"><a href="#3-spring-web-xml-用来配置springmvc" class="headerlink" title="3.spring-web.xml  用来配置springmvc"></a>3.spring-web.xml  用来配置springmvc</h4><pre class="highlight"><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;</span><br><span class="line">       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;</span><br><span class="line">       xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;</span><br><span class="line">       xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd</span><br><span class="line">http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd</span><br><span class="line">http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- 启用Springmvc注解驱动 --&gt;</span><br><span class="line">    &lt;mvc:annotation-driven /&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &lt;!-- 配置扫描注解的包 --&gt;</span><br><span class="line">    &lt;context:component-scan base-package=&quot;com.elife.controller&quot;&gt;&lt;/context:component-scan&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!--视图解析器，对controller返回的地址加上前缀与后缀，为其实际的转发地址--&gt;</span><br><span class="line">    &lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;</span><br><span class="line">        &lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/jsp/&quot;&gt;&lt;/property&gt;</span><br><span class="line">        &lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot;&gt;&lt;/property&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line"></span><br><span class="line">&lt;/beans&gt;</span><br></pre>
+
+
+
+<h2 id="7-测试"><a href="#7-测试" class="headerlink" title="7. 测试"></a>7. 测试</h2><h3 id="1-写controller"><a href="#1-写controller" class="headerlink" title="1. 写controller"></a>1. 写controller</h3><pre class="highlight"><span class="line">package com.elife.controller;</span><br><span class="line"></span><br><span class="line">import org.springframework.stereotype.Controller;</span><br><span class="line">import org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line"></span><br><span class="line">@Controller</span><br><span class="line">public class RoleController &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @RequestMapping(&quot;test&quot;)</span><br><span class="line">    public String test()&#123;</span><br><span class="line">        return &quot;test&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<h3 id="2-建个jsp"><a href="#2-建个jsp" class="headerlink" title="2.建个jsp"></a>2.建个jsp</h3><pre class="highlight"><span class="line">&lt;%--</span><br><span class="line">  Created by IntelliJ IDEA.</span><br><span class="line">  User: CodeKop</span><br><span class="line">  Date: 2019/9/7</span><br><span class="line">  Time: 10:23</span><br><span class="line">  To change this template use File | Settings | File Templates.</span><br><span class="line">--%&gt;</span><br><span class="line">&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; language=&quot;java&quot; %&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Title&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">测试通过</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"></span><br><span class="line"></span><br></pre>
+
+<h3 id="3-发布"><a href="#3-发布" class="headerlink" title="3. 发布"></a>3. 发布</h3><p>访问<code>http://localhost:8080/ssmbook/test.do</code>，测试通过</p>
+<h2 id="8-逆向工程"><a href="#8-逆向工程" class="headerlink" title="8. 逆向工程"></a>8. 逆向工程</h2><h3 id="1-新建Module，什么都不用选"><a href="#1-新建Module，什么都不用选" class="headerlink" title="1.新建Module，什么都不用选"></a>1.新建Module，什么都不用选</h3><h3 id="2-添加pom依赖"><a href="#2-添加pom依赖" class="headerlink" title="2.添加pom依赖"></a>2.添加pom依赖</h3><pre class="highlight"><span class="line">&lt;dependencies&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.mybatis&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mybatis&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;3.5.2&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;mysql&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;5.1.47&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">    &lt;/dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;plugins&gt;</span><br><span class="line">            &lt;!--配置Mybatis反向代理的插件--&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.mybatis.generator&lt;/groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;mybatis-generator-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">                &lt;version&gt;1.3.2&lt;/version&gt;</span><br><span class="line">                &lt;configuration&gt;</span><br><span class="line">                    &lt;verbose&gt;true&lt;/verbose&gt;</span><br><span class="line">                    &lt;overwrite&gt;true&lt;/overwrite&gt;</span><br><span class="line">                &lt;/configuration&gt;</span><br><span class="line">                &lt;!--Exception getting JDBC Driver: com.mysql.jdbc.Driver，添加此处代码解决--&gt;</span><br><span class="line">                &lt;dependencies&gt;</span><br><span class="line">                    &lt;dependency&gt;</span><br><span class="line">                        &lt;groupId&gt;mysql&lt;/groupId&gt;</span><br><span class="line">                        &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;</span><br><span class="line">                        &lt;version&gt;5.1.47&lt;/version&gt;</span><br><span class="line">                    &lt;/dependency&gt;</span><br><span class="line">                &lt;/dependencies&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line"></span><br><span class="line">        &lt;/plugins&gt;</span><br><span class="line">    &lt;/build&gt;</span><br><span class="line"></span><br></pre>
+
+<h3 id="3-逆向工程"><a href="#3-逆向工程" class="headerlink" title="3. 逆向工程"></a>3. 逆向工程</h3><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907104402.png" class="lozad post-image"src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907104402.png"></p>
+<h3 id="4-把对应文件都粘过去"><a href="#4-把对应文件都粘过去" class="headerlink" title="4. 把对应文件都粘过去"></a>4. 把对应文件都粘过去</h3><p>最后的项目结构：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907151231.png" class="lozad post-image"src="/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/QQ%E6%88%AA%E5%9B%BE20190907151231.png"></p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/">http://www.codekop.com/2019/10/15/%E5%A5%B3%E5%8F%8B%E9%83%BD%E8%83%BD%E7%9C%8B%E6%87%82%E7%9A%84SSM%E6%95%B4%E5%90%88/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/15/MySQL%E4%BA%8B%E5%8A%A1/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">MySQL事务 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/10/15/SpringMVC%E6%B5%81%E7%A8%8B/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">SpringMVC流程 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SSM%E6%95%B4%E5%90%88"><span class="toc-text">SSM整合</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BAjava%E9%A1%B9%E7%9B%AE"><span class="toc-text">1. 创建java项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BAmaven-module-%E8%A6%81%E9%80%89webapp"><span class="toc-text">2. 创建maven module 要选webapp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-pom%E9%99%A4%E4%BA%86%E4%BE%9D%E8%B5%96-%E6%B2%A1%E7%94%A8%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%9A%84%E4%B8%9C%E8%A5%BF%E9%83%BD%E5%88%A0%E4%BA%86"><span class="toc-text">3. pom除了依赖 没用的模板的东西都删了</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%BB%BA%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-text">4. 建文件夹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%B7%BB%E5%8A%A0pom%E4%BE%9D%E8%B5%96"><span class="toc-text">5. 添加pom依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0properties"><span class="toc-text">添加properties</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0spring-mybatis%E4%BE%9D%E8%B5%96%E8%BF%98%E6%9C%89build"><span class="toc-text">添加spring mybatis依赖还有build</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0springmvc%E4%BE%9D%E8%B5%96"><span class="toc-text">添加springmvc依赖</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%94%B9web-xml"><span class="toc-text">6. 改web.xml</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0springmvc%E6%A0%B8%E5%BF%83%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-text">添加springmvc核心控制器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0spring%E7%9A%84xml"><span class="toc-text">添加spring的xml</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#resources%E4%B8%8B%E5%BB%BAxml"><span class="toc-text">resources下建xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-spring-dao-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">1.spring-dao.xml    用来配置数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-spring-service-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AE%E4%BA%8B%E5%8A%A1"><span class="toc-text">2.spring-service.xml  用来配置事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-spring-web-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AEspringmvc"><span class="toc-text">3.spring-web.xml  用来配置springmvc</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%B5%8B%E8%AF%95"><span class="toc-text">7. 测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%86%99controller"><span class="toc-text">1. 写controller</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%BB%BA%E4%B8%AAjsp"><span class="toc-text">2.建个jsp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8F%91%E5%B8%83"><span class="toc-text">3. 发布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B"><span class="toc-text">8. 逆向工程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%96%B0%E5%BB%BAModule%EF%BC%8C%E4%BB%80%E4%B9%88%E9%83%BD%E4%B8%8D%E7%94%A8%E9%80%89"><span class="toc-text">1.新建Module，什么都不用选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B7%BB%E5%8A%A0pom%E4%BE%9D%E8%B5%96"><span class="toc-text">2.添加pom依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B"><span class="toc-text">3. 逆向工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%8A%8A%E5%AF%B9%E5%BA%94%E6%96%87%E4%BB%B6%E9%83%BD%E7%B2%98%E8%BF%87%E5%8E%BB"><span class="toc-text">4. 把对应文件都粘过去</span></a></li></ol></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SSM%E6%95%B4%E5%90%88"><span class="toc-text">SSM整合</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BAjava%E9%A1%B9%E7%9B%AE"><span class="toc-text">1. 创建java项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BAmaven-module-%E8%A6%81%E9%80%89webapp"><span class="toc-text">2. 创建maven module 要选webapp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-pom%E9%99%A4%E4%BA%86%E4%BE%9D%E8%B5%96-%E6%B2%A1%E7%94%A8%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%9A%84%E4%B8%9C%E8%A5%BF%E9%83%BD%E5%88%A0%E4%BA%86"><span class="toc-text">3. pom除了依赖 没用的模板的东西都删了</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%BB%BA%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-text">4. 建文件夹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%B7%BB%E5%8A%A0pom%E4%BE%9D%E8%B5%96"><span class="toc-text">5. 添加pom依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0properties"><span class="toc-text">添加properties</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0spring-mybatis%E4%BE%9D%E8%B5%96%E8%BF%98%E6%9C%89build"><span class="toc-text">添加spring mybatis依赖还有build</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0springmvc%E4%BE%9D%E8%B5%96"><span class="toc-text">添加springmvc依赖</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%94%B9web-xml"><span class="toc-text">6. 改web.xml</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0springmvc%E6%A0%B8%E5%BF%83%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-text">添加springmvc核心控制器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0spring%E7%9A%84xml"><span class="toc-text">添加spring的xml</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#resources%E4%B8%8B%E5%BB%BAxml"><span class="toc-text">resources下建xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-spring-dao-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">1.spring-dao.xml    用来配置数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-spring-service-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AE%E4%BA%8B%E5%8A%A1"><span class="toc-text">2.spring-service.xml  用来配置事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-spring-web-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AEspringmvc"><span class="toc-text">3.spring-web.xml  用来配置springmvc</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%B5%8B%E8%AF%95"><span class="toc-text">7. 测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%86%99controller"><span class="toc-text">1. 写controller</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%BB%BA%E4%B8%AAjsp"><span class="toc-text">2.建个jsp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8F%91%E5%B8%83"><span class="toc-text">3. 发布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B"><span class="toc-text">8. 逆向工程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%96%B0%E5%BB%BAModule%EF%BC%8C%E4%BB%80%E4%B9%88%E9%83%BD%E4%B8%8D%E7%94%A8%E9%80%89"><span class="toc-text">1.新建Module，什么都不用选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B7%BB%E5%8A%A0pom%E4%BE%9D%E8%B5%96"><span class="toc-text">2.添加pom依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B"><span class="toc-text">3. 逆向工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%8A%8A%E5%AF%B9%E5%BA%94%E6%96%87%E4%BB%B6%E9%83%BD%E7%B2%98%E8%BF%87%E5%8E%BB"><span class="toc-text">4. 把对应文件都粘过去</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SSM%E6%95%B4%E5%90%88"><span class="toc-text">SSM整合</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BAjava%E9%A1%B9%E7%9B%AE"><span class="toc-text">1. 创建java项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BAmaven-module-%E8%A6%81%E9%80%89webapp"><span class="toc-text">2. 创建maven module 要选webapp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-pom%E9%99%A4%E4%BA%86%E4%BE%9D%E8%B5%96-%E6%B2%A1%E7%94%A8%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%9A%84%E4%B8%9C%E8%A5%BF%E9%83%BD%E5%88%A0%E4%BA%86"><span class="toc-text">3. pom除了依赖 没用的模板的东西都删了</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%BB%BA%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-text">4. 建文件夹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%B7%BB%E5%8A%A0pom%E4%BE%9D%E8%B5%96"><span class="toc-text">5. 添加pom依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0properties"><span class="toc-text">添加properties</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0spring-mybatis%E4%BE%9D%E8%B5%96%E8%BF%98%E6%9C%89build"><span class="toc-text">添加spring mybatis依赖还有build</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0springmvc%E4%BE%9D%E8%B5%96"><span class="toc-text">添加springmvc依赖</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%94%B9web-xml"><span class="toc-text">6. 改web.xml</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0springmvc%E6%A0%B8%E5%BF%83%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-text">添加springmvc核心控制器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0spring%E7%9A%84xml"><span class="toc-text">添加spring的xml</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#resources%E4%B8%8B%E5%BB%BAxml"><span class="toc-text">resources下建xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-spring-dao-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">1.spring-dao.xml    用来配置数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-spring-service-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AE%E4%BA%8B%E5%8A%A1"><span class="toc-text">2.spring-service.xml  用来配置事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-spring-web-xml-%E7%94%A8%E6%9D%A5%E9%85%8D%E7%BD%AEspringmvc"><span class="toc-text">3.spring-web.xml  用来配置springmvc</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%B5%8B%E8%AF%95"><span class="toc-text">7. 测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%86%99controller"><span class="toc-text">1. 写controller</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%BB%BA%E4%B8%AAjsp"><span class="toc-text">2.建个jsp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8F%91%E5%B8%83"><span class="toc-text">3. 发布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B"><span class="toc-text">8. 逆向工程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%96%B0%E5%BB%BAModule%EF%BC%8C%E4%BB%80%E4%B9%88%E9%83%BD%E4%B8%8D%E7%94%A8%E9%80%89"><span class="toc-text">1.新建Module，什么都不用选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B7%BB%E5%8A%A0pom%E4%BE%9D%E8%B5%96"><span class="toc-text">2.添加pom依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B"><span class="toc-text">3. 逆向工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%8A%8A%E5%AF%B9%E5%BA%94%E6%96%87%E4%BB%B6%E9%83%BD%E7%B2%98%E8%BF%87%E5%8E%BB"><span class="toc-text">4. 把对应文件都粘过去</span></a></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

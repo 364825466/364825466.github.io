@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>AJAX页面跳转时不刷新</title>
+  
+  
+  <meta property="og:title" content="AJAX页面跳转时不刷新">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/10/15/AJAX%E9%A1%B5%E9%9D%A2%E8%B7%B3%E8%BD%AC%E6%97%B6%E4%B8%8D%E5%88%B7%E6%96%B0/index.html">
+  
+  
+  <meta property="og:img" content="/img/head2.png">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;AJAX页面跳转时不刷新&#34;&gt;&lt;a href=&#34;#AJAX页面跳转时不刷新&#34; class=&#34;headerlink&#34; title=&#34;AJAX页面跳转时不刷新&#34;&gt;&lt;/a&gt;AJAX页面跳转时不刷新&lt;/h1&gt;&lt;p&gt;做项目时订单页面和订单详情页面跳转时，页面没有刷新，再手动刷新一下就都出来了&lt;/p&gt;
+&lt;p&gt;订单页跳转&lt;/p&gt;
+&lt;figure class=&#34;highlight plaintext&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;&amp;lt;span class=&amp;quot;list_cz&amp;quot;&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;      &amp;lt;a class=&amp;quot;infoorder&amp;quot; href=&amp;quot;localhost:8080/userhtml/orderdetail.html?orderId=$&amp;#123;result.data[i].orderFormId&amp;#125;&amp;quot; &amp;gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;      查看订单&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;      &amp;lt;/a&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt; &amp;lt;/span&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-10-15">
+  <meta property="og:article:modified_time" content="2020-07-29">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="bug">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      AJAX页面跳转时不刷新
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-10-15T10:02:43.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-10-15</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>340 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/bug/" class="post-meta-link">bug</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="AJAX页面跳转时不刷新"><a href="#AJAX页面跳转时不刷新" class="headerlink" title="AJAX页面跳转时不刷新"></a>AJAX页面跳转时不刷新</h1><p>做项目时订单页面和订单详情页面跳转时，页面没有刷新，再手动刷新一下就都出来了</p>
+<p>订单页跳转</p>
+<pre class="highlight"><span class="line">&lt;span class=&quot;list_cz&quot;&gt;</span><br><span class="line">      &lt;a class=&quot;infoorder&quot; href=&quot;localhost:8080/userhtml/orderdetail.html?orderId=$&#123;result.data[i].orderFormId&#125;&quot; &gt;</span><br><span class="line">      查看订单</span><br><span class="line">      &lt;/a&gt;</span><br><span class="line"> &lt;/span&gt;</span><br></pre>
+
+
+
+<span id="more"></span>
+
+<h2 id><a href="#" class="headerlink" title></a></h2><p>订单详情ajax</p>
+<pre class="highlight"><span class="line">&lt;script&gt;</span><br><span class="line">				// 从url上拿参数</span><br><span class="line">               $.getUrlParam = function (name) &#123;</span><br><span class="line">                   var reg = new RegExp(&quot;(^|&amp;)&quot; + name + &quot;=([^&amp;]*)(&amp;|$)&quot;);</span><br><span class="line">                   var r = window.location.search.substr(1).match(reg);</span><br><span class="line">                   if (r != null) return unescape(r[2]); return null;</span><br><span class="line">               &#125;</span><br><span class="line"></span><br><span class="line">               var orderId = $.getUrlParam(&#x27;orderId&#x27;)</span><br><span class="line">            </span><br><span class="line">                    $.ajax(&#123;</span><br><span class="line">                        type:&quot;POST&quot;,</span><br><span class="line">                        url:&quot;http://localhost:8080/order/selectOrderByOrderId&quot;,</span><br><span class="line">                        data:&#123;</span><br><span class="line">                            orderId:orderId,</span><br><span class="line">                        &#125;,</span><br><span class="line">                        dataType:&quot;json&quot;,</span><br><span class="line"></span><br><span class="line">                        success:function (result) &#123;</span><br><span class="line">                            if(result.code==1)&#123;</span><br><span class="line">                                alert(result.message)</span><br><span class="line">                            &#125; else &#123;</span><br><span class="line"></span><br><span class="line">                                $(&quot;#allmoney&quot;).html(result.data.originPrice)</span><br><span class="line">                                $(&quot;#orderid&quot;).html(result.data.orderFormNumber)</span><br><span class="line">                                $(&quot;#orderstatus&quot;).html(result.data.orderFormStatus)</span><br><span class="line">                                $(&quot;#hotelName&quot;).html(result.data.hotelName)</span><br><span class="line">                                $(&quot;#hotelposition&quot;).html(result.data.hotelPositon)</span><br><span class="line">                                $(&quot;#hotelPhoneNumber&quot;).html(result.data.hotelPhoneNumber)</span><br><span class="line">                                $(&quot;#ruzhuname&quot;).html(result.data.userName)</span><br><span class="line">                                $(&quot;#userTel&quot;).html(result.data.userPhoneNumber)</span><br><span class="line">                                $(&quot;#startTime&quot;).html(result.data.arriveDate)</span><br><span class="line">                                $(&quot;#endTime&quot;).html(result.data.leaveDate)</span><br><span class="line">                                $(&quot;#roomName&quot;).html(result.data.hotelRoomName)</span><br><span class="line"></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;)</span><br><span class="line"></span><br><span class="line">       &lt;/script&gt;</span><br></pre>
+
+<p>询问了大佬之后，发现是一个很小的问题</p>
+<p><strong>跳转的时候没有加http！</strong></p>
+<p>改了订单页url，加上http://</p>
+<pre class="highlight"><span class="line">&lt;span class=&quot;list_cz&quot;&gt;</span><br><span class="line">    &lt;a class=&quot;infoorder&quot; href=&quot;http://localhost:8080/userhtml/orderdetail.html?orderId=$&#123;result.data[i].orderFormId&#125;&quot; &gt;</span><br><span class="line">    查看订单</span><br><span class="line">    &lt;/a&gt;</span><br><span class="line">&lt;/span&gt;</span><br></pre>
+
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/10/15/AJAX%E9%A1%B5%E9%9D%A2%E8%B7%B3%E8%BD%AC%E6%97%B6%E4%B8%8D%E5%88%B7%E6%96%B0/">http://www.codekop.com/2019/10/15/AJAX%E9%A1%B5%E9%9D%A2%E8%B7%B3%E8%BD%AC%E6%97%B6%E4%B8%8D%E5%88%B7%E6%96%B0/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/15/AJAX%E5%9C%A8%E4%B8%8D%E5%90%8Chtml%E9%A1%B5%E9%9D%A2%E4%B9%8B%E9%97%B4%E7%9A%84%E4%BC%A0%E5%80%BC/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">AJAX在不同html页面之间的传值 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/10/15/MySQL%E4%BA%8B%E5%8A%A1/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">MySQL事务 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#AJAX%E9%A1%B5%E9%9D%A2%E8%B7%B3%E8%BD%AC%E6%97%B6%E4%B8%8D%E5%88%B7%E6%96%B0"><span class="toc-text">AJAX页面跳转时不刷新</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text"></span></a></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#AJAX%E9%A1%B5%E9%9D%A2%E8%B7%B3%E8%BD%AC%E6%97%B6%E4%B8%8D%E5%88%B7%E6%96%B0"><span class="toc-text">AJAX页面跳转时不刷新</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text"></span></a></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#AJAX%E9%A1%B5%E9%9D%A2%E8%B7%B3%E8%BD%AC%E6%97%B6%E4%B8%8D%E5%88%B7%E6%96%B0"><span class="toc-text">AJAX页面跳转时不刷新</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text"></span></a></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

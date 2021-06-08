@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>初识HTTP</title>
+  
+  
+  <meta property="og:title" content="初识HTTP">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/08/23/%E5%88%9D%E8%AF%86HTTP/index.html">
+  
+  
+  <meta property="og:img" content="/blogImg/初识HTTP/http.jpg">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;Http&#34;&gt;&lt;a href=&#34;#Http&#34; class=&#34;headerlink&#34; title=&#34;Http&#34;&gt;&lt;/a&gt;Http&lt;/h1&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-08-23">
+  <meta property="og:article:modified_time" content="2021-06-07">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="网络">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<div class="image-wrapper">
+  <img src="/blogImg/初识HTTP/http.jpg" data-src="/blogImg/初识HTTP/http.jpg"
+    srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
+    class="image lozad"
+    alt="thumbnail"
+  >
+</div>
+
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      初识HTTP
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-08-23T00:56:36.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-08-23</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>656 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/" class="post-meta-link">网络</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="Http"><a href="#Http" class="headerlink" title="Http"></a>Http</h1><span id="more"></span>
+
+<ul>
+<li>定义：超文本传输协议</li>
+<li>作用：规范了浏览器和服务器数据交互的格式，没有也可以，但是会阻碍互联网的发展</li>
+<li>特点：简单快捷灵活 无连接无状态 1.1版本支持可持续连接</li>
+</ul>
+<h2 id="交互流程"><a href="#交互流程" class="headerlink" title="交互流程"></a>交互流程</h2><ol>
+<li>客户端和服务端建立简介</li>
+<li>发送请求：客户端发送请求到服务器端（HTTP协议）</li>
+<li>接收响应：服务端接收到请求后，进行处理，然后将处理结果相应客户端（HTTP协议）</li>
+<li>关闭客户端和服务器端的连接（HTTP1.1后不会立即关闭）</li>
+</ol>
+<h3 id="HTTP协议请求格式"><a href="#HTTP协议请求格式" class="headerlink" title="HTTP协议请求格式"></a>HTTP协议请求格式</h3><ul>
+<li>请求头：请求方式（get/post…）请求的地址和HTTP协议版本</li>
+<li>请求行：消息包头，一般用来说明客户端要使用的一切附加信息</li>
+<li>空行：位于请求行和请求数据之间，空行是必须的 </li>
+<li>请求数据：非必须</li>
+</ul>
+<h3 id="get和post请求方式的区别"><a href="#get和post请求方式的区别" class="headerlink" title="get和post请求方式的区别"></a>get和post请求方式的区别</h3><ul>
+<li><p>get</p>
+<p>请求数据会以？的形式隔开拼接在请求头中，不安全，没有请求实体部分。</p>
+<p>HTTP协议虽然没有规定请求数据的大小，但是浏览器对URL的长度是有限制的，所以get请求不能携带大量的数据。</p>
+<p>如果传输数据小，对安全没有要求，用get，效率高。</p>
+</li>
+<li><p>post</p>
+<p>请求数据在请求实体中进行发送，在URL中看不到具体的请求数据，安全。适合数据量大的数据发送。</p>
+</li>
+</ul>
+<h2 id="HTTP协议之响应"><a href="#HTTP协议之响应" class="headerlink" title="HTTP协议之响应"></a>HTTP协议之响应</h2><h3 id="响应格式的结构："><a href="#响应格式的结构：" class="headerlink" title="响应格式的结构："></a>响应格式的结构：</h3><ul>
+<li>响应行：HTTP版本，状态码，状态信息</li>
+<li>响应头：消息报头，客户端使用的附加信息</li>
+<li>空行：响应头和响应实体之间的，必须的</li>
+<li>响应实体：正文，服务器返回给浏览器的信息</li>
+</ul>
+<h3 id="HTTP常见响应状态码"><a href="#HTTP常见响应状态码" class="headerlink" title="HTTP常见响应状态码"></a>HTTP常见响应状态码</h3><p>HTTP状态码由三个十进制数字组成，第一个十进制数字定义了状态码的类型，后两个数字没有分类的作用。HTTP状态码共分为5种类型</p>
+<ol>
+<li><p>**信息，服务器收到请求，需要请求者继续执行操作</p>
+</li>
+<li><p>**成功，操作被成功接收并处理</p>
+</li>
+<li><p>**重定向，需要进一步的操作以完成请求</p>
+</li>
+<li><p>**客户端错误，请求包含语法错误或无法完成请求</p>
+</li>
+<li><p>**服务器错误，服务器在处理请求的过程中发生了错误</p>
+</li>
+</ol>
+<p>常见的HTTP状态码</p>
+<ul>
+<li>200 – 请求成功</li>
+<li>301 – 资源(网页等)被永久转移到其它URL</li>
+<li>404 – 请求的资源(网页等)不存在</li>
+<li>500 – 内部服务器错误</li>
+</ul>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/08/23/%E5%88%9D%E8%AF%86HTTP/">http://www.codekop.com/2019/08/23/%E5%88%9D%E8%AF%86HTTP/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/15/Java%E5%86%85%E5%AD%98%E5%88%86%E6%9E%90/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">Java内存分析 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/08/10/HEXO%E5%8D%9A%E5%AE%A2%E7%9A%84%E6%90%AD%E5%BB%BA/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">HEXO博客的搭建 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Http"><span class="toc-text">Http</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E6%B5%81%E7%A8%8B"><span class="toc-text">交互流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E8%AF%B7%E6%B1%82%E6%A0%BC%E5%BC%8F"><span class="toc-text">HTTP协议请求格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#get%E5%92%8Cpost%E8%AF%B7%E6%B1%82%E6%96%B9%E5%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">get和post请求方式的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E4%B9%8B%E5%93%8D%E5%BA%94"><span class="toc-text">HTTP协议之响应</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%8D%E5%BA%94%E6%A0%BC%E5%BC%8F%E7%9A%84%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="toc-text">响应格式的结构：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%B8%B8%E8%A7%81%E5%93%8D%E5%BA%94%E7%8A%B6%E6%80%81%E7%A0%81"><span class="toc-text">HTTP常见响应状态码</span></a></li></ol></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Http"><span class="toc-text">Http</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E6%B5%81%E7%A8%8B"><span class="toc-text">交互流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E8%AF%B7%E6%B1%82%E6%A0%BC%E5%BC%8F"><span class="toc-text">HTTP协议请求格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#get%E5%92%8Cpost%E8%AF%B7%E6%B1%82%E6%96%B9%E5%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">get和post请求方式的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E4%B9%8B%E5%93%8D%E5%BA%94"><span class="toc-text">HTTP协议之响应</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%8D%E5%BA%94%E6%A0%BC%E5%BC%8F%E7%9A%84%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="toc-text">响应格式的结构：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%B8%B8%E8%A7%81%E5%93%8D%E5%BA%94%E7%8A%B6%E6%80%81%E7%A0%81"><span class="toc-text">HTTP常见响应状态码</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Http"><span class="toc-text">Http</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E6%B5%81%E7%A8%8B"><span class="toc-text">交互流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E8%AF%B7%E6%B1%82%E6%A0%BC%E5%BC%8F"><span class="toc-text">HTTP协议请求格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#get%E5%92%8Cpost%E8%AF%B7%E6%B1%82%E6%96%B9%E5%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">get和post请求方式的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E4%B9%8B%E5%93%8D%E5%BA%94"><span class="toc-text">HTTP协议之响应</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%8D%E5%BA%94%E6%A0%BC%E5%BC%8F%E7%9A%84%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="toc-text">响应格式的结构：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%B8%B8%E8%A7%81%E5%93%8D%E5%BA%94%E7%8A%B6%E6%80%81%E7%A0%81"><span class="toc-text">HTTP常见响应状态码</span></a></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

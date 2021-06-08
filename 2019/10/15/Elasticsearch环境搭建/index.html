@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>Elasticsearch环境搭建</title>
+  
+  
+  <meta property="og:title" content="Elasticsearch环境搭建">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
+  
+  
+  <meta property="og:img" content="/blogImg/Elasticsearch环境搭建/es1.jpg">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;Elasticsearch简介与环境搭建&#34;&gt;&lt;a href=&#34;#Elasticsearch简介与环境搭建&#34; class=&#34;headerlink&#34; title=&#34;Elasticsearch简介与环境搭建&#34;&gt;&lt;/a&gt;Elasticsearch简介与环境搭建&lt;/h1&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-10-15">
+  <meta property="og:article:modified_time" content="2021-06-07">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="es">
+  
+  <meta property="og:article:tag" content="技术分享">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<div class="image-wrapper">
+  <img src="/blogImg/Elasticsearch环境搭建/es1.jpg" data-src="/blogImg/Elasticsearch环境搭建/es1.jpg"
+    srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
+    class="image lozad"
+    alt="thumbnail"
+  >
+</div>
+
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      Elasticsearch环境搭建
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-10-15T10:37:42.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-10-15</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>1.5k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/es/" class="post-meta-link">es</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" class="post-meta-link">技术分享</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="Elasticsearch简介与环境搭建"><a href="#Elasticsearch简介与环境搭建" class="headerlink" title="Elasticsearch简介与环境搭建"></a>Elasticsearch简介与环境搭建</h1><span id="more"></span>
+
+<h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>ElasticSearch是一个分布式，高性能、高可用、可伸缩的搜索和分析系统，</p>
+<p>根据DB-Engines的排名显示，Elasticsearch是最受欢迎的企业搜索引擎，其次是Apache Solr，也是基于Lucene。</p>
+<h3 id="1、什么是搜索"><a href="#1、什么是搜索" class="headerlink" title="1、什么是搜索"></a>1、什么是搜索</h3><p>​        百度、Google：我们想寻找一个我们喜欢的电影或者书籍就会去百度或者Google搜索一下。<br>​        互联网搜索：电商搜索商品，招聘网站搜索简历或者岗位<br>​        IT系统的搜索：员工管理搜索，会议管理搜索</p>
+<h3 id="2-如果用数据库做搜索会怎么样"><a href="#2-如果用数据库做搜索会怎么样" class="headerlink" title="2.如果用数据库做搜索会怎么样"></a>2.如果用数据库做搜索会怎么样</h3><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20180909004141702.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20180909004141702.png"></p>
+<h3 id="3-正常的sql搜索存在的问题："><a href="#3-正常的sql搜索存在的问题：" class="headerlink" title="3.正常的sql搜索存在的问题："></a>3.正常的sql搜索存在的问题：</h3><ol>
+<li>如果表记录上千万上亿了这个性能问题，另外一个如果有一个本文字段要在里面模糊配置，这个就会出现严重的性能问题</li>
+<li>还不能将搜索词拆分开来，比如上面这个只能搜索名字是“张三”开头的员工，如果想搜出“张小三”那是搜索不出来的。<br>总体来说，用数据库来实现搜索，是不太靠谱的，通常性能也会很差</li>
+</ol>
+<h3 id="3、什么是全文检索、倒排索引和Lucene"><a href="#3、什么是全文检索、倒排索引和Lucene" class="headerlink" title="3、什么是全文检索、倒排索引和Lucene"></a>3、什么是全文检索、倒排索引和Lucene</h3><p>举个简单的例子：比如最近上映的热剧（碟中谍6:全面瓦解），我们想搜索一下全面瓦解这个电视剧，可是在输入的过程，不小心输入了”全瓦解”，我们看看百度这个返回了什么，百度返回的结果确实是我想要找到的内容</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20180909004215809.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20180909004215809.png"></p>
+<h5 id="全文检索"><a href="#全文检索" class="headerlink" title="全文检索"></a><strong>全文检索</strong></h5><p>就比较好理解的，就是当我们输入“全瓦解”,会被拆分成”全”，“瓦解”2个此，用2个词去倒排索引里面去检索数据，检索到的数据返回。整个过程就叫做全文检索</p>
+<h5 id="倒排索引"><a href="#倒排索引" class="headerlink" title="倒排索引"></a>倒排索引</h5><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20180909004248772-1569049548968.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20180909004248772-1569049548968.png"></p>
+<p>如果这个用数据库的思维来做的话，假如一共100W的记录，按照之前的思路就是扫描100W次，而且每次扫描，都需要匹配那个文本所有的字符，确认是否包含搜索的关键词，而且还不能将搜索词拆解来进行检索<br>如果是利用倒排索引的话，假设还是100W，拆分出来的词语，假设有1000W个词语，那么在倒排索引中，就有1000W行。我们可能不需要检索1000W词，有可能检索1次，就能找到我们需要的数据，也有可能是100W次，也有可能是1000W次<br><strong>这就是为什么我们命名搜索的是全瓦解，事实上只是按照瓦解搜索的，因为全在倒排索引中没有存在</strong></p>
+<h3 id="4、ElasticSearch的应用场景"><a href="#4、ElasticSearch的应用场景" class="headerlink" title="4、ElasticSearch的应用场景"></a>4、ElasticSearch的应用场景</h3><ol>
+<li>维基百科</li>
+<li>The Guardian（国外新闻网站）</li>
+<li>Stack Overflow（国外的程序异常讨论论坛）</li>
+<li>GitHub（开源代码管理）</li>
+<li>电商网站</li>
+<li>日志数据分析</li>
+<li>商品价格监控网站</li>
+<li>BI系统</li>
+<li>站内搜索</li>
+</ol>
+<h3 id="5-ElasticSearch的功能"><a href="#5-ElasticSearch的功能" class="headerlink" title="5.ElasticSearch的功能"></a>5.ElasticSearch的功能</h3><p>分布式的搜索引擎和数据分析引擎<br>搜索：网站的站内搜索，IT系统的检索<br>数据分析：电商网站，统计销售排名前10的商家<br>全文检索，结构化检索，数据分析<br>全文检索：我想搜索商品名称包含某个关键字的商品<br>结构化检索：我想搜索商品分类为日化用品的商品都有哪些<br>数据分析：我们分析每一个商品分类下有多少个商品<br>对海量数据进行近实时的处理<br>分布式：ES自动可以将海量数据分散到多台服务器上去存储和检索<br>海联数据的处理：分布式以后，就可以采用大量的服务器去存储和检索数据，自然而然就可以实现海量数据的处理了<br>近实时：检索数据要花费1小时（这就不要近实时，离线批处理，batch-processing）；在秒级别对数据进行搜索和分析</p>
+<h2 id="二、环境搭建"><a href="#二、环境搭建" class="headerlink" title="二、环境搭建"></a>二、环境搭建</h2><h4 id="1-安装Elasticsearch主文件"><a href="#1-安装Elasticsearch主文件" class="headerlink" title="1.安装Elasticsearch主文件"></a>1.安装Elasticsearch主文件</h4><p>​        <strong>（1）Elasticsearch无需安装，解压即用。</strong></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105202421458.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105202421458.png"></p>
+<p>​        </p>
+<p>​        <strong>（2）进入elasticsearch/bin目录，可以看到下面的执行文件：双击运行，等全部加载完</strong></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105202706272.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105202706272.png"></p>
+<p>​        <img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105202919584.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105202919584.png"></p>
+<p>可以看到绑定了两个端口:</p>
+<ul>
+<li>9300：Java程序访问的端口</li>
+<li>9200：浏览器、postman访问的端口</li>
+</ul>
+<p><strong>（3）我们在浏览器中访问：</strong>[<a href="http://127.0.0.1:9200![](./Elasticsearch环境搭建/1569050207778.png)">http://127.0.0.1:9200![](./Elasticsearch环境搭建/1569050207778.png)</a></p>
+<p>看到了上面的信息，说明你的Elasticsearch已经安装成功了</p>
+<p><strong>(4)配置</strong></p>
+<pre class="highlight"><span class="line">http.cors.enabled: true </span><br><span class="line">http.cors.allow-origin: &quot;*&quot;</span><br><span class="line">node.master: true</span><br><span class="line">node.data: true</span><br></pre>
+
+<p>然后去掉network.host: 192.168.0.1的注释并改为network.host: 0.0.0.0，</p>
+<p>去掉cluster.name；node.name；http.port的注释（也就是去掉#）</p>
+<p>第二步：关掉之前的命令提示符双击bin路径下的elasticsearch.bat重启Elasticsearch</p>
+<p>正常启动并且可以通过<a href="http://127.0.0.1:9200访问即配置成功">http://127.0.0.1:9200访问即配置成功</a></p>
+<h4 id="2-配置Elasticsearch的客户端工具"><a href="#2-配置Elasticsearch的客户端工具" class="headerlink" title="2.配置Elasticsearch的客户端工具"></a><strong>2.配置Elasticsearch的客户端工具</strong></h4><p><strong>（1）安装node.js</strong></p>
+<p><strong><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569050540708.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569050540708.png"></strong></p>
+<p><strong>安装完成用cmd进入安装目录执行 node -v可查看版本号</strong></p>
+<p>..</p>
+<p><strong>执行 npm install -g grunt-cli 安装grunt ，安装完成后执行grunt -version查看是否安装成功，会显示安装的版本号</strong></p>
+<p><strong><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105204508178.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105204508178.png"></strong></p>
+<p><strong>（2）解压安装包：</strong></p>
+<p><strong><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569050356044.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569050356044.png"></strong></p>
+<p><strong>（3）修改Gruntfile.js</strong></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569051553325.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569051553325.png"></p>
+<p><strong>（4）在对应的位置加上hostname:’*’、</strong><br><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105204808857.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105204808857.png"></p>
+<p>（5）在命令提示符进入该文件夹根目录例：D:\environment\elasticsearch-head-master </p>
+<pre class="highlight"><span class="line">执行npm install </span><br></pre>
+
+<p>（6）</p>
+<pre class="highlight"><span class="line">执行npm run start 运行head插件，如果运行不成功建议重新安装grunt</span><br></pre>
+
+<p>（7）打开浏览器访问：<a target="_blank" rel="noopener" href="http://127.0.0.1:9100/">http://127.0.0.1:9100</a>健康值为绿色即成功</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569052174332.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569052174332.png"></p>
+<h3 id="3-安装Ik分词器"><a href="#3-安装Ik分词器" class="headerlink" title="3 .安装Ik分词器"></a>3 .安装Ik分词器</h3><p>ElasticSearch 默认采用的分词器， 是单个字分词 ，效果很差 ，所以我们需要安装一个更实用的分词器，这里采用IK分词器    </p>
+<p>（1）解压到Elasticsearch主文件下plugins下的一个新建文件夹，我们起名为ik</p>
+<p>例：解压到D:\elasticsearch-6.2.4\plugins\ik</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569052296532.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/1569052296532.png"></p>
+<p>（2）重启elasticsearch主文件和客户端工具</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105210213492.png" class="lozad post-image"src="/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/20181105210213492.png"></p>
+<p>正常能通过</p>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1:9200/">http://127.0.0.1:9200/</a>访问</p>
+<p>且</p>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1:9100/">http://127.0.0.1:9100/</a>健康值仍为绿色，成功</p>
+<p>——————来自技术分享，张博文</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">http://www.codekop.com/2019/10/15/Elasticsearch%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/15/Elasticsearch-head%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">Elasticsearch-head插件使用 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/10/15/MongoDB%E9%85%8D%E7%BD%AE/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">MongoDB配置 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Elasticsearch%E7%AE%80%E4%BB%8B%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">Elasticsearch简介与环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="toc-text">一、简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E6%90%9C%E7%B4%A2"><span class="toc-text">1、什么是搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%A6%82%E6%9E%9C%E7%94%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%81%9A%E6%90%9C%E7%B4%A2%E4%BC%9A%E6%80%8E%E4%B9%88%E6%A0%B7"><span class="toc-text">2.如果用数据库做搜索会怎么样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%AD%A3%E5%B8%B8%E7%9A%84sql%E6%90%9C%E7%B4%A2%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="toc-text">3.正常的sql搜索存在的问题：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E5%85%A8%E6%96%87%E6%A3%80%E7%B4%A2%E3%80%81%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95%E5%92%8CLucene"><span class="toc-text">3、什么是全文检索、倒排索引和Lucene</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%A8%E6%96%87%E6%A3%80%E7%B4%A2"><span class="toc-text">全文检索</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="toc-text">倒排索引</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81ElasticSearch%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">4、ElasticSearch的应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-ElasticSearch%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-text">5.ElasticSearch的功能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">二、环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85Elasticsearch%E4%B8%BB%E6%96%87%E4%BB%B6"><span class="toc-text">1.安装Elasticsearch主文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AEElasticsearch%E7%9A%84%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B7%A5%E5%85%B7"><span class="toc-text">2.配置Elasticsearch的客户端工具</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85Ik%E5%88%86%E8%AF%8D%E5%99%A8"><span class="toc-text">3 .安装Ik分词器</span></a></li></ol></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Elasticsearch%E7%AE%80%E4%BB%8B%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">Elasticsearch简介与环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="toc-text">一、简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E6%90%9C%E7%B4%A2"><span class="toc-text">1、什么是搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%A6%82%E6%9E%9C%E7%94%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%81%9A%E6%90%9C%E7%B4%A2%E4%BC%9A%E6%80%8E%E4%B9%88%E6%A0%B7"><span class="toc-text">2.如果用数据库做搜索会怎么样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%AD%A3%E5%B8%B8%E7%9A%84sql%E6%90%9C%E7%B4%A2%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="toc-text">3.正常的sql搜索存在的问题：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E5%85%A8%E6%96%87%E6%A3%80%E7%B4%A2%E3%80%81%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95%E5%92%8CLucene"><span class="toc-text">3、什么是全文检索、倒排索引和Lucene</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%A8%E6%96%87%E6%A3%80%E7%B4%A2"><span class="toc-text">全文检索</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="toc-text">倒排索引</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81ElasticSearch%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">4、ElasticSearch的应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-ElasticSearch%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-text">5.ElasticSearch的功能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">二、环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85Elasticsearch%E4%B8%BB%E6%96%87%E4%BB%B6"><span class="toc-text">1.安装Elasticsearch主文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AEElasticsearch%E7%9A%84%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B7%A5%E5%85%B7"><span class="toc-text">2.配置Elasticsearch的客户端工具</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85Ik%E5%88%86%E8%AF%8D%E5%99%A8"><span class="toc-text">3 .安装Ik分词器</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Elasticsearch%E7%AE%80%E4%BB%8B%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">Elasticsearch简介与环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="toc-text">一、简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E6%90%9C%E7%B4%A2"><span class="toc-text">1、什么是搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%A6%82%E6%9E%9C%E7%94%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%81%9A%E6%90%9C%E7%B4%A2%E4%BC%9A%E6%80%8E%E4%B9%88%E6%A0%B7"><span class="toc-text">2.如果用数据库做搜索会怎么样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%AD%A3%E5%B8%B8%E7%9A%84sql%E6%90%9C%E7%B4%A2%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="toc-text">3.正常的sql搜索存在的问题：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E5%85%A8%E6%96%87%E6%A3%80%E7%B4%A2%E3%80%81%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95%E5%92%8CLucene"><span class="toc-text">3、什么是全文检索、倒排索引和Lucene</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%A8%E6%96%87%E6%A3%80%E7%B4%A2"><span class="toc-text">全文检索</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="toc-text">倒排索引</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81ElasticSearch%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">4、ElasticSearch的应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-ElasticSearch%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-text">5.ElasticSearch的功能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">二、环境搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85Elasticsearch%E4%B8%BB%E6%96%87%E4%BB%B6"><span class="toc-text">1.安装Elasticsearch主文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AEElasticsearch%E7%9A%84%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B7%A5%E5%85%B7"><span class="toc-text">2.配置Elasticsearch的客户端工具</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85Ik%E5%88%86%E8%AF%8D%E5%99%A8"><span class="toc-text">3 .安装Ik分词器</span></a></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

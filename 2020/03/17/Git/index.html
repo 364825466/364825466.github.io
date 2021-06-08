@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>git详细教程</title>
+  
+  
+  <meta property="og:title" content="git详细教程">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2020/03/17/Git/index.html">
+  
+  
+  <meta property="og:img" content="/blogImg/Git/1.jfif">
+  
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2020-03-17">
+  <meta property="og:article:modified_time" content="2021-06-07">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="技术分享">
+  
+  <meta property="og:article:tag" content="git">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<div class="image-wrapper">
+  <img src="/blogImg/Git/1.jfif" data-src="/blogImg/Git/1.jfif"
+    srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
+    class="image lozad"
+    alt="thumbnail"
+  >
+</div>
+
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      git详细教程
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2020-03-17T07:38:49.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2020-03-17</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>4.2k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" class="post-meta-link">技术分享</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/git/" class="post-meta-link">git</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <span id="more"></span>
+
+<h2 id="一、准备git环境"><a href="#一、准备git环境" class="headerlink" title="一、准备git环境"></a>一、准备git环境</h2><p>​            安装包下载地址：<a target="_blank" rel="noopener" href="https://git-scm.com/downloads">https://git-scm.com/downloads</a></p>
+<p>​            安装教程：</p>
+<p>​        <a target="_blank" rel="noopener" href="https://www.cnblogs.com/wj-1314/p/7993819.html">https://www.cnblogs.com/wj-1314/p/7993819.html</a></p>
+<h5 id="连接GitHub："><a href="#连接GitHub：" class="headerlink" title="连接GitHub："></a>连接GitHub：</h5><p>配置全局邮箱</p>
+<pre class="highlight"><span class="line">git config --global  user.email  GitHub上的邮箱地址</span><br></pre>
+
+<p><img src="/2020/03/17/Git/1564921250746.png" alt="1564921250746" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564921250746.png" class="lozad post-image"></p>
+<p>配置全局用户名</p>
+<pre class="highlight"><span class="line">git config --global user.name GitHub上的用户名</span><br></pre>
+
+<p><img src="/2020/03/17/Git/1564921257369.png" alt="1564921257369" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564921257369.png" class="lozad post-image"></p>
+<p>记住密码（push第一次输入密码之后就无须再输入了）</p>
+<pre class="highlight"><span class="line">git config --global credential.helper store</span><br></pre>
+
+
+
+
+
+<p>​            至此git已经与GitHub账号绑定</p>
+<h5 id="查看配置信息"><a href="#查看配置信息" class="headerlink" title="查看配置信息"></a>查看配置信息</h5><p>1、查看git配置信息</p>
+<p>git config –list</p>
+<p>2、查看git用户名</p>
+<p>git config user.name</p>
+<p>3、查看邮箱配置</p>
+<p>git config user.email</p>
+<h2 id="二、GitHub基本操作使用"><a href="#二、GitHub基本操作使用" class="headerlink" title="二、GitHub基本操作使用"></a>二、GitHub基本操作使用</h2><p>​            <a target="_blank" rel="noopener" href="https://github.com/">https://github.com</a></p>
+<h3 id="1、新建仓库"><a href="#1、新建仓库" class="headerlink" title="1、新建仓库"></a>1、新建仓库</h3><h4 id="（1）点击new新建一个仓库"><a href="#（1）点击new新建一个仓库" class="headerlink" title="（1）点击new新建一个仓库"></a>（1）点击new新建一个仓库</h4><p><img src="/2020/03/17/Git/GitHub1.png" alt="GitHub1" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/GitHub1.png" class="lozad post-image"></p>
+<h4 id="（2）点击根据提示完成仓库配置"><a href="#（2）点击根据提示完成仓库配置" class="headerlink" title="（2）点击根据提示完成仓库配置"></a>（2）点击根据提示完成仓库配置</h4><p><img src="/2020/03/17/Git/github2.png" alt="github2" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/github2.png" class="lozad post-image"></p>
+<h4 id="（3-获取地址，此地址为仓库地址"><a href="#（3-获取地址，此地址为仓库地址" class="headerlink" title="（3)获取地址，此地址为仓库地址"></a>（3)获取地址，此地址为仓库地址</h4><p><img src="/2020/03/17/Git/Github3.png" alt="Github3" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/Github3.png" class="lozad post-image"></p>
+<h2 id="2-GitHub权限控制"><a href="#2-GitHub权限控制" class="headerlink" title="2.GitHub权限控制"></a>2.GitHub权限控制</h2><ul>
+<li>Admin 管理者权限(只能 read、clone、push、给仓库添加成员 )</li>
+<li>Write 项目合作者写权限(只能 read、clone、push)</li>
+<li>Read 游客读权限(只能 read、clone) </li>
+</ul>
+<h5 id="设置某一分支的权限"><a href="#设置某一分支的权限" class="headerlink" title="设置某一分支的权限"></a>设置某一分支的权限</h5><p><img src="/2020/03/17/Git/Github6.png" alt="Github6" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/Github6.png" class="lozad post-image"></p>
+<p><img src="/2020/03/17/Git/Github7.png" alt="Github7" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/Github7.png" class="lozad post-image"></p>
+<h2 id="三、git的基本操作"><a href="#三、git的基本操作" class="headerlink" title="三、git的基本操作"></a>三、git的基本操作</h2><h3 id="状态分类"><a href="#状态分类" class="headerlink" title="状态分类"></a>状态分类</h3><ul>
+<li>未被Git跟踪的状态为unstage状态；</li>
+<li>已被Git跟踪的状态为stage状态（stage：阶段），因此包括staging状态和staged状态。</li>
+</ul>
+<p>​      untrack files：是指尚未被git所管理的文件；changed but not updated：是指文件被git管理，并且发生了改变，但改动还没被git管理；这两种状态，都可以看成是改动还没被git管理的状态，我们这里称unstage状态。<br>staging是commit和未管理之间的一个状态，也有别名叫index状态，也就是git已经管理了这些改动，但是还没完成提交。changes to be commited是指进入staged状态的文件。<br>.gitignore中的文件，不会出现在以上三个状态中。</p>
+<h3 id="1、创建版本库"><a href="#1、创建版本库" class="headerlink" title="1、创建版本库"></a>1、创建版本库</h3><p>本地新建一个文件夹作为本地的git仓库用来与Git交互</p>
+<p>进入到该路径</p>
+<p><img src="/2020/03/17/Git/git1.png" alt="git1" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/git1.png" class="lozad post-image"></p>
+<p>执行生成.git文件</p>
+<pre class="highlight"><span class="line">git init </span><br></pre>
+
+<p><img src="/2020/03/17/Git/git2.png" alt="git2" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/git2.png" class="lozad post-image"></p>
+<h3 id="2-管理仓库连接"><a href="#2-管理仓库连接" class="headerlink" title="2.管理仓库连接"></a>2.管理仓库连接</h3><h4 id="（1）连接一个需要连接的远程仓库"><a href="#（1）连接一个需要连接的远程仓库" class="headerlink" title="（1）连接一个需要连接的远程仓库"></a>（1）连接一个需要连接的远程仓库</h4><p><code>git remote add origin https://github.com/zhang09090606/test.git</code></p>
+<p>其中origin是作为本地的连接该仓库的连接名，以后使用该仓库可以直接使用origin</p>
+<h4 id="（2）查看本地的所有连接名称"><a href="#（2）查看本地的所有连接名称" class="headerlink" title="（2）查看本地的所有连接名称"></a>（2）查看本地的所有连接名称</h4><p><code>git remote</code>    </p>
+<p><img src="/2020/03/17/Git/git3.png" alt="git3" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/git3.png" class="lozad post-image"></p>
+<p>查看本地连接详细属性包括地址</p>
+<pre class="highlight"><span class="line">git remote -v</span><br></pre>
+
+<h3 id="3-提交项目到远程"><a href="#3-提交项目到远程" class="headerlink" title="3.提交项目到远程"></a>3.提交项目到远程</h3><p>需求：将这两个文件提交到远程</p>
+<p><img src="/2020/03/17/Git/git4.png" alt="git4" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/git4.png" class="lozad post-image"></p>
+<p>（1）git add 操作命令将文件内容添加到索引(将修改添加到暂存区)。也就是将要提交的文件的信息添加到索引库中。</p>
+<p>​        git add .            提交全部文件</p>
+<p>​        git add 文件名    提交指定文件</p>
+<h3 id="4-查看文件状态"><a href="#4-查看文件状态" class="headerlink" title="4.查看文件状态"></a>4.查看文件状态</h3><p>git status</p>
+<p> 未有add红色字体，未有commit绿色字体，已提交则worktree是干净的</p>
+<p><img src="/2020/03/17/Git/git5.png" alt="git5" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/git5.png" class="lozad post-image"></p>
+<h3 id="5-向版本库提交"><a href="#5-向版本库提交" class="headerlink" title="5.向版本库提交"></a>5.向版本库提交</h3><p>　git commit –m “XXXX”     #提交修改,添加注释</p>
+<p>​    </p>
+<h3 id="6-撤销修改"><a href="#6-撤销修改" class="headerlink" title="6.撤销修改"></a>6.撤销修改</h3><p>　（1）git reset  会将所有stage的文件状态，都改变成非stage状态。</p>
+<p>​    （2)git reset –hard sdv143kvf…… #可回到指定的版本#(hard后面为每次提交系统自</p>
+<p>动生成的一串哈希值)</p>
+<p>​      (3)git reset [path] 会改变path指定的文件或目录的stage状态，到非stage状态。</p>
+<p>​      (4)git reset –hard  #回到原来编辑的地方,改动会丢失。（同样适用于团队对于其他人</p>
+<p>的修改恢复）</p>
+<p>(5)撤销某次修改 回退1个change的写法就是git reset HEAD^，2个为HEAD^^，3个为HEAD~3，以此类推。</p>
+<h5 id="如果撤销错了怎么办？"><a href="#如果撤销错了怎么办？" class="headerlink" title="如果撤销错了怎么办？"></a>如果撤销错了怎么办？</h5><p>git reflog方法查看所有提交</p>
+<p><img src="/2020/03/17/Git/1564756460116.png" alt="1564756460116" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564756460116.png" class="lozad post-image"></p>
+<p>然后通过 上面的git reset –hard方法还原到指定提交的版本</p>
+<h3 id="7-查看版本信息"><a href="#7-查看版本信息" class="headerlink" title="7.查看版本信息"></a>7.查看版本信息</h3><p>git log    展示所有提交信息</p>
+<p>git log –oneline 查看每次commit的备注信息</p>
+<p><code>git log --name-status</code><br>找到对应版本号，执行后可以看到本次提交之前的所有修改文件。</p>
+<h5 id="删除log方法："><a href="#删除log方法：" class="headerlink" title="删除log方法："></a>删除log方法：</h5><p>常用的新建一个分支作为临时分支，然后删除原来的，然后把这个分支改名成原来的分支</p>
+<p>创建临时分支</p>
+<pre class="highlight"><span class="line">git checkout --orphan tmp</span><br></pre>
+
+<p>添加所需提交的文件</p>
+<pre class="highlight"><span class="line">git add -A</span><br></pre>
+
+<p>添加commit信息</p>
+<pre class="highlight"><span class="line">git commit -m &quot;Clean Log&quot;</span><br></pre>
+
+<p>删除master分支</p>
+<pre class="highlight"><span class="line">git branch -D master</span><br><span class="line"></span><br></pre>
+
+<p>更名分支</p>
+<pre class="highlight"><span class="line">git branch -m master</span><br><span class="line"></span><br></pre>
+
+<p>提交新的master分支代码</p>
+<pre class="highlight"><span class="line">git push -f origin master</span><br><span class="line"></span><br></pre>
+
+<h3 id="8-向远程仓库推送修改"><a href="#8-向远程仓库推送修改" class="headerlink" title="8.向远程仓库推送修改"></a>8.向远程仓库推送修改</h3><p>　git push 仓库的名称 远程分支名</p>
+<p><img src="/2020/03/17/Git/git6.png" alt="git6" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/git6.png" class="lozad post-image"></p>
+<h3 id="9-将远程项目合并到本地项目"><a href="#9-将远程项目合并到本地项目" class="headerlink" title="9.将远程项目合并到本地项目"></a>9.将远程项目合并到本地项目</h3><h4 id="git-pull方法"><a href="#git-pull方法" class="headerlink" title="git pull方法"></a>git pull方法</h4><p>将远程的分支合并到本地当前分支</p>
+<pre class="highlight"><span class="line">git pull origin 远程分支名</span><br><span class="line"></span><br></pre>
+
+<p>将远程的分支合并到本地指定分支</p>
+<pre class="highlight"><span class="line">git pull origin 本地指定分支名:远程分支名</span><br><span class="line"></span><br></pre>
+
+
+
+<h4 id="git-fetch方法"><a href="#git-fetch方法" class="headerlink" title="git fetch方法"></a>git fetch方法</h4><p>使用远程分支在本地创建分支(但不会切换到该分支),<br>如果本地不存在本地该名称分支, 则会自动创建一个新的本地分支,<br>如果本地存在该名称分支, 并且是可以快进合并, 则自动合并两个分支, 否则, 会阻止</p>
+<pre class="highlight"><span class="line">git fetch origin 远程分支名:本地分支名</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/git7.png" alt="git7" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/git7.png" class="lozad post-image"></p>
+<h4 id="git-pull-和-git-fetch-有什么区别"><a href="#git-pull-和-git-fetch-有什么区别" class="headerlink" title="git pull 和 git fetch 有什么区别"></a>git pull 和 git fetch 有什么区别</h4><p><code>git pull</code> 命令从中央存储库中提取特定分支的新更改或提交，并更新本地存储库中的目标分支。</p>
+<p><code>git fetch</code> 也用于相同的目的，但它的工作方式略有不同。当你执行 <code>git fetch</code> 时，它会从所需的分支中提取所有新提交，并将其存储在本地存储库中的新分支中。如果要在目标分支中反映这些更改，必须在 <code>git fetch</code> 之后执行<code>git merge</code>。只有在对目标分支和获取的分支进行合并后才会更新目标分支。为了方便起见，请记住以下等式：</p>
+<p>git pull = git fetch + git merge</p>
+<h3 id="10-从远程克隆项目"><a href="#10-从远程克隆项目" class="headerlink" title="10.从远程克隆项目"></a>10.从远程克隆项目</h3><pre class="highlight"><span class="line">git clone 远程路径</span><br><span class="line"></span><br></pre>
+
+
+
+<h4 id="git-clone与git-pull区别"><a href="#git-clone与git-pull区别" class="headerlink" title="git clone与git pull区别"></a>git clone与git pull区别</h4><p>从远程服务器克隆一个一模一样的版本库到本地,复制的是整个版本库，叫做clone.（clone是将一个库复制到你的本地，是一个本地从无到有的过程）<br>从远程服务器获取到一个branch分支的更新到本地，并更新本地库，叫做pull.（pull是指同步一个你在本地有版本的库内容更新的部分到你的本地库）</p>
+<h4 id><a href="#" class="headerlink" title></a></h4><h3 id="11-暂存"><a href="#11-暂存" class="headerlink" title="11.暂存"></a>11.暂存</h3><p>　　git stash可以把当前的改动（stage和unstage，但不包括untrack的文件）暂存。</p>
+<p>　　然后通过git stash list查看。</p>
+<p>​        git stash pop取出栈顶被储藏修改的元素</p>
+<p>　　并通过git stash apply重新取出来。但apply之前要保证worktree是干净的。</p>
+<h3 id="12-忽略设置"><a href="#12-忽略设置" class="headerlink" title="12.忽略设置"></a>12.忽略设置</h3><p>在项目开发中，我们使用git托管项目时往往会忽略一些不必要的文件或文件夹，下面我们来介绍下忽略文件和文件夹的</p>
+<p>（1）在版本库根目录右键选择git Bash here输入</p>
+<p>​            <code>touch .gitignore</code></p>
+<p>​        生成.gitignore文件</p>
+<p>（2）修改文件，添加忽略正则，书写例子如下：</p>
+<p><strong>注意：#为注释，正则中的*不要忘了加,最后不要忘了也要忽略.gitignore本身</strong></p>
+<pre class="highlight"><span class="line">#忽略.idea文件夹及文件夹下文件</span><br><span class="line">        .idea</span><br><span class="line"></span><br><span class="line">        #忽略以.iml结尾的文件</span><br><span class="line">        *.iml</span><br><span class="line"></span><br><span class="line">        # 忽略*.o和*.a文件</span><br><span class="line"></span><br><span class="line">        *.[oa]</span><br><span class="line"></span><br><span class="line">        # 忽略*.b和*.B文件，my.b除外</span><br><span class="line"></span><br><span class="line">        *.[bB]</span><br><span class="line"></span><br><span class="line">        !my.b</span><br><span class="line"></span><br><span class="line">        # 忽略dbg文件和dbg目录</span><br><span class="line"></span><br><span class="line">        dbg</span><br><span class="line"></span><br><span class="line">        # 只忽略dbg目录，不忽略dbg文件</span><br><span class="line"></span><br><span class="line">        dbg/</span><br><span class="line"></span><br><span class="line">        # 只忽略dbg文件，不忽略dbg目录</span><br><span class="line"></span><br><span class="line">        dbg</span><br><span class="line"></span><br><span class="line">        !dbg/</span><br><span class="line"></span><br><span class="line">        # 只忽略当前目录下的dbg文件和目录，子目录的dbg不在忽略范围内</span><br><span class="line"></span><br><span class="line">        /dbg</span><br><span class="line"></span><br><span class="line">        # 以&#x27;#&#x27;开始的行，被视为注释.</span><br><span class="line"></span><br><span class="line">        * ？：代表任意的一个字符</span><br><span class="line">        * ＊：代表任意数目的字符</span><br><span class="line">        * &#123;!ab&#125;：必须不是此类型</span><br><span class="line">        * &#123;ab,bb,cx&#125;：代表ab,bb,cx中任一类型即可</span><br><span class="line">        * [abc]：代表a,b,c中任一字符即可</span><br><span class="line">        * [ ^abc]：代表必须不是a,b,c中任一字符</span><br><span class="line"></span><br></pre>
+
+<h5 id="例："><a href="#例：" class="headerlink" title="例："></a>例：</h5><p><img src="/2020/03/17/Git/git8.png" alt="git8" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/git8.png" class="lozad post-image"></p>
+<h3 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h3><p><strong>提交流程：修改代码 -&gt; git add . -&gt; git commit -m “” -&gt; git push 仓库的名称 远程分支名</strong></p>
+<p><strong>从远程下载流程：全部拷贝git clone，仅合并分支git pull</strong></p>
+<h1 id="三、分支（branch）"><a href="#三、分支（branch）" class="headerlink" title="三、分支（branch）"></a>三、分支（<strong>branch</strong>）</h1><h2 id="1-定义"><a href="#1-定义" class="headerlink" title="1.定义"></a>1.定义</h2><p>书面版：几乎每一种版本控制系统都以某种形式支持分支。使用分支意味着你可以从开发主线上分离开来，然后在不影响主线的同时继续工作。</p>
+<p>白话版：分支就是把一个文件夹分层，虽然文件夹还是一个，但是切换到每一层都可以不一样，对其中一层操作时其他层不会受到影响</p>
+<h2 id="2-分支的应用："><a href="#2-分支的应用：" class="headerlink" title="2.分支的应用："></a>2.分支的应用：</h2><p>开发时我们从项目从远程端拷下来后，可以创建一个分支当做开发分支，然后切换到该分支进行开发开发测试完毕后再合并到主分支再提交，这样即便开发错了也不会对之前的版本造成任何影响，还可以创建多个分支，阶段测试等功能</p>
+<h2 id="3-git分支优点："><a href="#3-git分支优点：" class="headerlink" title="3.git分支优点："></a>3.git分支优点：</h2><p>创建新分支这一操作几乎能在瞬间完成，并且在不同分支之间的切换操作也是一样便捷。 与许多其它版本控制系统不同，Git 鼓励在工作流程中频繁地使用分支与合并，哪怕一天之内进行许多次</p>
+<h2 id="4-分支的基本操作"><a href="#4-分支的基本操作" class="headerlink" title="4.分支的基本操作"></a>4.分支的基本操作</h2><h3 id="（1）创建分支"><a href="#（1）创建分支" class="headerlink" title="（1）创建分支"></a>（1）创建分支</h3><p>​            </p>
+<pre class="highlight"><span class="line">git branch 分支名字</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/branch1.png" alt="branch1" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/branch1.png" class="lozad post-image"></p>
+<p>​            创建的分支会拷贝当前所在分支的所有文件</p>
+<h3 id="2-查看所有分支"><a href="#2-查看所有分支" class="headerlink" title="(2)查看所有分支"></a>(2)查看所有分支</h3><p>​    </p>
+<pre class="highlight"><span class="line">git branch</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/branch2.png" alt="branch2" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/branch2.png" class="lozad post-image"></p>
+<p>其中带*并且是绿色的就是当前所在分支</p>
+<h3 id="（3）切换分支："><a href="#（3）切换分支：" class="headerlink" title="（3）切换分支："></a>（3）切换分支：</h3><p>​    </p>
+<pre class="highlight"><span class="line">git checked 要切换到的分支名称</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/branch3.png" alt="branch3" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/branch3.png" class="lozad post-image"></p>
+<h2 id="注意事项！！！！"><a href="#注意事项！！！！" class="headerlink" title="注意事项！！！！"></a>注意事项！！！！</h2><p><strong>切换分支之前一定要将分支内的新建文件都git add+git commit，不然会直接同步到其他分支</strong>！！！</p>
+<h3 id="（4）删除分支："><a href="#（4）删除分支：" class="headerlink" title="（4）删除分支："></a>（4）删除分支：</h3><pre class="highlight"><span class="line">git branch -d 分支名</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/branch4.png" alt="branch4" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/branch4.png" class="lozad post-image"></p>
+<h3 id="（5）恢复删除的分支"><a href="#（5）恢复删除的分支" class="headerlink" title="（5）恢复删除的分支"></a>（5）恢复删除的分支</h3><pre class="highlight"><span class="line">git reflog</span><br><span class="line"></span><br></pre>
+
+<p>找到所有删除分支的散列值</p>
+<p><img src="/2020/03/17/Git/branch5.png" alt="branch5" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/branch5.png" class="lozad post-image"></p>
+<p>git branch 删除的分支名 HEAD@{对应的数字}</p>
+<p><img src="/2020/03/17/Git/branch6.png" alt="branch6" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/branch6.png" class="lozad post-image"></p>
+<h3 id="（6）清理提交对象"><a href="#（6）清理提交对象" class="headerlink" title="（6）清理提交对象"></a>（6）清理提交对象</h3><p>​    删除除了当前分支之外的所有提交</p>
+<pre class="highlight"><span class="line">git gc</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/branch7.png" alt="branch7" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/branch7.png" class="lozad post-image"></p>
+<h3 id="（7）合并分支"><a href="#（7）合并分支" class="headerlink" title="（7）合并分支"></a>（7）合并分支</h3><p>将此分支的所有不同的更改全部合并到当前分支</p>
+<pre class="highlight"><span class="line">git merge branch1</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/branch8.png" alt="branch8" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/branch8.png" class="lozad post-image"></p>
+<h2 id="四、冲突"><a href="#四、冲突" class="headerlink" title="四、冲突"></a>四、冲突</h2><h3 id="1-冲突的发生条件"><a href="#1-冲突的发生条件" class="headerlink" title="1.冲突的发生条件"></a>1.冲突的发生条件</h3><p>合并时两个分支，同时对一个文件的同一行代码进行了不同的修改，</p>
+<p>例：</p>
+<p><img src="/2020/03/17/Git/clash1.png" alt="clash1" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/clash1.png" class="lozad post-image"></p>
+<p>当前分支和branch1分支同时对t1文件进行修改所以合并的时候报冲突错误</p>
+<h3 id="2-冲突的解决办法"><a href="#2-冲突的解决办法" class="headerlink" title="2.冲突的解决办法"></a>2.冲突的解决办法</h3><h3 id="（1）通过手动编辑冲突文件"><a href="#（1）通过手动编辑冲突文件" class="headerlink" title="（1）通过手动编辑冲突文件"></a>（1）通过手动编辑冲突文件</h3><p><strong>git status获取到未成功合并的冲突文件</strong></p>
+<p><img src="/2020/03/17/Git/clash2.png" alt="clash2" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/clash2.png" class="lozad post-image"></p>
+<p><strong>打开该文件</strong></p>
+<p><img src="/2020/03/17/Git/clash3.png" alt="clash3" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/clash3.png" class="lozad post-image"></p>
+<p><strong>=======上下是冲突的两部分</strong></p>
+<p><strong>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD与=======是本分支的</strong></p>
+<p><strong>=======的另一部分是需合并分支的</strong></p>
+<p><strong>删除其中一部分的文件即可</strong></p>
+<p><img src="/2020/03/17/Git/clash4.png" alt="clash4" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/clash4.png" class="lozad post-image"></p>
+<hr>
+<h3 id="（2）对于一些二进制文件是无法自己编辑的"><a href="#（2）对于一些二进制文件是无法自己编辑的" class="headerlink" title="（2）对于一些二进制文件是无法自己编辑的"></a>（2）对于一些二进制文件是无法自己编辑的</h3><p>保留本分支的提交</p>
+<pre class="highlight"><span class="line">git checkout 文件名 --ours</span><br><span class="line"></span><br></pre>
+
+<p>保留本分支的提交</p>
+<pre class="highlight"><span class="line">git checkout 文件名 --theirs</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/clash5.png" alt="clash5" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/clash5.png" class="lozad post-image"></p>
+<p><strong>注意：文件名一定要加上后缀，解决冲突后需要重新git add和git commit提交</strong></p>
+<h3 id="3-撤销合并分支"><a href="#3-撤销合并分支" class="headerlink" title="3.撤销合并分支"></a>3.撤销合并分支</h3><p>撤销最近的一次合并分支</p>
+<pre class="highlight"><span class="line">git reset --merge</span><br><span class="line"></span><br></pre>
+
+<h3 id="4-快进合并"><a href="#4-快进合并" class="headerlink" title="4.快进合并"></a>4.快进合并</h3><p>如果当前的分支和另一个分支没有内容上的差异，就是说当前分支的每一个提交(commit)都已经存在另一个分支里了，git 就会执行一个“快速向前”(fast forward)操作；git 不创建任何新的提交(commit),只是将当前分支指向合并进来的分支。</p>
+<p>说白了就是你所在的分支上所有东西想合并的分支都有，并且还比你多一些，就可以使用快进合并</p>
+<pre class="highlight"><span class="line">git merge –no-ff </span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/clash6.png" alt="clash6" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/clash6.png" class="lozad post-image"></p>
+<h1 id="五、变基（rebase）"><a href="#五、变基（rebase）" class="headerlink" title="五、变基（rebase）"></a>五、变基（rebase）</h1><h2 id="1-工作原理"><a href="#1-工作原理" class="headerlink" title="1.工作原理"></a>1.工作原理</h2><p>变基也是合并代码的一种手段。<br>变基与合并(Merge)不同的是，他可以修改历史，使用rebase来代替merge合代码的话，得到的历史记录是一条直线提交历史，无分叉，很漂亮。<br>然而这也是它的缺点，它抹去了分支历史信息，无法追溯。</p>
+<p><strong>简单说变基工作就是相当于把要合并的分支上的所有修改提交，在本分支上实现一遍， 就像重新播放一样</strong></p>
+<h2 id="2-变基的存在意义"><a href="#2-变基的存在意义" class="headerlink" title="2.变基的存在意义"></a>2.变基的存在意义</h2><p>虽然最后整合得到的结果没有任何区别，但<strong>变基能产生一个更为整洁的提交历史</strong>。如果视察一个变基过的分支的历史记录，看起来会更清楚：仿佛所有修改都是在一根线上先后进行的，尽管实际上它们原本是同时并行发生的。</p>
+<h2 id="3-变基的操作"><a href="#3-变基的操作" class="headerlink" title="3.变基的操作"></a>3.变基的操作</h2><pre class="highlight"><span class="line">git rebase branch1</span><br><span class="line"></span><br></pre>
+
+<p><img src="/2020/03/17/Git/rebase.png" alt="clash7" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/rebase.png" class="lozad post-image"></p>
+<h2 id="4-变基的注意事项"><a href="#4-变基的注意事项" class="headerlink" title="4.变基的注意事项"></a>4.变基的注意事项</h2><p>变基要在自己本地仓库中拉出来的分支使用，不要对本地仓库外有副本的分支执行变基</p>
+<p>也就是说变基本质上是一个完全在本地仓库进行的操作，<strong>我们往往是在本地执行完成变基操作后，再向远程仓库push</strong>。这样做，避免了其他合作者的处理冲突，其他合作者只需要利用git merge自身的fast-forward即可完成Merge的工作。</p>
+<p>综上，变基适用于多人线上合作开发的场景，避免其他合作者处理冲突，例如github上开源项目的维护。公司内部因为地理上、组织上的便利性，可以酌情使用变基。</p>
+<h2 id="5-遇到冲突情况"><a href="#5-遇到冲突情况" class="headerlink" title="5.遇到冲突情况"></a>5.遇到冲突情况</h2><p>变基与合并一样同样会遇到冲突情况，解决冲突办法也同合并一样，但是由于变基是线性的，所以会造成遇到冲突之前的文件已经变基成功了，需要我们执行继续变基</p>
+<pre class="highlight"><span class="line">git rebase --continue</span><br><span class="line"></span><br></pre>
+
+<h1 id="六、团队合作"><a href="#六、团队合作" class="headerlink" title="六、团队合作"></a>六、团队合作</h1><h2 id="1-添加项目合作者"><a href="#1-添加项目合作者" class="headerlink" title="1.添加项目合作者"></a>1.添加项目合作者</h2><p><img src="/2020/03/17/Git/Github4-1564789665723.png" alt="Github4" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/Github4-1564789665723.png" class="lozad post-image"></p>
+<p>添加完成以后，点击“Copy invite link”，然后复制该邀请链接给邀请的人员，如下图所示：</p>
+<p><img src="/2020/03/17/Git/Github5.png" alt="Github5" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/Github5.png" class="lozad post-image"></p>
+<p>合作者会收到邀请邮件或者直接访问此网址点击同意即可建立合作者关系</p>
+<h2 id="2-创建新的远程分支"><a href="#2-创建新的远程分支" class="headerlink" title="2.创建新的远程分支"></a>2.创建新的远程分支</h2><p>原则上每个合作者都要有一个自己的远程分支，避免影响到主分支</p>
+<p>GitHub无法在网页上创建新的分支，只能再本地创建远程分支</p>
+<p>操作方法：git push  远程主机名称 本地分支名称:要新建的远程分支名称</p>
+<p>这时候git将会检测远程是否含有该分支名的分支，没有将会创建一个新的，同时将本地文件上传到该分支上</p>
+<p><img src="/2020/03/17/Git/1564787485593.png" alt="1564787485593" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564787485593.png" class="lozad post-image"></p>
+<h2 id="3-删除远程分支"><a href="#3-删除远程分支" class="headerlink" title="3.删除远程分支"></a>3.删除远程分支</h2><p>git push 远程主机名 –detete 删除分支名</p>
+<p><img src="/2020/03/17/Git/1564787640430.png" alt="1564787640430" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564787640430.png" class="lozad post-image"></p>
+<h2 id="4-组员合并拉取请求"><a href="#4-组员合并拉取请求" class="headerlink" title="4.组员合并拉取请求"></a>4.组员合并拉取请求</h2><h2 id="1-方法一"><a href="#1-方法一" class="headerlink" title="1.方法一"></a>1.方法一</h2><p>项目成员上传项目到本分支后，github会提示是否向项目拥有者提交合并分支的请求</p>
+<p><img src="/2020/03/17/Git/1564788014135.png" alt="1564788014135" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564788014135.png" class="lozad post-image"></p>
+<p>点击绿色按钮确定后</p>
+<h2 id="2-方法二"><a href="#2-方法二" class="headerlink" title="2.方法二"></a>2.方法二</h2><p><img src="/2020/03/17/Git/1564788325870.png" alt="1564788325870" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564788325870.png" class="lozad post-image"></p>
+<p>点击new pull request</p>
+<p><img src="/2020/03/17/Git/1564788474294.png" alt="1564788474294" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564788474294.png" class="lozad post-image"></p>
+<p>设置好参数后确认提交，等待组长拉取请求</p>
+<h3 id="此时千万不要点击merge-pull-request，不然就直接合并了，组长也不会收到提示，一定要等待组长来点击！！！！"><a href="#此时千万不要点击merge-pull-request，不然就直接合并了，组长也不会收到提示，一定要等待组长来点击！！！！" class="headerlink" title="此时千万不要点击merge pull request，不然就直接合并了，组长也不会收到提示，一定要等待组长来点击！！！！"></a>此时千万不要点击merge pull request，不然就直接合并了，组长也不会收到提示，一定要等待组长来点击！！！！</h3><h2 id="5-项目拥有者确认拉取分支"><a href="#5-项目拥有者确认拉取分支" class="headerlink" title="5.项目拥有者确认拉取分支"></a>5.项目拥有者确认拉取分支</h2><p>组员提交拉取请求后，组长会在pull requests里看到一条新的拉取请求</p>
+<p><img src="/2020/03/17/Git/1564788624265.png" alt="1564788624265" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564788624265.png" class="lozad post-image"></p>
+<p><strong>点击new pull request新建合并</strong></p>
+<p><img src="/2020/03/17/Git/1564788706958.png" alt="1564788706958" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564788706958.png" class="lozad post-image"></p>
+<p><strong>同意设置好属性点确定</strong></p>
+<p><img src="/2020/03/17/Git/1564788810118.png" alt="1564788810118" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564788810118.png" class="lozad post-image"></p>
+<p><strong>此时GitHub会检查两个分支是否存在冲突，存在会提示手动修改，不存在的话将会提示没问题可以拉取</strong></p>
+<p><img src="/2020/03/17/Git/1564788860058.png" alt="1564788860058" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2020/03/17/Git/1564788860058.png" class="lozad post-image"></p>
+<p>最后点击merge pull request成功拉取请求，至此两个分支就合并完成了</p>
+<h2 id="项目合作注意事项！！！"><a href="#项目合作注意事项！！！" class="headerlink" title="项目合作注意事项！！！"></a>项目合作注意事项！！！</h2><p>1.一个组员对应一个分支</p>
+<p>2.每天组员工作前都要先Git pull或者Git fetch一下更新本地的版本，</p>
+<p>然后进行开发组长安排好的模块</p>
+<p>3.组长安排尽量不两个人开发同一文件，即便不得已开发同一文件也不要修改同一行代码避免发生冲突</p>
+<p>4.组员通过git add git commit提交到本地仓库之后，需要提交到</p>
+<p>5.除了组长任何人不得直接修改操作master分支，可以通过权限进行控制</p>
+<p>6.本地仓库同样需要建立一个新的分支，而不要直接在本地的master分支上进行开发，分支命名尽量与远程分支上分配的名字一致方便记忆</p>
+<p>——来自技术分享，张博文</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2020/03/17/Git/">http://www.codekop.com/2020/03/17/Git/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2020/07/15/Redis%E5%88%9D%E8%AF%86/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">Redis初识 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2020/03/11/%E9%85%8D%E7%BD%AE%E8%B7%AF%E7%94%B1/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">配置路由 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%86%E5%A4%87git%E7%8E%AF%E5%A2%83"><span class="toc-text">一、准备git环境</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5GitHub%EF%BC%9A"><span class="toc-text">连接GitHub：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF"><span class="toc-text">查看配置信息</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81GitHub%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C%E4%BD%BF%E7%94%A8"><span class="toc-text">二、GitHub基本操作使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%96%B0%E5%BB%BA%E4%BB%93%E5%BA%93"><span class="toc-text">1、新建仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E7%82%B9%E5%87%BBnew%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AA%E4%BB%93%E5%BA%93"><span class="toc-text">（1）点击new新建一个仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E7%82%B9%E5%87%BB%E6%A0%B9%E6%8D%AE%E6%8F%90%E7%A4%BA%E5%AE%8C%E6%88%90%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="toc-text">（2）点击根据提示完成仓库配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883-%E8%8E%B7%E5%8F%96%E5%9C%B0%E5%9D%80%EF%BC%8C%E6%AD%A4%E5%9C%B0%E5%9D%80%E4%B8%BA%E4%BB%93%E5%BA%93%E5%9C%B0%E5%9D%80"><span class="toc-text">（3)获取地址，此地址为仓库地址</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-GitHub%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6"><span class="toc-text">2.GitHub权限控制</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E6%9F%90%E4%B8%80%E5%88%86%E6%94%AF%E7%9A%84%E6%9D%83%E9%99%90"><span class="toc-text">设置某一分支的权限</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81git%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-text">三、git的基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E5%88%86%E7%B1%BB"><span class="toc-text">状态分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA%E7%89%88%E6%9C%AC%E5%BA%93"><span class="toc-text">1、创建版本库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%AE%A1%E7%90%86%E4%BB%93%E5%BA%93%E8%BF%9E%E6%8E%A5"><span class="toc-text">2.管理仓库连接</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E8%BF%9E%E6%8E%A5%E4%B8%80%E4%B8%AA%E9%9C%80%E8%A6%81%E8%BF%9E%E6%8E%A5%E7%9A%84%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">（1）连接一个需要连接的远程仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E7%9A%84%E6%89%80%E6%9C%89%E8%BF%9E%E6%8E%A5%E5%90%8D%E7%A7%B0"><span class="toc-text">（2）查看本地的所有连接名称</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%8F%90%E4%BA%A4%E9%A1%B9%E7%9B%AE%E5%88%B0%E8%BF%9C%E7%A8%8B"><span class="toc-text">3.提交项目到远程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E7%8A%B6%E6%80%81"><span class="toc-text">4.查看文件状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%90%91%E7%89%88%E6%9C%AC%E5%BA%93%E6%8F%90%E4%BA%A4"><span class="toc-text">5.向版本库提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%92%A4%E9%94%80%E4%BF%AE%E6%94%B9"><span class="toc-text">6.撤销修改</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E6%92%A4%E9%94%80%E9%94%99%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F"><span class="toc-text">如果撤销错了怎么办？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%9F%A5%E7%9C%8B%E7%89%88%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="toc-text">7.查看版本信息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%A0%E9%99%A4log%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-text">删除log方法：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E5%90%91%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E6%8E%A8%E9%80%81%E4%BF%AE%E6%94%B9"><span class="toc-text">8.向远程仓库推送修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E5%B0%86%E8%BF%9C%E7%A8%8B%E9%A1%B9%E7%9B%AE%E5%90%88%E5%B9%B6%E5%88%B0%E6%9C%AC%E5%9C%B0%E9%A1%B9%E7%9B%AE"><span class="toc-text">9.将远程项目合并到本地项目</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#git-pull%E6%96%B9%E6%B3%95"><span class="toc-text">git pull方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#git-fetch%E6%96%B9%E6%B3%95"><span class="toc-text">git fetch方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#git-pull-%E5%92%8C-git-fetch-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-text">git pull 和 git fetch 有什么区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E4%BB%8E%E8%BF%9C%E7%A8%8B%E5%85%8B%E9%9A%86%E9%A1%B9%E7%9B%AE"><span class="toc-text">10.从远程克隆项目</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#git-clone%E4%B8%8Egit-pull%E5%8C%BA%E5%88%AB"><span class="toc-text">git clone与git pull区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-text"></span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E6%9A%82%E5%AD%98"><span class="toc-text">11.暂存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E5%BF%BD%E7%95%A5%E8%AE%BE%E7%BD%AE"><span class="toc-text">12.忽略设置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BE%8B%EF%BC%9A"><span class="toc-text">例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="toc-text">总结：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%86%E6%94%AF%EF%BC%88branch%EF%BC%89"><span class="toc-text">三、分支（branch）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="toc-text">1.定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%86%E6%94%AF%E7%9A%84%E5%BA%94%E7%94%A8%EF%BC%9A"><span class="toc-text">2.分支的应用：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-git%E5%88%86%E6%94%AF%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="toc-text">3.git分支优点：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E6%94%AF%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-text">4.分支的基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%88%9B%E5%BB%BA%E5%88%86%E6%94%AF"><span class="toc-text">（1）创建分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E5%88%86%E6%94%AF"><span class="toc-text">(2)查看所有分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%88%87%E6%8D%A2%E5%88%86%E6%94%AF%EF%BC%9A"><span class="toc-text">（3）切换分支：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">注意事项！！！！</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E5%88%A0%E9%99%A4%E5%88%86%E6%94%AF%EF%BC%9A"><span class="toc-text">（4）删除分支：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%885%EF%BC%89%E6%81%A2%E5%A4%8D%E5%88%A0%E9%99%A4%E7%9A%84%E5%88%86%E6%94%AF"><span class="toc-text">（5）恢复删除的分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%886%EF%BC%89%E6%B8%85%E7%90%86%E6%8F%90%E4%BA%A4%E5%AF%B9%E8%B1%A1"><span class="toc-text">（6）清理提交对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%887%EF%BC%89%E5%90%88%E5%B9%B6%E5%88%86%E6%94%AF"><span class="toc-text">（7）合并分支</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%86%B2%E7%AA%81"><span class="toc-text">四、冲突</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%86%B2%E7%AA%81%E7%9A%84%E5%8F%91%E7%94%9F%E6%9D%A1%E4%BB%B6"><span class="toc-text">1.冲突的发生条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%86%B2%E7%AA%81%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95"><span class="toc-text">2.冲突的解决办法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E9%80%9A%E8%BF%87%E6%89%8B%E5%8A%A8%E7%BC%96%E8%BE%91%E5%86%B2%E7%AA%81%E6%96%87%E4%BB%B6"><span class="toc-text">（1）通过手动编辑冲突文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%AF%B9%E4%BA%8E%E4%B8%80%E4%BA%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E6%98%AF%E6%97%A0%E6%B3%95%E8%87%AA%E5%B7%B1%E7%BC%96%E8%BE%91%E7%9A%84"><span class="toc-text">（2）对于一些二进制文件是无法自己编辑的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%92%A4%E9%94%80%E5%90%88%E5%B9%B6%E5%88%86%E6%94%AF"><span class="toc-text">3.撤销合并分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%BF%AB%E8%BF%9B%E5%90%88%E5%B9%B6"><span class="toc-text">4.快进合并</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%98%E5%9F%BA%EF%BC%88rebase%EF%BC%89"><span class="toc-text">五、变基（rebase）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">1.工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8F%98%E5%9F%BA%E7%9A%84%E5%AD%98%E5%9C%A8%E6%84%8F%E4%B9%89"><span class="toc-text">2.变基的存在意义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%98%E5%9F%BA%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="toc-text">3.变基的操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%98%E5%9F%BA%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">4.变基的注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%81%87%E5%88%B0%E5%86%B2%E7%AA%81%E6%83%85%E5%86%B5"><span class="toc-text">5.遇到冲突情况</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%9B%A2%E9%98%9F%E5%90%88%E4%BD%9C"><span class="toc-text">六、团队合作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%B7%BB%E5%8A%A0%E9%A1%B9%E7%9B%AE%E5%90%88%E4%BD%9C%E8%80%85"><span class="toc-text">1.添加项目合作者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF"><span class="toc-text">2.创建新的远程分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%88%A0%E9%99%A4%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF"><span class="toc-text">3.删除远程分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%BB%84%E5%91%98%E5%90%88%E5%B9%B6%E6%8B%89%E5%8F%96%E8%AF%B7%E6%B1%82"><span class="toc-text">4.组员合并拉取请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%96%B9%E6%B3%95%E4%B8%80"><span class="toc-text">1.方法一</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%B9%E6%B3%95%E4%BA%8C"><span class="toc-text">2.方法二</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A4%E6%97%B6%E5%8D%83%E4%B8%87%E4%B8%8D%E8%A6%81%E7%82%B9%E5%87%BBmerge-pull-request%EF%BC%8C%E4%B8%8D%E7%84%B6%E5%B0%B1%E7%9B%B4%E6%8E%A5%E5%90%88%E5%B9%B6%E4%BA%86%EF%BC%8C%E7%BB%84%E9%95%BF%E4%B9%9F%E4%B8%8D%E4%BC%9A%E6%94%B6%E5%88%B0%E6%8F%90%E7%A4%BA%EF%BC%8C%E4%B8%80%E5%AE%9A%E8%A6%81%E7%AD%89%E5%BE%85%E7%BB%84%E9%95%BF%E6%9D%A5%E7%82%B9%E5%87%BB%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">此时千万不要点击merge pull request，不然就直接合并了，组长也不会收到提示，一定要等待组长来点击！！！！</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%A1%B9%E7%9B%AE%E6%8B%A5%E6%9C%89%E8%80%85%E7%A1%AE%E8%AE%A4%E6%8B%89%E5%8F%96%E5%88%86%E6%94%AF"><span class="toc-text">5.项目拥有者确认拉取分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E5%90%88%E4%BD%9C%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">项目合作注意事项！！！</span></a></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%86%E5%A4%87git%E7%8E%AF%E5%A2%83"><span class="toc-text">一、准备git环境</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5GitHub%EF%BC%9A"><span class="toc-text">连接GitHub：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF"><span class="toc-text">查看配置信息</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81GitHub%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C%E4%BD%BF%E7%94%A8"><span class="toc-text">二、GitHub基本操作使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%96%B0%E5%BB%BA%E4%BB%93%E5%BA%93"><span class="toc-text">1、新建仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E7%82%B9%E5%87%BBnew%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AA%E4%BB%93%E5%BA%93"><span class="toc-text">（1）点击new新建一个仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E7%82%B9%E5%87%BB%E6%A0%B9%E6%8D%AE%E6%8F%90%E7%A4%BA%E5%AE%8C%E6%88%90%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="toc-text">（2）点击根据提示完成仓库配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883-%E8%8E%B7%E5%8F%96%E5%9C%B0%E5%9D%80%EF%BC%8C%E6%AD%A4%E5%9C%B0%E5%9D%80%E4%B8%BA%E4%BB%93%E5%BA%93%E5%9C%B0%E5%9D%80"><span class="toc-text">（3)获取地址，此地址为仓库地址</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-GitHub%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6"><span class="toc-text">2.GitHub权限控制</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E6%9F%90%E4%B8%80%E5%88%86%E6%94%AF%E7%9A%84%E6%9D%83%E9%99%90"><span class="toc-text">设置某一分支的权限</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81git%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-text">三、git的基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E5%88%86%E7%B1%BB"><span class="toc-text">状态分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA%E7%89%88%E6%9C%AC%E5%BA%93"><span class="toc-text">1、创建版本库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%AE%A1%E7%90%86%E4%BB%93%E5%BA%93%E8%BF%9E%E6%8E%A5"><span class="toc-text">2.管理仓库连接</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E8%BF%9E%E6%8E%A5%E4%B8%80%E4%B8%AA%E9%9C%80%E8%A6%81%E8%BF%9E%E6%8E%A5%E7%9A%84%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">（1）连接一个需要连接的远程仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E7%9A%84%E6%89%80%E6%9C%89%E8%BF%9E%E6%8E%A5%E5%90%8D%E7%A7%B0"><span class="toc-text">（2）查看本地的所有连接名称</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%8F%90%E4%BA%A4%E9%A1%B9%E7%9B%AE%E5%88%B0%E8%BF%9C%E7%A8%8B"><span class="toc-text">3.提交项目到远程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E7%8A%B6%E6%80%81"><span class="toc-text">4.查看文件状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%90%91%E7%89%88%E6%9C%AC%E5%BA%93%E6%8F%90%E4%BA%A4"><span class="toc-text">5.向版本库提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%92%A4%E9%94%80%E4%BF%AE%E6%94%B9"><span class="toc-text">6.撤销修改</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E6%92%A4%E9%94%80%E9%94%99%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F"><span class="toc-text">如果撤销错了怎么办？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%9F%A5%E7%9C%8B%E7%89%88%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="toc-text">7.查看版本信息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%A0%E9%99%A4log%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-text">删除log方法：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E5%90%91%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E6%8E%A8%E9%80%81%E4%BF%AE%E6%94%B9"><span class="toc-text">8.向远程仓库推送修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E5%B0%86%E8%BF%9C%E7%A8%8B%E9%A1%B9%E7%9B%AE%E5%90%88%E5%B9%B6%E5%88%B0%E6%9C%AC%E5%9C%B0%E9%A1%B9%E7%9B%AE"><span class="toc-text">9.将远程项目合并到本地项目</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#git-pull%E6%96%B9%E6%B3%95"><span class="toc-text">git pull方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#git-fetch%E6%96%B9%E6%B3%95"><span class="toc-text">git fetch方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#git-pull-%E5%92%8C-git-fetch-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-text">git pull 和 git fetch 有什么区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E4%BB%8E%E8%BF%9C%E7%A8%8B%E5%85%8B%E9%9A%86%E9%A1%B9%E7%9B%AE"><span class="toc-text">10.从远程克隆项目</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#git-clone%E4%B8%8Egit-pull%E5%8C%BA%E5%88%AB"><span class="toc-text">git clone与git pull区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-text"></span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E6%9A%82%E5%AD%98"><span class="toc-text">11.暂存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E5%BF%BD%E7%95%A5%E8%AE%BE%E7%BD%AE"><span class="toc-text">12.忽略设置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BE%8B%EF%BC%9A"><span class="toc-text">例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="toc-text">总结：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%86%E6%94%AF%EF%BC%88branch%EF%BC%89"><span class="toc-text">三、分支（branch）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="toc-text">1.定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%86%E6%94%AF%E7%9A%84%E5%BA%94%E7%94%A8%EF%BC%9A"><span class="toc-text">2.分支的应用：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-git%E5%88%86%E6%94%AF%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="toc-text">3.git分支优点：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E6%94%AF%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-text">4.分支的基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%88%9B%E5%BB%BA%E5%88%86%E6%94%AF"><span class="toc-text">（1）创建分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E5%88%86%E6%94%AF"><span class="toc-text">(2)查看所有分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%88%87%E6%8D%A2%E5%88%86%E6%94%AF%EF%BC%9A"><span class="toc-text">（3）切换分支：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">注意事项！！！！</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E5%88%A0%E9%99%A4%E5%88%86%E6%94%AF%EF%BC%9A"><span class="toc-text">（4）删除分支：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%885%EF%BC%89%E6%81%A2%E5%A4%8D%E5%88%A0%E9%99%A4%E7%9A%84%E5%88%86%E6%94%AF"><span class="toc-text">（5）恢复删除的分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%886%EF%BC%89%E6%B8%85%E7%90%86%E6%8F%90%E4%BA%A4%E5%AF%B9%E8%B1%A1"><span class="toc-text">（6）清理提交对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%887%EF%BC%89%E5%90%88%E5%B9%B6%E5%88%86%E6%94%AF"><span class="toc-text">（7）合并分支</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%86%B2%E7%AA%81"><span class="toc-text">四、冲突</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%86%B2%E7%AA%81%E7%9A%84%E5%8F%91%E7%94%9F%E6%9D%A1%E4%BB%B6"><span class="toc-text">1.冲突的发生条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%86%B2%E7%AA%81%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95"><span class="toc-text">2.冲突的解决办法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E9%80%9A%E8%BF%87%E6%89%8B%E5%8A%A8%E7%BC%96%E8%BE%91%E5%86%B2%E7%AA%81%E6%96%87%E4%BB%B6"><span class="toc-text">（1）通过手动编辑冲突文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%AF%B9%E4%BA%8E%E4%B8%80%E4%BA%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E6%98%AF%E6%97%A0%E6%B3%95%E8%87%AA%E5%B7%B1%E7%BC%96%E8%BE%91%E7%9A%84"><span class="toc-text">（2）对于一些二进制文件是无法自己编辑的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%92%A4%E9%94%80%E5%90%88%E5%B9%B6%E5%88%86%E6%94%AF"><span class="toc-text">3.撤销合并分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%BF%AB%E8%BF%9B%E5%90%88%E5%B9%B6"><span class="toc-text">4.快进合并</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%98%E5%9F%BA%EF%BC%88rebase%EF%BC%89"><span class="toc-text">五、变基（rebase）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">1.工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8F%98%E5%9F%BA%E7%9A%84%E5%AD%98%E5%9C%A8%E6%84%8F%E4%B9%89"><span class="toc-text">2.变基的存在意义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%98%E5%9F%BA%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="toc-text">3.变基的操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%98%E5%9F%BA%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">4.变基的注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%81%87%E5%88%B0%E5%86%B2%E7%AA%81%E6%83%85%E5%86%B5"><span class="toc-text">5.遇到冲突情况</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%9B%A2%E9%98%9F%E5%90%88%E4%BD%9C"><span class="toc-text">六、团队合作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%B7%BB%E5%8A%A0%E9%A1%B9%E7%9B%AE%E5%90%88%E4%BD%9C%E8%80%85"><span class="toc-text">1.添加项目合作者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF"><span class="toc-text">2.创建新的远程分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%88%A0%E9%99%A4%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF"><span class="toc-text">3.删除远程分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%BB%84%E5%91%98%E5%90%88%E5%B9%B6%E6%8B%89%E5%8F%96%E8%AF%B7%E6%B1%82"><span class="toc-text">4.组员合并拉取请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%96%B9%E6%B3%95%E4%B8%80"><span class="toc-text">1.方法一</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%B9%E6%B3%95%E4%BA%8C"><span class="toc-text">2.方法二</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A4%E6%97%B6%E5%8D%83%E4%B8%87%E4%B8%8D%E8%A6%81%E7%82%B9%E5%87%BBmerge-pull-request%EF%BC%8C%E4%B8%8D%E7%84%B6%E5%B0%B1%E7%9B%B4%E6%8E%A5%E5%90%88%E5%B9%B6%E4%BA%86%EF%BC%8C%E7%BB%84%E9%95%BF%E4%B9%9F%E4%B8%8D%E4%BC%9A%E6%94%B6%E5%88%B0%E6%8F%90%E7%A4%BA%EF%BC%8C%E4%B8%80%E5%AE%9A%E8%A6%81%E7%AD%89%E5%BE%85%E7%BB%84%E9%95%BF%E6%9D%A5%E7%82%B9%E5%87%BB%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">此时千万不要点击merge pull request，不然就直接合并了，组长也不会收到提示，一定要等待组长来点击！！！！</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%A1%B9%E7%9B%AE%E6%8B%A5%E6%9C%89%E8%80%85%E7%A1%AE%E8%AE%A4%E6%8B%89%E5%8F%96%E5%88%86%E6%94%AF"><span class="toc-text">5.项目拥有者确认拉取分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E5%90%88%E4%BD%9C%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">项目合作注意事项！！！</span></a></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%86%E5%A4%87git%E7%8E%AF%E5%A2%83"><span class="toc-text">一、准备git环境</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5GitHub%EF%BC%9A"><span class="toc-text">连接GitHub：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF"><span class="toc-text">查看配置信息</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81GitHub%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C%E4%BD%BF%E7%94%A8"><span class="toc-text">二、GitHub基本操作使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%96%B0%E5%BB%BA%E4%BB%93%E5%BA%93"><span class="toc-text">1、新建仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E7%82%B9%E5%87%BBnew%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AA%E4%BB%93%E5%BA%93"><span class="toc-text">（1）点击new新建一个仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E7%82%B9%E5%87%BB%E6%A0%B9%E6%8D%AE%E6%8F%90%E7%A4%BA%E5%AE%8C%E6%88%90%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="toc-text">（2）点击根据提示完成仓库配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883-%E8%8E%B7%E5%8F%96%E5%9C%B0%E5%9D%80%EF%BC%8C%E6%AD%A4%E5%9C%B0%E5%9D%80%E4%B8%BA%E4%BB%93%E5%BA%93%E5%9C%B0%E5%9D%80"><span class="toc-text">（3)获取地址，此地址为仓库地址</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-GitHub%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6"><span class="toc-text">2.GitHub权限控制</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E6%9F%90%E4%B8%80%E5%88%86%E6%94%AF%E7%9A%84%E6%9D%83%E9%99%90"><span class="toc-text">设置某一分支的权限</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81git%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-text">三、git的基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E5%88%86%E7%B1%BB"><span class="toc-text">状态分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA%E7%89%88%E6%9C%AC%E5%BA%93"><span class="toc-text">1、创建版本库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%AE%A1%E7%90%86%E4%BB%93%E5%BA%93%E8%BF%9E%E6%8E%A5"><span class="toc-text">2.管理仓库连接</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E8%BF%9E%E6%8E%A5%E4%B8%80%E4%B8%AA%E9%9C%80%E8%A6%81%E8%BF%9E%E6%8E%A5%E7%9A%84%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">（1）连接一个需要连接的远程仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E7%9A%84%E6%89%80%E6%9C%89%E8%BF%9E%E6%8E%A5%E5%90%8D%E7%A7%B0"><span class="toc-text">（2）查看本地的所有连接名称</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%8F%90%E4%BA%A4%E9%A1%B9%E7%9B%AE%E5%88%B0%E8%BF%9C%E7%A8%8B"><span class="toc-text">3.提交项目到远程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E7%8A%B6%E6%80%81"><span class="toc-text">4.查看文件状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%90%91%E7%89%88%E6%9C%AC%E5%BA%93%E6%8F%90%E4%BA%A4"><span class="toc-text">5.向版本库提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%92%A4%E9%94%80%E4%BF%AE%E6%94%B9"><span class="toc-text">6.撤销修改</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E6%92%A4%E9%94%80%E9%94%99%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F"><span class="toc-text">如果撤销错了怎么办？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%9F%A5%E7%9C%8B%E7%89%88%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="toc-text">7.查看版本信息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%A0%E9%99%A4log%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-text">删除log方法：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E5%90%91%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E6%8E%A8%E9%80%81%E4%BF%AE%E6%94%B9"><span class="toc-text">8.向远程仓库推送修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E5%B0%86%E8%BF%9C%E7%A8%8B%E9%A1%B9%E7%9B%AE%E5%90%88%E5%B9%B6%E5%88%B0%E6%9C%AC%E5%9C%B0%E9%A1%B9%E7%9B%AE"><span class="toc-text">9.将远程项目合并到本地项目</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#git-pull%E6%96%B9%E6%B3%95"><span class="toc-text">git pull方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#git-fetch%E6%96%B9%E6%B3%95"><span class="toc-text">git fetch方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#git-pull-%E5%92%8C-git-fetch-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-text">git pull 和 git fetch 有什么区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E4%BB%8E%E8%BF%9C%E7%A8%8B%E5%85%8B%E9%9A%86%E9%A1%B9%E7%9B%AE"><span class="toc-text">10.从远程克隆项目</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#git-clone%E4%B8%8Egit-pull%E5%8C%BA%E5%88%AB"><span class="toc-text">git clone与git pull区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-text"></span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E6%9A%82%E5%AD%98"><span class="toc-text">11.暂存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E5%BF%BD%E7%95%A5%E8%AE%BE%E7%BD%AE"><span class="toc-text">12.忽略设置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BE%8B%EF%BC%9A"><span class="toc-text">例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="toc-text">总结：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%86%E6%94%AF%EF%BC%88branch%EF%BC%89"><span class="toc-text">三、分支（branch）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="toc-text">1.定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%86%E6%94%AF%E7%9A%84%E5%BA%94%E7%94%A8%EF%BC%9A"><span class="toc-text">2.分支的应用：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-git%E5%88%86%E6%94%AF%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="toc-text">3.git分支优点：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E6%94%AF%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-text">4.分支的基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%88%9B%E5%BB%BA%E5%88%86%E6%94%AF"><span class="toc-text">（1）创建分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E5%88%86%E6%94%AF"><span class="toc-text">(2)查看所有分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%88%87%E6%8D%A2%E5%88%86%E6%94%AF%EF%BC%9A"><span class="toc-text">（3）切换分支：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">注意事项！！！！</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E5%88%A0%E9%99%A4%E5%88%86%E6%94%AF%EF%BC%9A"><span class="toc-text">（4）删除分支：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%885%EF%BC%89%E6%81%A2%E5%A4%8D%E5%88%A0%E9%99%A4%E7%9A%84%E5%88%86%E6%94%AF"><span class="toc-text">（5）恢复删除的分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%886%EF%BC%89%E6%B8%85%E7%90%86%E6%8F%90%E4%BA%A4%E5%AF%B9%E8%B1%A1"><span class="toc-text">（6）清理提交对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%887%EF%BC%89%E5%90%88%E5%B9%B6%E5%88%86%E6%94%AF"><span class="toc-text">（7）合并分支</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%86%B2%E7%AA%81"><span class="toc-text">四、冲突</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%86%B2%E7%AA%81%E7%9A%84%E5%8F%91%E7%94%9F%E6%9D%A1%E4%BB%B6"><span class="toc-text">1.冲突的发生条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%86%B2%E7%AA%81%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95"><span class="toc-text">2.冲突的解决办法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E9%80%9A%E8%BF%87%E6%89%8B%E5%8A%A8%E7%BC%96%E8%BE%91%E5%86%B2%E7%AA%81%E6%96%87%E4%BB%B6"><span class="toc-text">（1）通过手动编辑冲突文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%AF%B9%E4%BA%8E%E4%B8%80%E4%BA%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E6%98%AF%E6%97%A0%E6%B3%95%E8%87%AA%E5%B7%B1%E7%BC%96%E8%BE%91%E7%9A%84"><span class="toc-text">（2）对于一些二进制文件是无法自己编辑的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%92%A4%E9%94%80%E5%90%88%E5%B9%B6%E5%88%86%E6%94%AF"><span class="toc-text">3.撤销合并分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%BF%AB%E8%BF%9B%E5%90%88%E5%B9%B6"><span class="toc-text">4.快进合并</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%98%E5%9F%BA%EF%BC%88rebase%EF%BC%89"><span class="toc-text">五、变基（rebase）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">1.工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8F%98%E5%9F%BA%E7%9A%84%E5%AD%98%E5%9C%A8%E6%84%8F%E4%B9%89"><span class="toc-text">2.变基的存在意义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%98%E5%9F%BA%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="toc-text">3.变基的操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%98%E5%9F%BA%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">4.变基的注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%81%87%E5%88%B0%E5%86%B2%E7%AA%81%E6%83%85%E5%86%B5"><span class="toc-text">5.遇到冲突情况</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%9B%A2%E9%98%9F%E5%90%88%E4%BD%9C"><span class="toc-text">六、团队合作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%B7%BB%E5%8A%A0%E9%A1%B9%E7%9B%AE%E5%90%88%E4%BD%9C%E8%80%85"><span class="toc-text">1.添加项目合作者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF"><span class="toc-text">2.创建新的远程分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%88%A0%E9%99%A4%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF"><span class="toc-text">3.删除远程分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%BB%84%E5%91%98%E5%90%88%E5%B9%B6%E6%8B%89%E5%8F%96%E8%AF%B7%E6%B1%82"><span class="toc-text">4.组员合并拉取请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%96%B9%E6%B3%95%E4%B8%80"><span class="toc-text">1.方法一</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%B9%E6%B3%95%E4%BA%8C"><span class="toc-text">2.方法二</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A4%E6%97%B6%E5%8D%83%E4%B8%87%E4%B8%8D%E8%A6%81%E7%82%B9%E5%87%BBmerge-pull-request%EF%BC%8C%E4%B8%8D%E7%84%B6%E5%B0%B1%E7%9B%B4%E6%8E%A5%E5%90%88%E5%B9%B6%E4%BA%86%EF%BC%8C%E7%BB%84%E9%95%BF%E4%B9%9F%E4%B8%8D%E4%BC%9A%E6%94%B6%E5%88%B0%E6%8F%90%E7%A4%BA%EF%BC%8C%E4%B8%80%E5%AE%9A%E8%A6%81%E7%AD%89%E5%BE%85%E7%BB%84%E9%95%BF%E6%9D%A5%E7%82%B9%E5%87%BB%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">此时千万不要点击merge pull request，不然就直接合并了，组长也不会收到提示，一定要等待组长来点击！！！！</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%A1%B9%E7%9B%AE%E6%8B%A5%E6%9C%89%E8%80%85%E7%A1%AE%E8%AE%A4%E6%8B%89%E5%8F%96%E5%88%86%E6%94%AF"><span class="toc-text">5.项目拥有者确认拉取分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E5%90%88%E4%BD%9C%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">项目合作注意事项！！！</span></a></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>servlet</title>
+  
+  
+  <meta property="og:title" content="servlet">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/10/15/servlet/index.html">
+  
+  
+  <meta property="og:img" content="/img/head2.png">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;Java-Web&#34;&gt;&lt;a href=&#34;#Java-Web&#34; class=&#34;headerlink&#34; title=&#34;Java Web&#34;&gt;&lt;/a&gt;Java Web&lt;/h1&gt;&lt;h1 id=&#34;tomcat&#34;&gt;&lt;a href=&#34;#tomcat&#34; class=&#34;headerlink&#34; title=&#34;tomcat&#34;&gt;&lt;/a&gt;tomcat&lt;/h1&gt;&lt;h2 id=&#34;tomcat工作原理&#34;&gt;&lt;a href=&#34;#tomcat工作原理&#34; class=&#34;headerlink&#34; title=&#34;tomcat工作原理&#34;&gt;&lt;/a&gt;tomcat工作原理&lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;/2019/10/15/servlet/Users\CodeKop\Desktop\JavaNote\image\tomcat运行机制.gif&#34; alt=&#34;tomcat运行机制&#34;&gt;&lt;/p&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-10-15">
+  <meta property="og:article:modified_time" content="2019-10-15">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="JavaWeb">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      servlet
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-10-15T09:52:16.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-10-15</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>3k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/JavaWeb/" class="post-meta-link">JavaWeb</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="Java-Web"><a href="#Java-Web" class="headerlink" title="Java Web"></a>Java Web</h1><h1 id="tomcat"><a href="#tomcat" class="headerlink" title="tomcat"></a>tomcat</h1><h2 id="tomcat工作原理"><a href="#tomcat工作原理" class="headerlink" title="tomcat工作原理"></a>tomcat工作原理</h2><p><img src="/2019/10/15/servlet/Users\CodeKop\Desktop\JavaNote\image\tomcat运行机制.gif" alt="tomcat运行机制" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/servlet/Users\CodeKop\Desktop\JavaNote\image\tomcat运行机制.gif" class="lozad post-image"></p>
+<span id="more"></span>
+
+<h2 id="idea配置tomcat"><a href="#idea配置tomcat" class="headerlink" title="idea配置tomcat"></a>idea配置tomcat</h2><ol>
+<li><p><img src="/2019/10/15/servlet/Users/CodeKop/Desktop/JavaNote/JavaWeb/img/1.png" alt="1" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/servlet/Users/CodeKop/Desktop/JavaNote/JavaWeb/img/1.png" class="lozad post-image"></p>
+</li>
+<li><p><img src="/2019/10/15/servlet/Users/CodeKop/Desktop/JavaNote/JavaWeb/img/2.png" alt="2" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/servlet/Users/CodeKop/Desktop/JavaNote/JavaWeb/img/2.png" class="lozad post-image"></p>
+</li>
+<li><p><img src="/2019/10/15/servlet/Users/CodeKop/Desktop/JavaNote/JavaWeb/img/3.png" alt="3" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/servlet/Users/CodeKop/Desktop/JavaNote/JavaWeb/img/3.png" class="lozad post-image"></p>
+</li>
+<li><p><img src="/2019/10/15/servlet/Users/CodeKop/Desktop/JavaNote/JavaWeb/img/4.png" alt="4" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/servlet/Users/CodeKop/Desktop/JavaNote/JavaWeb/img/4.png" class="lozad post-image"></p>
+</li>
+</ol>
+<h1 id="Servlet"><a href="#Servlet" class="headerlink" title="Servlet"></a>Servlet</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><ul>
+<li><p>问题：</p>
+<p>服务器在接收到浏览器的请求后，会自动调用对应的逻辑代码进行请求处理。但是逻辑代码是由程序员编写并放到服务器中，那么服务器怎么知道该怎么调用并调用哪个方法来实现请求处理？</p>
+</li>
+<li><p>解决：</p>
+<p>程序员在编写代码的时候如果能够按照服务器能够识别的规则进行编写（接口），浏览器按照指定的规则进行发送请求，那么服务器就可以调用并执行相应的逻辑代码进行请求处理了。</p>
+</li>
+<li><p>实现：Servlet技术</p>
+</li>
+<li><p>概念：</p>
+<ul>
+<li>狭义的Servlet是指Java语言实现的一个接口</li>
+<li>广义的Servlet是指任何实现了这个Servlet接口的类</li>
+<li>一般情况下，人们将Servlet理解为后者。</li>
+</ul>
+</li>
+</ul>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
+<li>运行在支持java应用的服务器上</li>
+<li>Servlet的实现遵循了服务器能够识别的规则，也就是服务器会自动的根据请求调用对应的servlet进行请求处理</li>
+<li>简单方便，可移植性强</li>
+</ul>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><ol>
+<li>创建普通的java类并继承HttpServlet</li>
+<li>覆写service方法</li>
+<li>再service方法中写逻辑代码</li>
+<li>在webRoot下的WEB-INF文件夹下的web.xml文件中配置servlet</li>
+</ol>
+<h2 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h2><p>URL‘组成：服务器地址：端口号/虚拟项目名/servlet的别名</p>
+<p>URI：虚拟项目名/servlet的别名</p>
+<h2 id="运行流程"><a href="#运行流程" class="headerlink" title="运行流程"></a>运行流程</h2><ul>
+<li>浏览器发送请求到服务器</li>
+<li>服务器根据请求URL地址中的URL信息在webapps目录下找到对应的项目文件夹</li>
+<li>然后再web.xml中检索对应的servlet，找到后调用并执行servlet</li>
+</ul>
+<h2 id="Servlet的生命周期"><a href="#Servlet的生命周期" class="headerlink" title="Servlet的生命周期"></a>Servlet的生命周期</h2><ol>
+<li>从第一次调用到服务器关闭</li>
+<li>如果Servlet在web.xml中配置了<code>&lt;load-on-startup&gt; </code>，生命周期为 从服务器启动到服务器关闭</li>
+</ol>
+<p><strong>注意：</strong></p>
+<ul>
+<li><p>init方法是对Servlet进行初始化的一个方法，会在Servlet第一次加载时进行存储执行</p>
+</li>
+<li><p>destory方法是在servlet被销毁时执行，也就是服务器关闭时。</p>
+</li>
+<li><p>```<br><load-on-startup>1</load-on-startup>                数字代表加载顺序</p>
+<pre class="highlight"><span class="line"></span><br><span class="line">代码示例</span><br><span class="line"></span><br></pre>
+<p>public class FirstServlet extends HttpServlet {</p>
+<p> @Override<br>  public void init(){</p>
+<pre><code> System.out.println(&quot;servlet初始化完成&quot;);
+</code></pre>
+<p> }</p>
+</li>
+</ul>
+<p>   @Override<br>    protected void service(HttpServletRequest req,HttpServletResponse resp) throws IOException {</p>
+<pre><code>    resp.getWriter().write(&quot;servlet life&quot;);
+   System.out.println(&quot;servlet life&quot;);
+</code></pre>
+<p>   }</p>
+<p>   @Override<br>    public void destroy(){<br>        System.out.println(“我被销毁了”);<br>    }</p>
+<p>}</p>
+<pre class="highlight"><span class="line"></span><br><span class="line">xml配置</span><br><span class="line"></span><br></pre>
+<pre><code>&lt;!--配置Servlet的访问--&gt;
+&lt;servlet&gt;
+    &lt;servlet-name&gt;FirstServlet&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;aa.FirstServlet&lt;/servlet-class&gt;
+
+    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;    
+
+&lt;/servlet&gt;
+&lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;FirstServlet&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/fs&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+</code></pre>
+<pre class="highlight"><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## service方法和doGet方法和doPost方法的使用和区别</span><br><span class="line"></span><br><span class="line">- service方法：可以处理get/post方式的请求，如果servlet中有service方法，会优先调用service方法对请求的处理</span><br><span class="line">- doGet方法：处理get方式的请求</span><br><span class="line">- doPost方法：处理post方式的请求</span><br><span class="line"></span><br><span class="line">注意：</span><br><span class="line"></span><br><span class="line">​	如果在覆写的service方法中调用了父类的service方法`super.service(arg0,arg1);`</span><br><span class="line"></span><br><span class="line">​	则在service方法处理完后，会再次根据请求方式响应的doGet和doPost方法执行</span><br><span class="line"></span><br><span class="line">​	必须写doGet和doPost方法，否则会405</span><br><span class="line"></span><br><span class="line">​	所以，一般我们不再覆写的service中调用父类的service方法，避免出现405</span><br><span class="line"></span><br></pre>
+<p>/**</p>
+<ul>
+<li>Service方法 doGet方法  doPost方法</li>
+<li>/</li>
+</ul>
+<p>@WebServlet(name = “ServletMethod”)<br>public class ServletMethod extends HttpServlet {<br>/*<br>    @Override<br>    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        System.out.println(“我是service”);<br>    }*/</p>
+<p>   @Override<br>    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        System.out.println(“我是doGet”);<br>    }<br>/*<br>    @Override<br>    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        System.out.println(“我是doPost”);<br>    }*/<br>}</p>
+<pre class="highlight"><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## Servlet的常见错误</span><br><span class="line"></span><br><span class="line">- 404错误：资源未找到</span><br><span class="line"></span><br><span class="line">  - 原因一：在请求地址中的servlet的别名书写错误</span><br><span class="line">  - 原因二：虚拟项目名称拼写错误</span><br><span class="line"></span><br><span class="line">- 500错误：内部服务器错误</span><br><span class="line"></span><br><span class="line">  - 错误一：空指针</span><br><span class="line"></span><br><span class="line">    解决：在web.xml中校验servlet类的全限定路径是否拼写错误</span><br><span class="line"></span><br><span class="line">  - 错误二：因为service方法体的代码执行错误导致</span><br><span class="line"></span><br><span class="line">    解决：根据错误提示对service方法体中的代码进行错误更改</span><br><span class="line"></span><br><span class="line">- 405错误：请求方式不支持</span><br><span class="line"></span><br><span class="line">  - 原因：请求方式和servlet中的方法不匹配所造成的</span><br><span class="line">  - 解决：尽量使用service方法进行请求处理，并且不要在service方法中调用父类的service</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## request对象</span><br><span class="line"></span><br><span class="line">- 作用：request对象中封存了当前请求的所有请求信息</span><br><span class="line"></span><br><span class="line">- 使用：</span><br><span class="line"></span><br><span class="line">  - 获取请求头数据</span><br><span class="line">  - 获取请求行数据</span><br><span class="line">  - 获取用户数据</span><br><span class="line"></span><br><span class="line">- 注意：</span><br><span class="line"></span><br><span class="line">  request对象由tomcat服务器创建，并作为实参传递给处理请求的servlet的service方法。</span><br><span class="line"></span><br></pre>
+<p>/**</p>
+<ul>
+<li><p>request对象学习</p>
+</li>
+<li><p> 作用：request对象中封存了当前请求的所有请求信息</p>
+</li>
+<li><p> 使用：获取请求头数据</p>
+</li>
+<li><pre><code>         getMethod();        // 获取请求方式
+</code></pre>
+</li>
+<li><pre><code>         getRequestURL();    // 获取请求URL信息
+</code></pre>
+</li>
+<li><pre><code>         getRequestURI();    // 获取请求URI信息
+</code></pre>
+</li>
+<li><pre><code>         getScheme();        // 获取协议
+</code></pre>
+</li>
+<li><pre><code>   获取请求行数据
+</code></pre>
+</li>
+<li><pre><code>            getHeader(&quot;键名&quot;);     // 返回指定的请求头信息
+</code></pre>
+</li>
+<li><pre><code>            getHeaderNames();      // 返回请求头的键名的枚举集合
+</code></pre>
+</li>
+<li><pre><code>   获取请求用户数据
+</code></pre>
+</li>
+<li><pre><code>            getParameter(&quot;键名&quot;);  // 返回指定的用户数据
+</code></pre>
+</li>
+<li><pre><code>            getParameterValues(&quot;键名&quot;);  //返回同键不同值的请求数据（多选），返回的是数组
+</code></pre>
+</li>
+<li><pre><code>            req.getParameterNames()   //返回所有的用户请求数据的键的枚举集合
+</code></pre>
+</li>
+<li><pre><code>            注意： 如果要获取的请求数据不存在，不会报错，返回null
+</code></pre>
+</li>
+<li><p>  注意：request对象由tomcat服务器创建，并作为实参传递给处理请求的servlet的service方法</p>
+</li>
+<li><p>/<br>@WebServlet(name = “RequestServlet”)<br>public class RequestServlet extends HttpServlet {<br>  @Override<br>  protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>  // 获取请求头数据</p>
+<pre><code>  // 获取请求方式
+  String method = req.getMethod();
+  System.out.println(method);
+
+  // 获取请求URL
+  StringBuffer url = req.getRequestURL();
+  System.out.println(url);
+      // 获取URI
+      String uri = req.getRequestURI();
+  System.out.println(uri);
+
+  // 获取协议(HTTP)
+  String x = req.getScheme();
+  System.out.println(x);
+</code></pre>
+</li>
+</ul>
+<pre><code> // 获取请求行数据
+
+    // 根据指定键来获取行信息
+        String value = req.getHeader(&quot;Host&quot;);    //获取键，在网页 f12 network 找请求头里的key
+        System.out.println(value);
+
+    // 获取所有的请求行的键的枚举
+    Enumeration e = req.getHeaderNames();
+   while(e.hasMoreElements()) &#123;     //遍历键值对
+       String name = (String)e.nextElement();
+       String value2 = req.getHeader(name);
+       System.out.println(name+&quot;:&quot;+value2);
+    &#125;
+
+// 获取用户数据
+
+    String name = req.getParameter(&quot;uname&quot;);    // 如果后台数据写的键名和提交数据的键名不一致  就null
+    String pwd = req.getParameter(&quot;pwd&quot;);
+    System.out.println(name+&quot;:&quot;+pwd);
+
+    // 获取同键不同值的多项选择数据，getParameter不行，会漏值
+    String fav = req.getParameter(&quot;fav&quot;);
+    System.out.println(fav);
+
+    // 获取同键不同值多项选择数据，要用getParameterValues
+    // 注意有个坑，如果你要取的数据不存在，favs为null，你再遍历null，会空指针异常，写个判断更严谨
+    String[] favs = req.getParameterValues(&quot;fav&quot;);
+    if(null != favs) &#123;
+        for (String f : favs
+        ) &#123;
+            System.out.println(f);
+        &#125;
+    &#125;
+
+    //获取所有的用户请求数据的键的枚举集合  --&gt; req.getParameterNames()
+
+&#125;
+</code></pre>
+<p>}</p>
+<pre class="highlight"><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">## response对象</span><br><span class="line"></span><br></pre>
+<p>/**</p>
+<ul>
+<li>Response对象学习</li>
+<li> 作用：用来响应数据到浏览器的一个对象</li>
+<li> 使用：</li>
+<li><pre><code> 设置响应头
+</code></pre>
+</li>
+<li><pre><code>     setHeader(String name, String value); // 在响应头中添加响应信息，但是同键会覆盖
+</code></pre>
+</li>
+<li><pre><code>     addHeader(String name, String value); // 在响应头中添加响应信息，同键不同值不会覆盖
+</code></pre>
+</li>
+<li><pre><code> 设置相应实体
+</code></pre>
+</li>
+<li><pre><code>     resp.getWriter().write(String str); // 响应具体的数据给浏览器
+</code></pre>
+</li>
+<li></li>
+<li><pre><code> 设置响应状态
+</code></pre>
+</li>
+<li><pre><code>     sendError(int num,String str);  // 自定义响应状态码
+</code></pre>
+</li>
+<li><pre><code> 设置响应编码格式
+</code></pre>
+</li>
+<li><pre><code>     resp.setContentType(&quot;text/html;charset=utf-8&quot;);
+</code></pre>
+</li>
+<li></li>
+<li>  总结：</li>
+<li><pre><code> service 请求代码处理流程
+</code></pre>
+</li>
+<li><pre><code>     设置响应编码格式
+</code></pre>
+</li>
+<li><pre><code>     获取请求数据
+</code></pre>
+</li>
+<li><pre><code>     处理请求数据
+</code></pre>
+</li>
+<li><pre><code>         数据库操作
+</code></pre>
+</li>
+<li><pre><code>     响应处理结果
+</code></pre>
+</li>
+<li>/</li>
+</ul>
+<p>@WebServlet(name = “ResponseServlet”)<br>public class ResponseServlet extends HttpServlet {<br>    @Override<br>    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        // 获取请求信息<br>            // 获取请求头<br>            // 获取请求行<br>            // 获取用户数据<br>        // 处理请求<br>        // 响应处理结果<br>            // 设置响应头<br>            resp.setHeader(“mouse”,”luoji”);<br>            resp.setHeader(“mouse”,”shuang fei yan”);   // setHeader会覆盖</p>
+<pre><code>        resp.addHeader(&quot;key&quot;,&quot;thinkpad&quot;);
+        resp.addHeader(&quot;key&quot;,&quot;cherry&quot;);     // addHeader不会覆盖
+        // 设置响应编码格式
+    // resp.setHeader(&quot;content-type&quot;,&quot;text/html;charset=utf-8&quot;);    // 写下面的 一样的
+        resp.setContentType(&quot;text/html;charset=utf-8&quot;);     //html
+       // resp.setContentType(&quot;text/plain;charset=utf-8&quot;);  //文本
+       // resp.setContentType(&quot;text/xml;charset=utf-8&quot;);    //xml
+        // 设置响应状态码
+    //  resp.sendError(404,&quot;404la xiao huo zi&quot;);
+        // 响应实体
+        resp.getWriter().write(&quot;&lt;b&gt;今天真好this is response getWriter&lt;/b&gt;&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<pre class="highlight"><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 请求转发</span><br><span class="line"></span><br><span class="line">作用：实现了多个servlet联动操作处理请求，避免代码冗余，让servlet的职责更加明确。</span><br><span class="line"></span><br><span class="line">使用：</span><br><span class="line"></span><br></pre>
+<p>req.getRequestDispatcher(“要转发的地址”).forward(req,resp);</p>
+<pre class="highlight"><span class="line"></span><br><span class="line">特点：一次请求，浏览器地址栏不改变</span><br><span class="line"></span><br><span class="line">## request对象的作用域</span><br><span class="line"></span><br><span class="line">问题：使用请求转发后，不同的servlet之间怎么进行数据的共享呢？或者说数据怎么从一个servlet流转给另外一个servlet呢？</span><br><span class="line"></span><br><span class="line">使用:</span><br><span class="line"></span><br></pre>
+<p>request.setAttribute(Object name,object value);<br>request.getAttribute(Objdeect ob)</p>
+<pre class="highlight"><span class="line"></span><br><span class="line">作用：解决了一次请求内的不同的servlet的数据共享问题</span><br><span class="line"></span><br><span class="line">作用域：基于请求转发，一次请求中的所有servlet共享</span><br><span class="line"></span><br><span class="line">注意：使用request对象进行数据流转，数据旨在一次请求内创建</span><br><span class="line"></span><br><span class="line">特点：</span><br><span class="line"></span><br><span class="line">- 服务器创建</span><br><span class="line">- 每次请求都会创建</span><br><span class="line">- 生命周期一次请求</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 重定向</span><br><span class="line"></span><br><span class="line">问题：</span><br><span class="line"></span><br><span class="line">- 如果当前的请求，servlet无法进行处理怎么办？</span><br><span class="line">- 如果使用请求转发，造成表单数据重复提交怎么办？</span><br><span class="line"></span><br><span class="line">解决：使用重定向</span><br><span class="line"></span><br><span class="line">使用：</span><br><span class="line"></span><br></pre>
+<p>response.sendRedirect(“路径”);</p>
+<pre class="highlight"><span class="line"></span><br><span class="line">示例：</span><br><span class="line"></span><br></pre>
+<p>resp.sendRedirect(“/login/main”);</p>
+<pre class="highlight"><span class="line"></span><br><span class="line">比如：淘宝买东西，支付的时候跳到支付宝</span><br><span class="line"></span><br><span class="line">再比如：你来我这盖章，我说我这盖不了，得去别的部门盖，这就是把你的请求重定向了，定给了别的部门</span><br><span class="line"></span><br><span class="line">主要作用：</span><br><span class="line"></span><br><span class="line">1. 避免表单数据重复提交</span><br><span class="line">2. 如果当前请求无法处理，重定向给其他的servlet或功能模块进行处理</span><br><span class="line"></span><br><span class="line">特点：</span><br><span class="line"></span><br><span class="line">- 两次请求，两个request对象</span><br><span class="line">- 浏览器地址栏信息改变</span><br><span class="line"></span><br><span class="line">使用时机：</span><br><span class="line"></span><br><span class="line">- 如果请求中有表单数据，而数据又比较重要，不能重定向，建议使用重定向</span><br><span class="line">- 如果请求呗servlet接收后，无法进行处理，建议使用重定向到可以处理的资源</span><br><span class="line"></span><br><span class="line">## cookie</span><br><span class="line"></span><br></pre>
+<p>/**</p>
+<ul>
+<li>cookie学习</li>
+<li> 作用：解决了发送的不同请求的数据共享问题</li>
+<li> 使用：</li>
+<li><pre><code> Cookie的创建和存储
+</code></pre>
+</li>
+<li><pre><code>  创建cookie对象
+</code></pre>
+</li>
+<li><pre><code>         Cookie c = new Cookie(String name,String value);
+</code></pre>
+</li>
+<li><pre><code>     设置cookie（可选）
+</code></pre>
+</li>
+<li><pre><code>         设置有效期
+</code></pre>
+</li>
+<li><pre><code>         c.setMaxAge(int seconds);
+</code></pre>
+</li>
+<li><pre><code>         设置有效路径
+</code></pre>
+</li>
+<li><pre><code>         c.setPath(String uri);
+</code></pre>
+</li>
+<li><pre><code>     响应cookie信息给客户端
+</code></pre>
+</li>
+<li><pre><code>       resp.addCookie(c);
+</code></pre>
+</li>
+<li><pre><code> Cookie的获取
+</code></pre>
+</li>
+<li><pre><code>     获取cookie信息数组
+</code></pre>
+</li>
+<li><pre><code>     Cookie[] cks = req.getCookies();
+</code></pre>
+</li>
+<li><pre><code>     遍历数组获取Cookie信息 示例：
+</code></pre>
+</li>
+<li><pre><code>      if(cks!= null)&#123;
+</code></pre>
+</li>
+<li><pre><code>        for (Cookie c:cks) &#123;
+</code></pre>
+</li>
+<li><pre><code>              String name = c.getName();
+</code></pre>
+</li>
+<li><pre><code>              String value = c.getValue();
+</code></pre>
+</li>
+<li><pre><code>              System.out.println(name+&quot;:&quot;+value);
+</code></pre>
+</li>
+<li><pre><code>            &#125;
+</code></pre>
+</li>
+<li><pre><code>         &#125;
+</code></pre>
+</li>
+<li></li>
+<li> 注意：</li>
+<li><pre><code> 一个cookie对象存储一条数据，多条数据 可以多创建几个cookie对象进行存储
+</code></pre>
+</li>
+<li> 特点：</li>
+<li><pre><code> 浏览器端的数据存储技术
+</code></pre>
+</li>
+<li><pre><code> 存储的数据声明在服务器端
+</code></pre>
+</li>
+<li><pre><code> 临时存储：存储在浏览器的运行内存中，浏览器关闭即失效
+</code></pre>
+</li>
+<li><pre><code> 定时存储：设置了Cookie的有效期，存储在客户端的硬盘中，在有效期内符合路径要求的请求都会附带该信息
+</code></pre>
+</li>
+<li><pre><code> 默认cookie信息存储好之后，每次请求都会附带，除非设置有效路径
+</code></pre>
+</li>
+<li></li>
+<li></li>
+<li>/</li>
+</ul>
+<p>@WebServlet(name = “CoolieServlet”,value = “/cookie”)<br>public class CookieServlet extends HttpServlet {<br>    @Override<br>    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {<br>        //设置请求编码格式<br>        req.setCharacterEncoding(“utf-8”);<br>        //设置响应编码格式<br>        resp.setContentType(“text/html;charset=utf-8”);<br>        //获取请求信息<br>        //处理请求信息<br>        //响应处理结果<br>            //使用cookie进行浏览器端的数据存储<br>                //创建cookie对象<br>                Cookie c = new Cookie(“mouse”,”luoji”);<br>                Cookie c2 = new Cookie(“key”,”fg”);<br>                //设置Cookie<br>                    //设置Cookie的有效期<br>                    c2.setMaxAge(3<em>24</em>3600);    //设置cookie存3天 里面是秒<br>                    //设置有效路径<br>                    c2.setPath(“/cookie/abc”);<br>                //响应cookie信息<br>                resp.addCookie(c);<br>                resp.addCookie(c2);<br>            //直接响应<br>            resp.getWriter().write(“cookie学习”);<br>            //请求转发<br>            //重定向<br>    }<br>}</p>
+<pre><code>
+## web工程文件夹
+
+- pojo 放实体类
+- service 业务层  操作数据库和控制层
+- dao层 操作数据库
+- controller层 操作servlet
+
+
+
+
+</code></pre>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/10/15/servlet/">http://www.codekop.com/2019/10/15/servlet/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/15/SpringMVC%E6%B5%81%E7%A8%8B/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">SpringMVC流程 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/10/15/%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%89%93%E5%BC%80%E8%BD%AF%E4%BB%B6/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">命令行打开软件 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java-Web"><span class="toc-text">Java Web</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#tomcat"><span class="toc-text">tomcat</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#tomcat%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">tomcat工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#idea%E9%85%8D%E7%BD%AEtomcat"><span class="toc-text">idea配置tomcat</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Servlet"><span class="toc-text">Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E6%88%90"><span class="toc-text">组成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-text">运行流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Servlet%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-text">Servlet的生命周期</span></a></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java-Web"><span class="toc-text">Java Web</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#tomcat"><span class="toc-text">tomcat</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#tomcat%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">tomcat工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#idea%E9%85%8D%E7%BD%AEtomcat"><span class="toc-text">idea配置tomcat</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Servlet"><span class="toc-text">Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E6%88%90"><span class="toc-text">组成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-text">运行流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Servlet%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-text">Servlet的生命周期</span></a></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java-Web"><span class="toc-text">Java Web</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#tomcat"><span class="toc-text">tomcat</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#tomcat%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">tomcat工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#idea%E9%85%8D%E7%BD%AEtomcat"><span class="toc-text">idea配置tomcat</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Servlet"><span class="toc-text">Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-text">定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E7%82%B9"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E6%88%90"><span class="toc-text">组成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-text">运行流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Servlet%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-text">Servlet的生命周期</span></a></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

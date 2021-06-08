@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>Hibernate的延迟加载与动态代理</title>
+  
+  
+  <meta property="og:title" content="Hibernate的延迟加载与动态代理">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2020/08/19/Hibernate%E7%9A%84%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/index.html">
+  
+  
+  <meta property="og:img" content="/img/head2.png">
+  
+  
+  <meta property="og:img" content="&lt;h2 id=&#34;问题抛出&#34;&gt;&lt;a href=&#34;#问题抛出&#34; class=&#34;headerlink&#34; title=&#34;问题抛出&#34;&gt;&lt;/a&gt;问题抛出&lt;/h2&gt;&lt;p&gt;今天查询楼栋接口突然报错，经过排查后发现是楼栋关联的buildingDetailUser，在user表中查不到，所以在getUser的时候就为空了，再getUserId就会报错，正常是不会出现这种情况的，因为系统中的删除都是逻辑删除，不会出现userId查不到的情况，估计是哪个小子手抖在数据库不小心删了条数据…(别让我抓到你)，于是老大让我在getUserId之前加一层判断，判断getUser为空就不往下走了。&lt;/p&gt;
+&lt;p&gt;修改后看如下业务代码&lt;/p&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2020-08-19">
+  <meta property="og:article:modified_time" content="2020-08-19">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="bug">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      Hibernate的延迟加载与动态代理
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2020-08-19T08:23:41.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2020-08-19</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>1.3k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/bug/" class="post-meta-link">bug</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h2 id="问题抛出"><a href="#问题抛出" class="headerlink" title="问题抛出"></a>问题抛出</h2><p>今天查询楼栋接口突然报错，经过排查后发现是楼栋关联的buildingDetailUser，在user表中查不到，所以在getUser的时候就为空了，再getUserId就会报错，正常是不会出现这种情况的，因为系统中的删除都是逻辑删除，不会出现userId查不到的情况，估计是哪个小子手抖在数据库不小心删了条数据…(别让我抓到你)，于是老大让我在getUserId之前加一层判断，判断getUser为空就不往下走了。</p>
+<p>修改后看如下业务代码</p>
+<span id="more"></span>
+
+<pre class="highlight"><span class="line">BuildingDetail buildingDetail = buildingService.findByBuildingId(buildingId);</span><br><span class="line">Set&lt;BuildingDetailUser&gt; buildingUser = buildingDetail.getBuildingUser();</span><br><span class="line">List&lt;Map&lt;String, Object&gt;&gt; userData = <span class="keyword">new</span> ArrayList&lt;Map&lt;String, Object&gt;&gt;();</span><br><span class="line"><span class="keyword">for</span>(BuildingDetailUser detailUser:buildingUser)&#123;</span><br><span class="line">	Map&lt;String,Object&gt; objUserTemp = <span class="keyword">new</span> HashMap&lt;String,Object&gt;();</span><br><span class="line">	<span class="keyword">if</span>(detailUser.getUser() != <span class="keyword">null</span>)&#123;</span><br><span class="line">		objUserTemp.put(<span class="string">&quot;dictId&quot;</span>, detailUser.getRole().getRoleid());</span><br><span class="line">		objUserTemp.put(<span class="string">&quot;userId&quot;</span>, detailUser.getUser().getUserid());</span><br><span class="line">		objUserTemp.put(<span class="string">&quot;userName&quot;</span>, detailUser.getUser().getUserName());</span><br><span class="line">		userData.add(objUserTemp); </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">map.put(<span class="string">&quot;userData&quot;</span>, userData);</span><br></pre>
+
+<p>根据<code>buildingId</code>，得到楼栋信息，再getBuildingUser——&gt;getUser ——&gt; getUserId</p>
+<p>BuildingDetail 实体类中封装了 BuildingDetailUser</p>
+<pre class="highlight"><span class="line"><span class="keyword">private</span> Set&lt;BuildingDetailUser&gt; buildingUser = <span class="keyword">new</span> HashSet&lt;BuildingDetailUser&gt;();</span><br><span class="line"></span><br><span class="line"><span class="meta">@OneToMany(cascade = &#123;CascadeType.PERSIST, CascadeType.MERGE &#125;, fetch = FetchType.LAZY, mappedBy = &quot;buildingDetail&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Set&lt;BuildingDetailUser&gt; <span class="title">getBuildingUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> buildingUser;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setBuildingUser</span><span class="params">(Set&lt;BuildingDetailUser&gt; buildingUser)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.buildingUser = buildingUser;</span><br><span class="line">&#125;</span><br></pre>
+
+<p>BuildingDetailUser 实体中，又封装了User</p>
+<pre class="highlight"><span class="line"><span class="keyword">private</span> User user; <span class="comment">// 关联人员</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@ManyToOne(cascade=&#123;CascadeType.PERSIST, CascadeType.REFRESH&#125;, fetch=FetchType.LAZY)</span></span><br><span class="line"><span class="meta">@JoinColumn(name=&quot;user_id&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUser</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.user = user;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<p>这样就可以一直get到userId，这么看没什么毛病</p>
+<p>但是在debug的过程中，发现了奇怪的事情，debug过程中，对buildingUser遍历，detailUser.getUser() 只有一个userId不为空，而且得到的userId每次都不一样，和数据库也对不上，并且我把数据库中对应的user删除，detailUser.getUser() 也不为空</p>
+<p>这就奇了怪了，一开始我还以为是编译器的锅（eclipse对不起 -.-! ），后来重启，刷新之后还是这种情况。这样我就没法做判断了啊，getUser无论如何都不为空，再getUserId就会报错。</p>
+<h2 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h2><p>我去询问大佬（兄弟们把樊华NB打在公屏上！！），发现了这段代码</p>
+<p>BuildingDetailUser :</p>
+<pre class="highlight"><span class="line"><span class="meta">@ManyToOne(cascade=&#123;CascadeType.PERSIST, CascadeType.REFRESH&#125;, fetch=FetchType.LAZY)</span></span><br><span class="line"><span class="meta">@JoinColumn(name=&quot;user_id&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUser</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.user = user;</span><br><span class="line">&#125;</span><br></pre>
+
+<p>User:</p>
+<pre class="highlight"><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">super</span>();</span><br><span class="line">	<span class="keyword">this</span>.userid = UUID.getUUID();</span><br><span class="line">&#125;</span><br></pre>
+
+<p>原来是这里配置了懒加载，得到的是hibernate动态代理对象</p>
+<p>hibernate首先返回的是目标查询对象的代理对象，就是先看数据库有没有这条数据，有的话返回一个动态代理对象，其实就是User的一个子类。当需要使用目标对象的属性时候，如：user.getUserId();  hibernate再用SQL语句在数据中进行查询；</p>
+<p>延迟加载其实也是一样，要查询对象时候不是马上到数据库中进行查询而是先在内存中生成一个代理对象，当要使用数据时候才到数据库中进行查询；</p>
+<h2 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h2><p>那么修改就简单了，因为我是要过滤掉user为空的buildingDetailUser，那就不用hibernate这样的方式，直接写SQL，用inner join关联User查询就好了</p>
+<pre class="highlight"><span class="line">List&lt;Map&lt;Object,Object&gt;&gt; buildingUser = buildingUserDao.findBuildingDetailUserByMap(buildingUserMap);</span><br><span class="line"><span class="comment">// 这个方法的sql自行脑部，很简单inner join关联，查什么就拿什么就好了</span></span><br><span class="line">List&lt;Map&lt;String, Object&gt;&gt; userData = <span class="keyword">new</span> ArrayList&lt;Map&lt;String, Object&gt;&gt;();</span><br><span class="line"><span class="keyword">for</span> (Map&lt;Object,Object&gt; detailUser : buildingUser) &#123;</span><br><span class="line">	Map&lt;String, Object&gt; objUserTemp = <span class="keyword">new</span> HashMap&lt;String, Object&gt;();</span><br><span class="line">	objUserTemp.put(<span class="string">&quot;dictId&quot;</span>, detailUser.get(<span class="string">&quot;roleId&quot;</span>));</span><br><span class="line">	objUserTemp.put(<span class="string">&quot;userId&quot;</span>, detailUser.get(<span class="string">&quot;userId&quot;</span>));</span><br><span class="line">	objUserTemp.put(<span class="string">&quot;userName&quot;</span>, detailUser.get(<span class="string">&quot;userName&quot;</span>));</span><br><span class="line">	userData.add(objUserTemp);	</span><br><span class="line">&#125;</span><br><span class="line">map.put(<span class="string">&quot;userData&quot;</span>, userData);</span><br></pre>
+
+
+
+<h2 id="Hibernate的延迟加载与动态代理"><a href="#Hibernate的延迟加载与动态代理" class="headerlink" title="Hibernate的延迟加载与动态代理"></a>Hibernate的延迟加载与动态代理</h2><p>所以，开头说到的奇怪现象的原因是什么呢？其实在hibernate设置延迟加载后，hibernate返回给我们的对象（要延迟加载的对象）是一个代理对象，并不是真实的对象，该对象没有真实对象的数据，只有真正需要用到对象数据（调用getter等方法时）时，才会触发hibernate去数据库查对应数据，而且查回来的数据不会存储在代理对象中，所以这些数据是无法在调试窗口查看到的。</p>
+<p>如果在调试是要查看该数据，我们可以查看代理对象中的hadler属性中的target变量，该对象变量才是真实的对象</p>
+<p>也就是说，我们user变量仅仅是一个代理类，target才是真正数据库中获取的数据。当我们在调用getter方法式，hibernate会利用动态代理的方法，直接调用target中的getter方法发挥对应的值。这样也解释了为什么hibernate可以延迟加载：通过代理类进行加载时间的控制，在外界正真调用getter等方法操作数据时才会对相应的方法进行拦截，然后读取数据库。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2020/08/19/Hibernate%E7%9A%84%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">http://www.codekop.com/2020/08/19/Hibernate%E7%9A%84%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2020/09/03/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8Excel%E5%A4%84%E7%90%86%E5%A4%8D%E6%9D%82%E6%95%B0%E6%8D%AE/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">如何使用Excel处理复杂数据 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2020/08/17/SpringBoot-Cloud-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6on%E8%AF%BB%E5%8F%96%E4%B8%BAtrue/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">SpringBoot/Cloud 配置文件on读取为true </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8A%9B%E5%87%BA"><span class="toc-text">问题抛出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9B%A0%EF%BC%9A"><span class="toc-text">原因：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3"><span class="toc-text">解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hibernate%E7%9A%84%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-text">Hibernate的延迟加载与动态代理</span></a></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8A%9B%E5%87%BA"><span class="toc-text">问题抛出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9B%A0%EF%BC%9A"><span class="toc-text">原因：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3"><span class="toc-text">解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hibernate%E7%9A%84%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-text">Hibernate的延迟加载与动态代理</span></a></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8A%9B%E5%87%BA"><span class="toc-text">问题抛出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9B%A0%EF%BC%9A"><span class="toc-text">原因：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3"><span class="toc-text">解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hibernate%E7%9A%84%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-text">Hibernate的延迟加载与动态代理</span></a></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

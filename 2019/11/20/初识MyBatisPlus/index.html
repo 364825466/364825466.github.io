@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>初识MyBatisPlus</title>
+  
+  
+  <meta property="og:title" content="初识MyBatisPlus">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/11/20/%E5%88%9D%E8%AF%86MyBatisPlus/index.html">
+  
+  
+  <meta property="og:img" content="/blogImg/初识MyBatisPlus/1.jfif">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;初识MyBatisPlus&#34;&gt;&lt;a href=&#34;#初识MyBatisPlus&#34; class=&#34;headerlink&#34; title=&#34;初识MyBatisPlus&#34;&gt;&lt;/a&gt;初识MyBatisPlus&lt;/h1&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-11-20">
+  <meta property="og:article:modified_time" content="2021-06-07">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="SpringBoot">
+  
+  <meta property="og:article:tag" content="MyBatisPlus">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<div class="image-wrapper">
+  <img src="/blogImg/初识MyBatisPlus/1.jfif" data-src="/blogImg/初识MyBatisPlus/1.jfif"
+    srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
+    class="image lozad"
+    alt="thumbnail"
+  >
+</div>
+
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      初识MyBatisPlus
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-11-20T06:01:54.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-11-20</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>2.7k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/SpringBoot/" class="post-meta-link">SpringBoot</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/MyBatisPlus/" class="post-meta-link">MyBatisPlus</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="初识MyBatisPlus"><a href="#初识MyBatisPlus" class="headerlink" title="初识MyBatisPlus"></a>初识MyBatisPlus</h1><span id="more"></span>
+
+<p>MyBatis优势：</p>
+<ul>
+<li>SQL语句可以自由控制，更灵活，性能较高</li>
+<li>SQL与代码分离，易于阅读和维护</li>
+<li>提供XML标签，支持编写动态SQL</li>
+</ul>
+<p>JPA优势：</p>
+<ul>
+<li>JPA移植性较好（JPQL）</li>
+<li>提供了很多CRUD方法，开发效率高</li>
+<li>对象化程度更高</li>
+</ul>
+<p>对比后MyBatis劣势：</p>
+<ul>
+<li>简单CRUD操作还得写SQL语句</li>
+<li>XML中有大量的SQL要维护</li>
+<li>MyBatis自身功能优先，但支持Plugin</li>
+</ul>
+<p>那么，有没有一种框架，既有MyBatis的种种好处，又拜托了MyBatis的劣势呢？</p>
+<h2 id="MyBatis-Plus简介"><a href="#MyBatis-Plus简介" class="headerlink" title="MyBatis-Plus简介"></a>MyBatis-Plus简介</h2><p>MP是一个MyBatis的增强工具，只做增强不做改变</p>
+<p>地址： <a target="_blank" rel="noopener" href="https://mp.baomidou.com/">https://mp.baomidou.com/</a> </p>
+<p>性能介绍：</p>
+<ul>
+<li>无侵入，损耗小，强大的CRUD操作</li>
+<li>支持Lambda形式调用，支持多种数据库</li>
+<li>支持主键自动生成，支持ActiveRecord</li>
+<li>支持自定义全局通用操作，支持关键词自动转义</li>
+<li>内置代码生成器，内置分页插件，内置性能分析插件</li>
+<li>内置全局拦截插件，内置sql注入剥离器</li>
+</ul>
+<h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><h3 id="通用mapper新增方法"><a href="#通用mapper新增方法" class="headerlink" title="通用mapper新增方法"></a>通用mapper新增方法</h3><p>SSM传统编程模式：</p>
+<p>接口中写抽象方法 -&gt; XML或注解写SQL -&gt; Service中调用接口 -&gt; Controller中调用</p>
+<p>mp新增demo：</p>
+<p>UserMapper.java:</p>
+<pre class="highlight"><span class="line">public interface UserMapper extends BaseMapper&lt;User&gt;&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre>
+
+<p>InsertTest.java:</p>
+<pre class="highlight"><span class="line">@RunWith(SpringRunner.class)</span><br><span class="line">@SpringBootTest</span><br><span class="line">public class InsertTest&#123;</span><br><span class="line">	@Autowired</span><br><span class="line">	private UserMapper userMapper;</span><br><span class="line">	</span><br><span class="line">	@Test</span><br><span class="line">	public void insert()&#123;</span><br><span class="line">		User user = new User();</span><br><span class="line">		user.setName(&quot;小明&quot;);</span><br><span class="line">		user.setAge(13);</span><br><span class="line">		</span><br><span class="line">		int rows = userMapper.insert(user);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre>
+
+<h3 id="常用注解"><a href="#常用注解" class="headerlink" title="常用注解"></a>常用注解</h3><p>User.java 实体类</p>
+<pre class="highlight"><span class="line">@Data</span><br><span class="line">@TableName(&quot;mp_user&quot;)  </span><br><span class="line">// 直接指定对应的数据库表叫什么名 不加的话User默认对应user表 这个代表User对应mp_user表</span><br><span class="line">public class User&#123;</span><br><span class="line"></span><br><span class="line">	@TableId	// 指定userId就是对应数据库中的主键</span><br><span class="line">	private Long userId;</span><br><span class="line">	</span><br><span class="line">	// 指定realName在数据库中对应name列  要不然都是默认实体驼峰对应数据库下划线</span><br><span class="line">	@TableField(&quot;name&quot;)</span><br><span class="line">	private String realName;</span><br><span class="line">	</span><br><span class="line">	private Integer age;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<h3 id="排除非表字段的三种方式"><a href="#排除非表字段的三种方式" class="headerlink" title="排除非表字段的三种方式"></a>排除非表字段的三种方式</h3><p>场景：实体中某个变量不对应表中任何一个字段，他只是暂时存一些数据或者保存通过某种计算或组装的数据</p>
+<p>demo:     给实体类添加一个数据库没有的变量</p>
+<pre class="highlight"><span class="line">// 实体类中添加一个数据库没有的字段 用来暂时存一些数据</span><br><span class="line">private String remark;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">————————————————————————————————————————————————————————————————————————</span><br><span class="line"></span><br><span class="line">// 测试类设置属性值</span><br><span class="line">@Test</span><br><span class="line">public void insert()&#123;</span><br><span class="line">	User user = new User();</span><br><span class="line">	user.setName(&quot;小白&quot;);</span><br><span class="line">	user.setAge(11);</span><br><span class="line">	</span><br><span class="line">	user.setRemark(&quot;我是一个备注信息~&quot;);</span><br><span class="line">	int rows = userMapper.insert(user);</span><br><span class="line">&#125;</span><br></pre>
+
+<p>这是不成功的，因为数据库中没有remark字段，解决办法有三种：</p>
+<ol>
+<li><p>加关键字<strong>transient</strong></p>
+<pre class="highlight"><span class="line">// 实体类中给变量添加关键字</span><br><span class="line">private transient String remark;</span><br></pre>
+
+<p>缺点：加了这个字段不参与序列化了，有序列化的需求用第二种方法</p>
+</li>
+<li><p>把它标识为静态变量static</p>
+<pre class="highlight"><span class="line">// 实体类中给变量标识为静态变量</span><br><span class="line">private static String remark;</span><br><span class="line"></span><br><span class="line">————————————————————————————————————————</span><br><span class="line"></span><br><span class="line">@Test</span><br><span class="line">public void insert()&#123;</span><br><span class="line">	User user = new User();</span><br><span class="line">	user.setName(&quot;小猪&quot;);</span><br><span class="line">	user.setAge(11);</span><br><span class="line">	</span><br><span class="line">	// 因为用的static 所以要用类名.</span><br><span class="line">	User.setRemark(&quot;我是一个备注信息~&quot;)</span><br><span class="line">	</span><br><span class="line">	int rows = userMapper.insert(user);</span><br><span class="line">&#125;</span><br></pre>
+
+<p><strong>注意：</strong></p>
+<pre><code>1. Lombok不会为静态变量声明get set 方法，需要手动生成
+
+2. 因为用的static，所以调用要用类名.方法名
+</code></pre>
+<p>缺点：这样是全类唯一一份remark，要想每个对象对应一个remark，用第三种</p>
+</li>
+<li><p>用@TableField(exist=false)</p>
+<pre class="highlight"><span class="line">// 这个注解exist默认为true，写成false表示不是数据库表中的字段</span><br><span class="line">@TableField(exist=false)</span><br><span class="line">private String remark;</span><br></pre></li>
+</ol>
+<h2 id="MP查询方法"><a href="#MP查询方法" class="headerlink" title="MP查询方法"></a>MP查询方法</h2><h3 id="普通查询"><a href="#普通查询" class="headerlink" title="普通查询"></a>普通查询</h3><pre class="highlight"><span class="line">@RunWith(SpringRunner.class)</span><br><span class="line">@SpringBootTest</span><br><span class="line">public class RetrieveTest&#123;</span><br><span class="line"></span><br><span class="line">	@Autowired</span><br><span class="line">	private UserMapper userMapper;</span><br><span class="line">	</span><br><span class="line">	// 根据id查user</span><br><span class="line">	@Test</span><br><span class="line">	public void selectById()&#123;</span><br><span class="line">		User user = userMapper.selectById(&quot;343523452342L&quot;);</span><br><span class="line">		System.out.println(user);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	// 根据多个id查user</span><br><span class="line">	@Test</span><br><span class="line">	public void selectByIds()&#123;</span><br><span class="line">		List&lt;Long&gt; idsList = Arrays.asList(412343543542342L,24234235142143L,254453245254L);</span><br><span class="line">		List&lt;User&gt; userList = userMapper.selectBatchIds(idsList);</span><br><span class="line">		System.out.println(user);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	// map查询</span><br><span class="line">	@Test</span><br><span class="line">	public void selectByMap()&#123;</span><br><span class="line">		Map&lt;String,Object&gt; map = new HashMap&lt;&gt;();</span><br><span class="line">		map.put(&quot;name&quot;,&quot;小李&quot;);</span><br><span class="line">		map.put(&quot;age&quot;,12);</span><br><span class="line">		List&lt;User&gt; userList = userMapper.selectaByMap(map);</span><br><span class="line">		// SQL语句应该是 select 所有字段 from user where name=&quot;小李&quot; and age=12</span><br><span class="line">		// 注意map中的键对应的是数据库中的列 不是实体的属性名</span><br><span class="line">		</span><br><span class="line">		userList.forEach(System.out::println);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">	</span><br><span class="line"></span><br></pre>
+
+
+
+<h3 id="条件构造器查询"><a href="#条件构造器查询" class="headerlink" title="条件构造器查询"></a>条件构造器查询</h3><pre class="highlight"><span class="line">// 1. 名字中包含雨并且年龄小于40</span><br><span class="line">// name like &#x27;%雨%&#x27; and age&lt;40</span><br><span class="line">@Test</span><br><span class="line">public void selectByWrapper()&#123;</span><br><span class="line"></span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	//或者可以写成 QueryWrapper&lt;User&gt; queryWrapper = Wrappers.&lt;User&gt;query();</span><br><span class="line">	</span><br><span class="line">	queryWrapper.like(&quot;name&quot;,&quot;雨&quot;).lt(&quot;age&quot;,40);</span><br><span class="line">	// 键同样是数据库列名，lt是小于</span><br><span class="line">    </span><br><span class="line">    List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">    userList.forEach(System.out::println);</span><br><span class="line">	</span><br><span class="line">&#125; </span><br><span class="line"></span><br></pre>
+
+<pre class="highlight"><span class="line">// 2. 名字中包含雨并且年龄大于等于20且小于等于40并且email不为空</span><br><span class="line">// name like &#x27;%雨%&#x27; and age between 20 and 40 and email is not null</span><br><span class="line">@Test</span><br><span class="line">public void selectByWrapper()&#123;</span><br><span class="line"></span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	</span><br><span class="line">	queryWrapper.like(&quot;name&quot;,&quot;雨&quot;).between(&quot;age&quot;,20,40).isNotNull(&quot;email&quot;);</span><br><span class="line">    </span><br><span class="line">    List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">    userList.forEach(System.out::println);</span><br><span class="line">	</span><br><span class="line">&#125; </span><br><span class="line"></span><br></pre>
+
+<pre class="highlight"><span class="line">// 3. 名字中为王姓或者年龄大于等于25，按照年龄降序排列，年龄相同按照id升序排列</span><br><span class="line">// name like &#x27;王%&#x27; or age&gt;=25 order by age desc,id asc</span><br><span class="line">@Test</span><br><span class="line">public void selectByWrapper()&#123;</span><br><span class="line"></span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();			 queryWrapper.likeRight(&quot;name&quot;,&quot;王&quot;).or().ge(&quot;age&quot;,25).orderByDesc(&quot;age&quot;).orderByAsc(&quot;id&quot;);</span><br><span class="line">    </span><br><span class="line">    List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">    userList.forEach(System.out::println);</span><br><span class="line">	</span><br><span class="line">&#125; </span><br><span class="line"></span><br></pre>
+
+<h3 id="select中字段不全部查询"><a href="#select中字段不全部查询" class="headerlink" title="select中字段不全部查询"></a>select中字段不全部查询</h3><pre class="highlight"><span class="line">// select id,name from user where name like &#x27;%雨%&#x27; and age&lt;40</span><br><span class="line">@Test</span><br><span class="line">public void selectIdAndName()&#123;</span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	queryWrapper.select(&quot;id&quot;,&quot;name&quot;).like(&quot;name&quot;,&quot;雨&quot;).lt(&quot;age&quot;,40);</span><br><span class="line">	</span><br><span class="line">	List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">	userList.forEach(System.out:：println);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<pre class="highlight"><span class="line">// 如果有很多字段，然后要排除其中的一个两个字段</span><br><span class="line">@Test</span><br><span class="line">public void selectIdAndName()&#123;</span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	// 查找除create_time 和 manager_id字段的其他字段的值，其他条件和上一个一样</span><br><span class="line">	queryWrapper.select(User.class,info-&gt;!info.getColumn().equals(&quot;create_time&quot;)&amp;&amp;!info.getColumn().equals(&quot;manager_id&quot;)).like(&quot;name&quot;,&quot;雨&quot;).lt(&quot;age&quot;,40);</span><br><span class="line">	</span><br><span class="line">	List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">	userList.forEach(System.out:：println);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<h3 id="条件构造器中condition"><a href="#条件构造器中condition" class="headerlink" title="条件构造器中condition"></a>条件构造器中condition</h3><p>使用场景：表示该条件是否加入最后生成的SQL中，如果为true就加入，如果为false就不加入</p>
+<p>比如前端给你传值 传过来的sql就加进去，没有传的sql就不写，类似动态sql那种</p>
+<pre class="highlight"><span class="line">private void condition(String name,String email)&#123;</span><br><span class="line"></span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	if(StringUtils.isNotEmpty(name))&#123;</span><br><span class="line">		queryWrapper.like(&quot;name&quot;,name);</span><br><span class="line">	&#125;</span><br><span class="line">	if(StringUtils.isNotEmpty(email))&#123;</span><br><span class="line">		queryWrapper.like(&quot;email&quot;,email);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">	userList.forEach(System.out::println);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Test</span><br><span class="line">private void testCondition()&#123;</span><br><span class="line"></span><br><span class="line">	String name = &#x27;王%&#x27;;</span><br><span class="line">	String email = &#x27;&#x27;;</span><br><span class="line">	condition(name,email);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>这样写没有问题，但是太麻烦，可以用带condition的like</p>
+<pre class="highlight"><span class="line">private void condition(String name,String email)&#123;</span><br><span class="line"></span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	queryWrapper.like(StringUtils.isNotEmpty(name),&quot;name&quot;,name).like(StringUtils.isNotEmpty(email),&quot;email&quot;,email);</span><br><span class="line">	</span><br><span class="line">	List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">	userList.forEach(System.out::println);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Test</span><br><span class="line">private void testCondition()&#123;</span><br><span class="line"></span><br><span class="line">	String name = &#x27;王%&#x27;;</span><br><span class="line">	String email = &#x27;&#x27;;</span><br><span class="line">	condition(name,email);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<h3 id="创建条件构造器时传入实体对象"><a href="#创建条件构造器时传入实体对象" class="headerlink" title="创建条件构造器时传入实体对象"></a>创建条件构造器时传入实体对象</h3><pre class="highlight"><span class="line">@Test</span><br><span class="line">public void selectByWrapperEntity()&#123;</span><br><span class="line">	User whereUser = new User();</span><br><span class="line">	whereUser.setName(&quot;小刘&quot;);</span><br><span class="line">	whereUser.setAge(32);</span><br><span class="line">	</span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">	userList.forEach(System.out::println);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>有时候前端都是要like，不是等值的</p>
+<p>修改实体类 加注解</p>
+<pre class="highlight"><span class="line">@Data</span><br><span class="line">public class User&#123;</span><br><span class="line">	private Long id;</span><br><span class="line">	// like</span><br><span class="line">	@TableField(condition=SqlCondition.LIKE)</span><br><span class="line">	private String name;</span><br><span class="line">	// 小于</span><br><span class="line">	@TableField(condition=&quot;%s&amp;lt;#&#123;%s&#125;&quot;)</span><br><span class="line">	private Integer age;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>这样你写完直接就是like的，然后age就是小于</p>
+<h3 id="allEq用法"><a href="#allEq用法" class="headerlink" title="allEq用法"></a>allEq用法</h3><pre class="highlight"><span class="line">@Test</span><br><span class="line">public void selectByWrapperAllEq()&#123;</span><br><span class="line"></span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	Map&lt;String,Object&gt; params = new HashMap&lt;String,Object&gt;();</span><br><span class="line">	params.put(&quot;name&quot;,&quot;小王&quot;);</span><br><span class="line">	params.put(&quot;age&quot;,25);</span><br><span class="line">	//params.put(&quot;age&quot;,null);   表示在数据库中值为null</span><br><span class="line">	//params.put(&quot;age&quot;,false);   表示如果值为null就忽略掉</span><br><span class="line">	queryWrapper.allEq(params);</span><br><span class="line">	</span><br><span class="line">	List&lt;User&gt; userList = userMapper.selectList(queryWrapper);</span><br><span class="line">	userList.forEach(System.out::println);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+
+
+<h2 id="自定义sql及分页查询"><a href="#自定义sql及分页查询" class="headerlink" title="自定义sql及分页查询"></a>自定义sql及分页查询</h2><h3 id="自定义SQL"><a href="#自定义SQL" class="headerlink" title="自定义SQL"></a>自定义SQL</h3><p>在UserMapper.java中</p>
+<pre class="highlight"><span class="line">public interfave UserMapper extends BaseMapper&lt;User&gt;&#123;</span><br><span class="line"></span><br><span class="line">	@Select(&quot;select * from user $&#123;ew.customSqlSegment&#125;&quot;)</span><br><span class="line">	List&lt;User&gt; selectAll(@Param(Constants.WRAPPER) Wrapper&lt;User&gt; wrapper);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>测试</p>
+<pre class="highlight"><span class="line">@Test</span><br><span class="line">public void selectMe()&#123;</span><br><span class="line">	QueryMapper&lt;User&gt; queryMapper = new QueryMapper&lt;User&gt;();</span><br><span class="line">	queryMapper.like(&quot;name&quot;,&quot;雨&quot;);</span><br><span class="line">	List&lt;User&gt; userList = userMapper.selectAll(queryMapper);</span><br><span class="line">	userList.forEach(System.out::println);</span><br><span class="line">	// 打印SQL应该是 select * from user where name like &#x27;%雨%&#x27;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>还有一种在yml中改，太麻烦了</p>
+<h3 id="分页查询"><a href="#分页查询" class="headerlink" title="分页查询"></a>分页查询</h3><ul>
+<li><p>MyBatis分页介绍</p>
+<p>不是物理分页，是逻辑分页或内存分页，把符合条件的数据全查出来在内存中，返回你要的那部分</p>
+<p>问题：超大数据情况下耗内存，速度慢</p>
+</li>
+<li><p>MP分页插件实现物理分页</p>
+<p>在SpringBoot环境中新建配置类MybatisPlusConfig</p>
+<pre class="highlight"><span class="line">@Configuration		//标识为配置类的注解</span><br><span class="line">public class MybatisPlusConfig&#123;</span><br><span class="line"></span><br><span class="line">	@Bean</span><br><span class="line">	public PaginationInterceptor paginationInterceptor()&#123;</span><br><span class="line">		return new PaginationInterceptor();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>测试：</p>
+<pre class="highlight"><span class="line">@Test</span><br><span class="line">public void selectPage()&#123;</span><br><span class="line">	QueryWrapper&lt;User&gt; queryWrapper = new QueryWrapper&lt;User&gt;();</span><br><span class="line">	queryWrapper.ge(&quot;age&quot;,26)</span><br><span class="line">	Page&lt;User&gt; page = new Page&lt;User&gt;(1,2);</span><br><span class="line">	// 	Page&lt;User&gt; page = new Page&lt;User&gt;(1,2，false);  这种是不需要查总记录数</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	/* 写法一</span><br><span class="line">	IPage&lt;User&gt; iPage = userMapper.selectPage(page,queryWrapper);</span><br><span class="line">	System.out.println(&quot;总页数&quot;+iPage.getPages());</span><br><span class="line">	System.out.println(&quot;总记录&quot;+iPage.getTotal());</span><br><span class="line">	List&lt;User&gt; userList = iPage.getRecords();</span><br><span class="line">	*/</span><br><span class="line">	</span><br><span class="line">	// 写法2</span><br><span class="line">	IPage&lt;Map&lt;String,Object&gt;&gt; iPage = userMapper.selectMapsPage(page,queryWrapper);</span><br><span class="line">	userList.forEach(System.out::println);</span><br><span class="line">	IPage&lt;User&gt; iPage = userMapper.selectPage(page,queryWrapper);</span><br><span class="line">	System.out.println(&quot;总页数&quot;+iPage.getPages());</span><br><span class="line">	System.out.println(&quot;总记录&quot;+iPage.getTotal());</span><br><span class="line">	List&lt;Map&lt;String,Object&gt;&gt; userList = iPage.getRecords();</span><br><span class="line">	</span><br><span class="line">		userList.forEach(System.out::println);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></li>
+</ul>
+<h2 id="更新及删除"><a href="#更新及删除" class="headerlink" title="更新及删除"></a>更新及删除</h2><h3 id="更新方法"><a href="#更新方法" class="headerlink" title="更新方法"></a>更新方法</h3><p>UpdateTest.java</p>
+<pre class="highlight"><span class="line">@RunWith(SrpingRunner.class)</span><br><span class="line">@SpringBootTest</span><br><span class="line">public class UpdateTest&#123;</span><br><span class="line"></span><br><span class="line">	@Autowired</span><br><span class="line">	private UserMapper userMapper;</span><br><span class="line">	</span><br><span class="line">	@Test</span><br><span class="line">	public void updateById()&#123;</span><br><span class="line">		User user = new User();</span><br><span class="line">		user.setId(42424224234232L);</span><br><span class="line">		user.setAge(11);</span><br><span class="line">		user.setEmail(&quot;364825466@qq.com&quot;);</span><br><span class="line">		int rows = userMapper.updateById(user);</span><br><span class="line">		System.out.println(&quot;影像记录行数&quot;+rows);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	@Test</span><br><span class="line">	public void updateByWrapper()&#123;</span><br><span class="line">		UpdateWrapper&lt;User&gt; updateWrapper = new UpdateWrapper&lt;User&gt;();</span><br><span class="line">		updateWrapper.eq(&quot;name&quot;,&quot;小白白&quot;).eq(&quot;age&quot;,13);</span><br><span class="line">		User user = new User();</span><br><span class="line">		user.setAge(11);</span><br><span class="line">		user.setEmail(&quot;36411825466@qq.com&quot;);</span><br><span class="line">		int rows = userMapper.updateById(user);</span><br><span class="line">		System.out.println(&quot;影像记录行数&quot;+rows);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	@Test</span><br><span class="line">	public void updateByWrapper2()&#123;</span><br><span class="line">		UpdateWrapper&lt;User&gt; updateWrapper = new UpdateWrapper&lt;User&gt;();</span><br><span class="line">		updateWrapper.eq(&quot;name&quot;,&quot;小李&quot;).eq(&quot;age&quot;,13).set(&quot;age&quot;,15);</span><br><span class="line">		int rows = userMapper.updateById(user);</span><br><span class="line">		System.out.println(&quot;影像记录行数&quot;+rows);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	@Test</span><br><span class="line">	public void updateByWrapper2()&#123;</span><br><span class="line">		LambdaUpdateWrapper&lt;User&gt; lambdaUpdateWrapper = Wrappers.&lt;User&gt;lanbdaUpdateWrapper&lt;User&gt;();</span><br><span class="line">		lambdaUpdateWrapper.eq(User::getName,&quot;小李&quot;).eq(User::getAge,13).set(User::getAge,15);</span><br><span class="line">		int rows = userMapper.updateById(null,lambdaUpdate);</span><br><span class="line">		System.out.println(&quot;影像记录行数&quot;+rows);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre>
+
+
+
+<h3 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h3><p>DeleteTest.java</p>
+<pre class="highlight"><span class="line">@RunWith(SrpingRunner.class)</span><br><span class="line">@SpringBootTest</span><br><span class="line">public class UpdateTest&#123;</span><br><span class="line"></span><br><span class="line">	@Autowired</span><br><span class="line">	private UserMapper userMapper;</span><br><span class="line"></span><br><span class="line">	@Test</span><br><span class="line">	public void deleteById()&#123;</span><br><span class="line">		int rows = userMapper.deleteById(158937984579823L);</span><br><span class="line">		System.out.println(&quot;删除条数&quot;+rows);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	@Test</span><br><span class="line">	public void deleteByMap()&#123;</span><br><span class="line">		Map&lt;String,Object&gt; columnMap = new HashMap&lt;&gt;();</span><br><span class="line">		columnMap.put(&quot;name&quot;,&quot;向后&quot;);</span><br><span class="line">		columnMap.put(&quot;age&quot;,12);</span><br><span class="line">		int rows = userMapper.deleteByMap(columnMap);</span><br><span class="line">		System.out.println(&quot;删除条数&quot;+rows);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	@Test</span><br><span class="line">	public void deleteByIds()&#123;</span><br><span class="line">		int rows = userMapper.deleteBatchIds(Arrays.asList(编个id,编个id,编个id));</span><br><span class="line">		System.out.println(&quot;删除条数&quot;+rows);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	@Test</span><br><span class="line">	public void deleteByWrapper()&#123;</span><br><span class="line">        LambdaQueryWrapper&lt;User&gt; lambdaQuery = Wrappers.&lt;User&gt;lambdaQuery();</span><br><span class="line">        lambdaQuery.eq(User::getAge,27).or().gt(User::getAge,41);</span><br><span class="line">        int rows = userMapper.delete(lambdaQuery);</span><br><span class="line">		System.out.println(&quot;删除条数&quot;+rows);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/11/20/%E5%88%9D%E8%AF%86MyBatisPlus/">http://www.codekop.com/2019/11/20/%E5%88%9D%E8%AF%86MyBatisPlus/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/11/20/%E4%BB%80%E4%B9%88%E6%98%AFRESTful/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">什么是RESTful </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/11/20/%E5%85%B3%E4%BA%8E%E6%97%A5%E6%9C%9F%E7%9A%84%E5%8A%A8%E6%80%81SQL/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">关于日期的动态SQL </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9D%E8%AF%86MyBatisPlus"><span class="toc-text">初识MyBatisPlus</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MyBatis-Plus%E7%AE%80%E4%BB%8B"><span class="toc-text">MyBatis-Plus简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-text">基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E7%94%A8mapper%E6%96%B0%E5%A2%9E%E6%96%B9%E6%B3%95"><span class="toc-text">通用mapper新增方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="toc-text">常用注解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E9%99%A4%E9%9D%9E%E8%A1%A8%E5%AD%97%E6%AE%B5%E7%9A%84%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="toc-text">排除非表字段的三种方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MP%E6%9F%A5%E8%AF%A2%E6%96%B9%E6%B3%95"><span class="toc-text">MP查询方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%99%AE%E9%80%9A%E6%9F%A5%E8%AF%A2"><span class="toc-text">普通查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E6%9F%A5%E8%AF%A2"><span class="toc-text">条件构造器查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#select%E4%B8%AD%E5%AD%97%E6%AE%B5%E4%B8%8D%E5%85%A8%E9%83%A8%E6%9F%A5%E8%AF%A2"><span class="toc-text">select中字段不全部查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E4%B8%ADcondition"><span class="toc-text">条件构造器中condition</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E6%97%B6%E4%BC%A0%E5%85%A5%E5%AE%9E%E4%BD%93%E5%AF%B9%E8%B1%A1"><span class="toc-text">创建条件构造器时传入实体对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#allEq%E7%94%A8%E6%B3%95"><span class="toc-text">allEq用法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89sql%E5%8F%8A%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2"><span class="toc-text">自定义sql及分页查询</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89SQL"><span class="toc-text">自定义SQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2"><span class="toc-text">分页查询</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E5%8F%8A%E5%88%A0%E9%99%A4"><span class="toc-text">更新及删除</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%96%B9%E6%B3%95"><span class="toc-text">更新方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A0%E9%99%A4"><span class="toc-text">删除</span></a></li></ol></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9D%E8%AF%86MyBatisPlus"><span class="toc-text">初识MyBatisPlus</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MyBatis-Plus%E7%AE%80%E4%BB%8B"><span class="toc-text">MyBatis-Plus简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-text">基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E7%94%A8mapper%E6%96%B0%E5%A2%9E%E6%96%B9%E6%B3%95"><span class="toc-text">通用mapper新增方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="toc-text">常用注解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E9%99%A4%E9%9D%9E%E8%A1%A8%E5%AD%97%E6%AE%B5%E7%9A%84%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="toc-text">排除非表字段的三种方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MP%E6%9F%A5%E8%AF%A2%E6%96%B9%E6%B3%95"><span class="toc-text">MP查询方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%99%AE%E9%80%9A%E6%9F%A5%E8%AF%A2"><span class="toc-text">普通查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E6%9F%A5%E8%AF%A2"><span class="toc-text">条件构造器查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#select%E4%B8%AD%E5%AD%97%E6%AE%B5%E4%B8%8D%E5%85%A8%E9%83%A8%E6%9F%A5%E8%AF%A2"><span class="toc-text">select中字段不全部查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E4%B8%ADcondition"><span class="toc-text">条件构造器中condition</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E6%97%B6%E4%BC%A0%E5%85%A5%E5%AE%9E%E4%BD%93%E5%AF%B9%E8%B1%A1"><span class="toc-text">创建条件构造器时传入实体对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#allEq%E7%94%A8%E6%B3%95"><span class="toc-text">allEq用法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89sql%E5%8F%8A%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2"><span class="toc-text">自定义sql及分页查询</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89SQL"><span class="toc-text">自定义SQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2"><span class="toc-text">分页查询</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E5%8F%8A%E5%88%A0%E9%99%A4"><span class="toc-text">更新及删除</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%96%B9%E6%B3%95"><span class="toc-text">更新方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A0%E9%99%A4"><span class="toc-text">删除</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9D%E8%AF%86MyBatisPlus"><span class="toc-text">初识MyBatisPlus</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MyBatis-Plus%E7%AE%80%E4%BB%8B"><span class="toc-text">MyBatis-Plus简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-text">基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E7%94%A8mapper%E6%96%B0%E5%A2%9E%E6%96%B9%E6%B3%95"><span class="toc-text">通用mapper新增方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="toc-text">常用注解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E9%99%A4%E9%9D%9E%E8%A1%A8%E5%AD%97%E6%AE%B5%E7%9A%84%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="toc-text">排除非表字段的三种方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MP%E6%9F%A5%E8%AF%A2%E6%96%B9%E6%B3%95"><span class="toc-text">MP查询方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%99%AE%E9%80%9A%E6%9F%A5%E8%AF%A2"><span class="toc-text">普通查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E6%9F%A5%E8%AF%A2"><span class="toc-text">条件构造器查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#select%E4%B8%AD%E5%AD%97%E6%AE%B5%E4%B8%8D%E5%85%A8%E9%83%A8%E6%9F%A5%E8%AF%A2"><span class="toc-text">select中字段不全部查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E4%B8%ADcondition"><span class="toc-text">条件构造器中condition</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%9D%A1%E4%BB%B6%E6%9E%84%E9%80%A0%E5%99%A8%E6%97%B6%E4%BC%A0%E5%85%A5%E5%AE%9E%E4%BD%93%E5%AF%B9%E8%B1%A1"><span class="toc-text">创建条件构造器时传入实体对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#allEq%E7%94%A8%E6%B3%95"><span class="toc-text">allEq用法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89sql%E5%8F%8A%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2"><span class="toc-text">自定义sql及分页查询</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89SQL"><span class="toc-text">自定义SQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2"><span class="toc-text">分页查询</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E5%8F%8A%E5%88%A0%E9%99%A4"><span class="toc-text">更新及删除</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%96%B9%E6%B3%95"><span class="toc-text">更新方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A0%E9%99%A4"><span class="toc-text">删除</span></a></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

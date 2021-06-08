@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>MongoDB实现评论</title>
+  
+  
+  <meta property="og:title" content="MongoDB实现评论">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/index.html">
+  
+  
+  <meta property="og:img" content="/blogImg/MongoDB实现评论/1.jpg">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;mongodb评论功能实现&#34;&gt;&lt;a href=&#34;#mongodb评论功能实现&#34; class=&#34;headerlink&#34; title=&#34;mongodb评论功能实现&#34;&gt;&lt;/a&gt;mongodb评论功能实现&lt;/h1&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-10-15">
+  <meta property="og:article:modified_time" content="2021-06-07">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="技术分享">
+  
+  <meta property="og:article:tag" content="MongoDB">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<div class="image-wrapper">
+  <img src="/blogImg/MongoDB实现评论/1.jpg" data-src="/blogImg/MongoDB实现评论/1.jpg"
+    srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
+    class="image lozad"
+    alt="thumbnail"
+  >
+</div>
+
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      MongoDB实现评论
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-10-15T10:19:55.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-10-15</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>4.4k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" class="post-meta-link">技术分享</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/MongoDB/" class="post-meta-link">MongoDB</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="mongodb评论功能实现"><a href="#mongodb评论功能实现" class="headerlink" title="mongodb评论功能实现"></a>mongodb评论功能实现</h1><span id="more"></span>
+
+<h2 id><a href="#" class="headerlink" title></a></h2><h2 id="一、mongodb-的优势与劣势"><a href="#一、mongodb-的优势与劣势" class="headerlink" title="一、mongodb 的优势与劣势"></a>一、mongodb 的优势与劣势</h2><p>特点：</p>
+<p>MongoDB目前3大核心优势：『灵活模式』+ 『高可用性』 + 『可扩展性』，通过json文档来实现灵活模式，通过复制集来保证高可用，通过Sharded cluster来保证可扩展性。</p>
+<p>应用场景：</p>
+<ol>
+<li>业务需要事务，使用mysql，因为<strong>mongodb不支持事务</strong></li>
+<li><strong>数据量大，但是数据本身价值不大，使用mongodb</strong><br>ps：加载大量低价值的业务数据</li>
+<li>数据是非结构化的，且数据量大，使用mongodb</li>
+<li>业务未来走向不明确，使用mongodb，方便扩展</li>
+</ol>
+<p>优势：</p>
+<ul>
+<li>不存在SQL注入</li>
+<li>不需要提前创建表，可以直接写入数据</li>
+<li>字段数据格式自由 比如mysql中id 字段是数字，输入字符串会出错，mongodb不会</li>
+<li>可以处理json结构，并对其进行处理<br>比如 字段a的值为<br>{“a”:11,”b”:12,”c”:”abc”,”d”:[1,2,3]}<br>你可以直接去读取或设置a字段的b值 a.b，读取a字段d数组的第二个值：a.d.1,可以去删除a字段的a数据$unset:{“a.a”:1},就会变成：<br>{“b”:12,”c”:”abc”,”d”:[1,2,3]}</li>
+<li>可以使用upsert操作，修改的数据不存在的时候直接插入该数据</li>
+<li>查询和插入效率在没有索引的情况下远大于mysql</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>mongodb是nosql数据库，关系能力薄弱，不能使用join，union来联合查找</li>
+<li>事务能力薄弱</li>
+<li>效率存在波动性，不是很稳定</li>
+</ul>
+<p>MongoDB可以将模式设计划分为内嵌模式和 引用模式</p>
+<h3 id="内嵌模式"><a href="#内嵌模式" class="headerlink" title="内嵌模式"></a><strong>内嵌模式</strong></h3><p>简单来讲，内嵌模式就是将关联数据，放在一个文档中。例如以下员工信息采用内嵌模式了而存储在了一个文档中：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo01.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo01.png"></p>
+<p>根据上面的描述可以看出，<strong>内嵌模型可以给应用程序提供很好的数据查询性能</strong>，因为基于内嵌模型，可以通过一次数据库操作得到所有相关的数据。同时，<strong>内嵌模型可以使数据更新操作变成一个原子写操作</strong>。然而，内嵌模型也可能引入一些问题，比如说文档会越来越大，这样就可能<strong>会影响数据库写操作的性能</strong>，还可能会产生数据碎片</p>
+<p>我们下面的demo就采用内嵌模型实现。</p>
+<h3 id="引用模式"><a href="#引用模式" class="headerlink" title="引用模式"></a>引用模式</h3><p>引用模式是将数据存储在不同集合的文档中，而通过关系数据进行关联。例如，这里采用引用模式将员工信息存储在了3个文档中，基本信息一个文档，联系方式一个文档，登录权限放在了一个文档中。每个文档之前通过user_id来关联。</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo02.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo02.png"></p>
+<p>使用内嵌模型往往会带来数据的冗余，却可以提升数据查询的效率。但是，当应用程序基本上不通过内嵌模型查询，或者说查询效率的提升不足以弥补数据冗余带来的问题时，我们就应该考虑引用模型了。 </p>
+<h2 id="二、评论实现"><a href="#二、评论实现" class="headerlink" title="二、评论实现"></a>二、评论实现</h2><h3 id="1-数据库设计"><a href="#1-数据库设计" class="headerlink" title="1.数据库设计"></a>1.数据库设计</h3><p>（1）自由模式，无需提前声明、创建表结构，即不用先创建表、添加字段，然后才可以Insert数据。默认情况下MongoDB无需这样操作。</p>
+<p>（2）键值类型自由，MongoDB 将数据存储为一个文档，数据结构由键值(key=&gt;value)对组成。字段值可以包含其他文档，数组及文档数组。</p>
+<p>按照业务来慢慢添加，整个集合的存储文档格式就可以形成了。</p>
+<p>一般现在最常见的和最实用的都是二级评论，所以这里用二级评论举例</p>
+<p>一级评论， 文章id，用户id，用户评论内容，用户评论时间，评论回复</p>
+<p>其中回复即二级评论，</p>
+<p>包括 评论者id，评论者昵称，评论者评论内容，评论时间</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo03.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo03.png"></p>
+<p>这里就遇到一个问题，二级评论可不可以被评论，如果不可以，显然不合理。</p>
+<p>所以这里仿照微博，在遇到二级评论的评论时，通过@确定回复的用户，内容全部和二级评论在同一级显示。</p>
+<p>因此我们设计出这样一个数据结构（此时二级评论和二级评论的回复是不同级的）</p>
+<pre class="highlight"><span class="line">&#123;</span><br><span class="line">    &quot;_id&quot; : ObjectId(&quot;597aa23add840cd4ce0681d1&quot;),</span><br><span class="line">    &quot;comment_blog_id&quot; : &quot;ObjectId(&quot;597aa23add840213432rdsfsed1&quot;)&quot;,</span><br><span class="line">    &quot;comment_user_id&quot; : &quot;100001&quot;,</span><br><span class="line">    &quot;comment_user_name&quot;: &quot;刘德宝&quot;,</span><br><span class="line">    &quot;comment_user_img&quot;: &quot;图片地址&quot;,</span><br><span class="line">    &quot;comment_content&quot; : &quot;1号用户的评论&quot;,</span><br><span class="line">    &quot;create_time&quot; : &quot;2017-15-12 14:00&quot;,</span><br><span class="line">    &quot;comment_responses&quot; : [ </span><br><span class="line">        &#123;</span><br><span class="line">        &quot;_id&quot; : ObjectId(&quot;597aa23add840cd4ce0681d1&quot;),</span><br><span class="line">            &quot;response_user_id&quot; : &quot;1000002&quot;,</span><br><span class="line">            &quot;response_user_name&quot; : &quot;朱秀秀&quot;,</span><br><span class="line">            &quot;response_user_img&quot; : &quot;图片地址&quot;,</span><br><span class="line">            &quot;response_content&quot; : [ </span><br><span class="line">                &quot;这是2号用户给刘德宝的评论&quot;, </span><br><span class="line">            ],</span><br><span class="line">            &quot;create_time&quot; : &quot;2017-15-12 14:00&quot;,</span><br><span class="line">        &#125;, </span><br><span class="line">        &#123;</span><br><span class="line">            &quot;response_user_id&quot; : &quot;1000005&quot;,</span><br><span class="line">            &quot;response_user_name&quot; : &quot;小火龙&quot;,</span><br><span class="line">            &quot;response_user_img&quot; : &quot;图片地址&quot;,</span><br><span class="line">            &quot;response_content&quot; : [ </span><br><span class="line">                 &quot;这是5号用户给刘德宝的回复&quot;, </span><br><span class="line">            ],</span><br><span class="line">            &quot;create_time&quot; : &quot;2017-15-12 14:00&quot;,</span><br><span class="line">            ]</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre>
+
+<p>其中的评论和回复的id，昵称，和头像是方便查询显示使用，并且id可以用来做消息推送</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo11.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo11.png"></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo10.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo10.png"></p>
+<p>评论全部不存在。</p>
+<p>一级评论未存在，全空，最下方有一级评论回复框，可以进行评论产生comment</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo09.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo09.png"></p>
+<p>一级评论存在，没有回复，<strong>点击回复，出现回复框</strong>，完成回复，即二级评论，可以回复，产生comment.response</p>
+<p>同理对二级评论的回复也是通过点击生成回复框，然后进行回复。然后判断是否是回复的一级评论来控制是否显示回复两个字即可。</p>
+<p>所以和二级评论实现是同一个逻辑，前台即可完成。</p>
+<h3 id="2-spring整合mongodb"><a href="#2-spring整合mongodb" class="headerlink" title="2.spring整合mongodb"></a>2.spring整合mongodb</h3><p>整合部分最难的就是配置和熟悉对mongodb数据库的操作，其他的前台传参和逻辑编写大家都很熟悉。这里主要介绍一下mongodb操作的坑</p>
+<h4 id="mongoRepository和mongoTemplate"><a href="#mongoRepository和mongoTemplate" class="headerlink" title="mongoRepository和mongoTemplate"></a>mongoRepository和mongoTemplate</h4><p>①、Spring Data MongoDB 是 Spring 框架访问 MongoDB 数据库的分支，使用它可以非常方便地操作 MongoDB 数据库。</p>
+<p>Spring Data MongoDB 是 Spring Source 的一个子项目，旨在为关系型数据库、非关系型数据、Map-Reduce框架、云数据服务等等提供统一的数据访问API。</p>
+<p>Spring Data 提供了基于Repository的统一接口 MongoRepository 完成对象的 CRUD 操作以及查询方法、排序和分页方法等。</p>
+<p>使用 Spring Data 可以帮助我们快速构建项目，非常方便，Spring Data 在数据持久层已经写好了常用功能，我们只需要定义一个接口去继承 Spring Data 提供的接口，就可以实现对数据库的操作，也可以自定义接口方法，甚至这些自定义方法都不需要我们手动去实现，Reposity 会自动完成实现。</p>
+<p><strong>实现方法：</strong></p>
+<p>1.创建自定义接口 xxxRepository ，<strong>继承 MongoRepository</strong>，这样xxxRepository 就直接拥有了MongoRepository 中定义好的基本CRUD操作，同时可以完成方法扩展，只需要在xxxRepository 中<strong>按照规则声明抽象方法即可</strong>，MongoRepository 会自动完成方法实现，同时在类定义处添加@Repository 注解完成IoC注入。</p>
+<p>2.创建自定义接口 xxxService 以及实现类xxxServiceImpl，并通过自动装载将xxxRepository 注入xxxServiceImpl。</p>
+<p>3.创建 xxxController 实现相关业务方法。</p>
+<p>spring-data-mongodb其实有两种实现方式，一种是直接继承MongoRepository接口，dao层的实现，默认提供了CRUD的各种方法，几乎不用编写任何代码。另一种是通过MongoTemplate来操作数据库，这样需要自定义dao层接口，默认没有任何接口可以使用</p>
+<p>Criteria类：它封装所有的语句，以方法的形式进行查询。</p>
+<p>Query类：这是将语句进行封装或者添加排序之类的操作。（实现分页操作就在这里）</p>
+<h4 id="mongoTemplate操作简介"><a href="#mongoTemplate操作简介" class="headerlink" title="mongoTemplate操作简介"></a>mongoTemplate操作简介</h4><p>1.添加依赖</p>
+<pre class="highlight"><span class="line">&lt;dependency&gt;  </span><br><span class="line">&lt;groupId&gt;org.springframework.data&lt;/groupId&gt; </span><br><span class="line">&lt;artifactId&gt;spring-data-mongodb&lt;/artifactId&gt;  </span><br><span class="line">&lt;version&gt;2.1.1.RELEASE&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre>
+
+<p>添加spring和mongodb的依赖</p>
+<p>网上都说要加一个mongo的依赖类似于这种</p>
+<dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+
+
+
+<p>2.mongodb配置文件</p>
+<p>mongodb.properties</p>
+<pre class="highlight"><span class="line">#数据库名称</span><br><span class="line">mongo.dbname=sag</span><br><span class="line">#用户名</span><br><span class="line">mongo.username=</span><br><span class="line">#密码</span><br><span class="line">mongo.password=</span><br><span class="line">#主机</span><br><span class="line">mongo.host=127.0.0.1</span><br><span class="line">#端口</span><br><span class="line">mongo.port=27017</span><br><span class="line">#线程最大阻塞数</span><br><span class="line">mongo.connectionsPerHost=8</span><br><span class="line">#线程队列数mongo.threadsAllowedToBlockForConnectionMultiplier=4</span><br><span class="line">#连接超时时间，单位毫秒</span><br><span class="line">mongo.connectTimeout=1500</span><br><span class="line">#最大等待时间</span><br><span class="line">mongo.maxWaitTime=1500</span><br><span class="line">#自动连接</span><br><span class="line">mongo.autoConnectRetry=true</span><br><span class="line">#socket存活</span><br><span class="line">mongo.socketKeepAlive=true</span><br><span class="line">#socket超时时间</span><br><span class="line">mongo.socketTimeout=1500</span><br><span class="line">#读写分离</span><br><span class="line">mongo.slaveOk=true</span><br></pre>
+
+
+
+<p>spring-mongodb.xml</p>
+<pre class="highlight"><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;       xmlns:context=&quot;http://www.springframework.org/schema/context&quot;       xmlns:mongo=&quot;http://www.springframework.org/schema/data/mongo&quot;       xsi:schemaLocation=&quot;http://www.springframework.org/schema/beanshttp://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd&quot;&gt;   </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;!--引入MongoDB连接文件--&gt;  </span><br><span class="line">&lt;context:property-placeholder location=&quot;classpath:mongodb.properties&quot; ignore-unresolvable=&quot;true&quot;/&gt;   </span><br><span class="line">&lt;!--连接MongoDB服务器--&gt;   </span><br><span class="line">&lt;!-- 除此之外还有一个mongo连接，标签为&lt;mongo-mongo&gt; 版本较低时使用 --&gt;   </span><br><span class="line">&lt;mongo:mongo-client id=&quot;mongo&quot; host=&quot;$&#123;mongo.host&#125;&quot; port=&quot;$&#123;mongo.port&#125;&quot; &gt;</span><br><span class="line">&lt;mongo:client-options               </span><br><span class="line">connections-per-host=&quot;$&#123;mongo.connectionsPerHost&#125;&quot;</span><br><span class="line">threads-allowed-to-block-for-connection-multiplier=</span><br><span class="line">&quot;$&#123;mongo.threadsAllowedToBlockForConnectionMultiplier&#125;&quot;</span><br><span class="line">connect-timeout=&quot;$&#123;mongo.connectTimeout&#125;&quot;</span><br><span class="line">max-wait-time=&quot;$&#123;mongo.maxWaitTime&#125;&quot;</span><br><span class="line">socket-keep-alive=&quot;$&#123;mongo.socketKeepAlive&#125;&quot;</span><br><span class="line">socket-timeout=&quot;$&#123;mongo.socketTimeout&#125;&quot;/&gt; </span><br><span class="line">&lt;/mongo:mongo-client&gt;  </span><br><span class="line"></span><br><span class="line">&lt;bean id=&quot;mappingContext&quot;          			     class=&quot;org.springframework.data.mongodb.core.mapping.MongoMappingContext&quot; /&gt; </span><br><span class="line"></span><br><span class="line">&lt;!-- 去掉默认的_class属性 --&gt;  </span><br><span class="line">&lt;bean id=&quot;customMongoTypeMapper&quot;          class=&quot;org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper&quot;&gt;        &lt;constructor-arg name=&quot;typeKey&quot;&gt;&lt;null/&gt;&lt;/constructor-arg&gt;    </span><br><span class="line">&lt;/bean&gt;   </span><br><span class="line"></span><br><span class="line">&lt;bean id=&quot;mappingMongoConverter&quot; class=&quot;org.springframework.data.mongodb.core.convert.MappingMongoConverter&quot;&gt;</span><br><span class="line">&lt;constructor-arg name=&quot;mongoDbFactory&quot; ref=&quot;mongoDbFactory&quot; /&gt;       </span><br><span class="line">&lt;constructor-arg name=&quot;mappingContext&quot; ref=&quot;mappingContext&quot; /&gt;    </span><br><span class="line">&lt;property name=&quot;typeMapper&quot; ref=&quot;customMongoTypeMapper&quot; /&gt;</span><br><span class="line">&lt;/bean&gt;   </span><br><span class="line"></span><br><span class="line"> &lt;!-- mongo的工厂，通过它来取得mongo实例,dbname为mongodb的数据库名，没有的话会自动创建 --&gt;</span><br><span class="line">&lt;mongo:db-factory id=&quot;mongoDbFactory&quot;  dbname=&quot;$&#123;mongo.dbname&#125;&quot; mongo-ref=&quot;mongo&quot;/&gt; </span><br><span class="line"></span><br><span class="line">&lt;!-- 配置mongoTemplate --&gt;</span><br><span class="line">&lt;!-- mongodb的主要操作对象，所有对mongodb的增删改查的操作都是通过它完成--&gt;   </span><br><span class="line">&lt;bean id=&quot;mongoTemplate&quot; class=&quot;org.springframework.data.mongodb.core.MongoTemplate&quot;&gt;     &lt;constructor-arg name=&quot;mongoDbFactory&quot; ref=&quot;mongoDbFactory&quot;/&gt;</span><br><span class="line">&lt;constructor-arg name=&quot;mongoConverter&quot; ref=&quot;customMongoTypeMapper&quot;&gt;&lt;/constructor-arg&gt;</span><br><span class="line">&lt;/bean&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre>
+
+
+
+<p>在Spring框架中，对mongodb进行操作的是mongoTemplate对象。</p>
+<p>MongoTemplate是数据库和代码之间的接口，对数据库的操作都在它里面。</p>
+<p>注：MongoTemplate是<strong>线程安全</strong>的。</p>
+<p>在实现评论demo之前，我们先插入两个例子，感受一下mongotemplate</p>
+<p>这里我建了一个POJO, comment</p>
+<pre class="highlight"><span class="line">@Document(collection = &quot;commenttest&quot;)</span><br><span class="line">public class Comment &#123;  </span><br><span class="line">	//@id</span><br><span class="line">    private String comment_id;         //评论id</span><br><span class="line">    private String comment_blog_id;    //文章id</span><br><span class="line">    private String comment_user_id;    //评论用户id</span><br><span class="line">    private String comment_user_name;   //评论用户名</span><br><span class="line">    private String comment_user_img;   //评论用户头像</span><br><span class="line">    private String comment_content;    //评论内容</span><br><span class="line">    private String comment_create_time;   //评论时间</span><br><span class="line">    private String comment_responses;   //评论回复</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<p>然后相应的创建了一个CommentTestRepository类</p>
+<pre class="highlight"><span class="line">@Repository</span><br><span class="line">@Document(collection = &quot;commenttest&quot;)</span><br><span class="line">public class CommentTestRepository &#123;    </span><br><span class="line">    @Autowired   </span><br><span class="line">    MongoTemplate mongoTemplate;  </span><br><span class="line">    public CommentTestRepository() &#123;    </span><br><span class="line">        ApplicationContext ac = new ClassPathXmlApplicationContext(&quot;spring/spring-mongodb.xml&quot;);        </span><br><span class="line">        mongoTemplate = (MongoTemplate) ac.getBean(&quot;mongoTemplate&quot;);    </span><br><span class="line">    &#125;    </span><br><span class="line">    public void insertComment(Comment comment) &#123;       </span><br><span class="line">        List&lt;Comment&gt; list = new ArrayList&lt;Comment&gt;();    </span><br><span class="line">        list.add(comment);      </span><br><span class="line">        mongoTemplate.insert(list,Comment.class);   </span><br><span class="line">&#125;</span><br></pre>
+
+<p><strong>http 通过 controller 进来的 mongotemplate 对象才会注入 spring ，才能正常使用，如果是通过其他 controller 类来调用同层的 controller 里面的 mongotemplate ，则该对象是 null 值，不可使用 ！而从 controller 调用 service 这种不同层的，则可以正常使用！</strong></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo04.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo04.png"></p>
+<p>插入成功后，可以看到两个字段与我们预期的不太一样，_ id和_ class </p>
+<p>_id:是系统自动生成的12字节唯一标识。满足分布式</p>
+<p><strong>mongodb</strong>采用了一个称之为ObjectId的类型来做主键。ObjectId是一个12字节的 BSON 类型字符串。按照字节顺序，一次代表：</p>
+<p>4字节：UNIX时间戳<br>3字节：表示运行MongoDB的机器<br>2字节：表示生成此_id的进程<br>3字节：由一个随机数开始的计数器生成的值 </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xiamizy/article/details/41521025">https://blog.csdn.net/xiamizy/article/details/41521025</a></p>
+<p>不使用ObjectId方法：</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo05.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo05.png"></p>
+<p>只需要把POJO实体类里的comment_id改名为id即可完成一种类似于覆盖的效果，达到了不使用objectId的目的。</p>
+<p>或者在想要标识为id的属性上加上注解@id</p>
+<p>_class：这个字段就是用来映射Pojo的，更具体的说，是为了方便处理Pojo中存在继承的情况，增加系统的扩展性的。去掉的方法就是配置Converter，默认映射为null</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo08.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo08.png"></p>
+<p>（</p>
+<p>假如到时候设计不好，字段不确定怎么办。</p>
+<p>个人建议是刚开始少一点，后面可以再加。</p>
+<p>​        <strong>映射的时候，pojo里有的属性，数据库里没有，依然可以映射</strong></p>
+<p>​        <strong>数据库里有的字段，而pojo里没有对应的属性接受的话就无法完成映射了，</strong></p>
+<p>​        比如我用户头像刚开始没加，只需要在对应的pojo类里，插入和查询逻辑里添加用户头像的属性和逻辑，就可以完成拓展，并不用像传统数据库再创建一个列，或者费心思再去创建几个冗余列。这就体现了mongodb的高拓展性。</p>
+<p>）</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo06.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo06.png"></p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo07.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo07.png"></p>
+<p>评论要点：</p>
+<p>内嵌对象，比如comment对象里有一个response对象。那么mongotemplate映射到mongodb里的时候，对这个是怎么操作的呢。</p>
+<p>根据实际情况，一级评论完毕，回复是在一级评论之后才有的操作，这个之前，一级评论文档中是没有任何回复的。所以这里检查了一下comment里如果没有这个键，或者这个键为空，可不可以插入到mongodb中。答案是可以的。</p>
+<p>在测试的时候，尝试了两种方案。</p>
+<p>1.在设置comment实例的时候，<strong>把对象设置为null</strong></p>
+<pre class="highlight"><span class="line">comment.setComment_responses(null);</span><br></pre>
+
+<p>2.<strong>不设置该属性</strong>，直接插入</p>
+<p>结论：两者都不会插入该属性对应的数据。也不会存在这个属性对应的键值。不会自动映射进去</p>
+<p>到时候要往comment里插入回复的时候，直接使用<strong>mongotemplate.upsert</strong>语句就可以完成。</p>
+<p>如果查到一级评论没有任何回复，它就会创建response这个键，然后插入第一条记录</p>
+<p>如果一级评论已经有回复，它就会插入到这个键里，成为这个键下的一个文档。</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo12.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo12.png"></p>
+<h3 id="mongoTemplate实现评论"><a href="#mongoTemplate实现评论" class="headerlink" title="mongoTemplate实现评论"></a>mongoTemplate实现评论</h3><p>通过手写插入一些假数据之后，我们开始查询，插入要和实际业务逻辑相对应，这里demo就不做了，大体思路是一级评论直接插入，二级评论，前台传入一级评论的id然后根据id插入，同时记录用户名和用户头像。</p>
+<p>如果有，则前台显示有回复样式，没有的话，就是默认回复一级评论的二级评论。</p>
+<p>查询实现</p>
+<pre class="highlight"><span class="line">List&lt;Comment&gt; comments = mongoTemplate.find(query,Comment.class);</span><br><span class="line">List&lt;JSONObject&gt; comments = mongoTemplate.find(query,JSONObject.class,&quot;testMax2&quot;);       </span><br></pre>
+
+<p>query：查询条件，</p>
+<p>.class：需要查询的类型</p>
+<p>最后的字符串是需要查询的Collection，</p>
+<p>采用后面这个语句会遍历的把整个Collection查询出来，包括其下面的responses</p>
+<p>也可以不写，默认的是.class上注解的，但是这里采用了JSONObject.class这个类进行查询，我并没有对这个类进行注解，所以后面这个集合要写。</p>
+<h4 id="整合springboot"><a href="#整合springboot" class="headerlink" title="整合springboot"></a>整合springboot</h4><p>配置</p>
+<p>在spring官网添加mongodb即可。</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo13.png" class="lozad post-image"src="/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/mongo13.png"></p>
+<p>先入为主的导入了Mybatis但没有引入Mysql，所以这里要引入</p>
+<pre class="highlight"><span class="line">&lt;dependency&gt;  </span><br><span class="line">&lt;groupId&gt;mysql&lt;/groupId&gt; </span><br><span class="line">&lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br></pre>
+
+<p>其余的配置文件在打包上传的包里。</p>
+<p>总结：</p>
+<p>1.为什么评论要使用mongodb而不是mysql？</p>
+<p>​    mongodb舍弃了事务管理，但是mongodb的功能是海量数据的查询很快，<strong>读写效率高</strong>，一般用于简单的sql查询或日志类数据的写入操作。</p>
+<p>​    在评论的业务中，最多的就是查询评论和发表评论了。</p>
+<p>​    BSON文档结构的存储形式，查询很方便，不需要关联查询。</p>
+<p>​    其次，评论这种数据价值并不是特别大，但是量却很大，所以可以交给mongodb来存储</p>
+<p>​    在这种不需要事务管理，也不需要关联查询的情况下，使用mongodb可以得到更快的响应速度，更快捷的开发，更少的数据库设计。</p>
+<p>2.为什么使用了内嵌模型而不是引用模型？</p>
+<p>一对很少  one-to-few  可以采用内嵌文档</p>
+<p>优点：不需要单独执行一条语句去获取内嵌的内容</p>
+<p>缺点：无法把这些内嵌文档当做单独的实体去访问</p>
+<p>适用场合：一对很少且不需要单独访问内嵌内容</p>
+<p>——————来自技术分享，施爱港</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/">http://www.codekop.com/2019/10/15/MongoDB%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/15/MongoDB%E9%85%8D%E7%BD%AE/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">MongoDB配置 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/10/15/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">单点登录 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mongodb%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0"><span class="toc-text">mongodb评论功能实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text"></span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81mongodb-%E7%9A%84%E4%BC%98%E5%8A%BF%E4%B8%8E%E5%8A%A3%E5%8A%BF"><span class="toc-text">一、mongodb 的优势与劣势</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%B5%8C%E6%A8%A1%E5%BC%8F"><span class="toc-text">内嵌模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">引用模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%AF%84%E8%AE%BA%E5%AE%9E%E7%8E%B0"><span class="toc-text">二、评论实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1"><span class="toc-text">1.数据库设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-spring%E6%95%B4%E5%90%88mongodb"><span class="toc-text">2.spring整合mongodb</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mongoRepository%E5%92%8CmongoTemplate"><span class="toc-text">mongoRepository和mongoTemplate</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mongoTemplate%E6%93%8D%E4%BD%9C%E7%AE%80%E4%BB%8B"><span class="toc-text">mongoTemplate操作简介</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mongoTemplate%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA"><span class="toc-text">mongoTemplate实现评论</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E5%90%88springboot"><span class="toc-text">整合springboot</span></a></li></ol></li></ol></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mongodb%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0"><span class="toc-text">mongodb评论功能实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text"></span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81mongodb-%E7%9A%84%E4%BC%98%E5%8A%BF%E4%B8%8E%E5%8A%A3%E5%8A%BF"><span class="toc-text">一、mongodb 的优势与劣势</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%B5%8C%E6%A8%A1%E5%BC%8F"><span class="toc-text">内嵌模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">引用模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%AF%84%E8%AE%BA%E5%AE%9E%E7%8E%B0"><span class="toc-text">二、评论实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1"><span class="toc-text">1.数据库设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-spring%E6%95%B4%E5%90%88mongodb"><span class="toc-text">2.spring整合mongodb</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mongoRepository%E5%92%8CmongoTemplate"><span class="toc-text">mongoRepository和mongoTemplate</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mongoTemplate%E6%93%8D%E4%BD%9C%E7%AE%80%E4%BB%8B"><span class="toc-text">mongoTemplate操作简介</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mongoTemplate%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA"><span class="toc-text">mongoTemplate实现评论</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E5%90%88springboot"><span class="toc-text">整合springboot</span></a></li></ol></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#mongodb%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0"><span class="toc-text">mongodb评论功能实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text"></span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81mongodb-%E7%9A%84%E4%BC%98%E5%8A%BF%E4%B8%8E%E5%8A%A3%E5%8A%BF"><span class="toc-text">一、mongodb 的优势与劣势</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%B5%8C%E6%A8%A1%E5%BC%8F"><span class="toc-text">内嵌模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">引用模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%AF%84%E8%AE%BA%E5%AE%9E%E7%8E%B0"><span class="toc-text">二、评论实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1"><span class="toc-text">1.数据库设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-spring%E6%95%B4%E5%90%88mongodb"><span class="toc-text">2.spring整合mongodb</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mongoRepository%E5%92%8CmongoTemplate"><span class="toc-text">mongoRepository和mongoTemplate</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mongoTemplate%E6%93%8D%E4%BD%9C%E7%AE%80%E4%BB%8B"><span class="toc-text">mongoTemplate操作简介</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mongoTemplate%E5%AE%9E%E7%8E%B0%E8%AF%84%E8%AE%BA"><span class="toc-text">mongoTemplate实现评论</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E5%90%88springboot"><span class="toc-text">整合springboot</span></a></li></ol></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

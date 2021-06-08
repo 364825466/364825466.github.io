@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>内部类和枚举类</title>
+  
+  
+  <meta property="og:title" content="内部类和枚举类">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/10/15/%E5%86%85%E9%83%A8%E7%B1%BB%E5%92%8C%E6%9E%9A%E4%B8%BE%E7%B1%BB/index.html">
+  
+  
+  <meta property="og:img" content="/img/head2.png">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;内部类和枚举类&#34;&gt;&lt;a href=&#34;#内部类和枚举类&#34; class=&#34;headerlink&#34; title=&#34;内部类和枚举类&#34;&gt;&lt;/a&gt;内部类和枚举类&lt;/h1&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-10-15">
+  <meta property="og:article:modified_time" content="2019-10-15">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="Java基础">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      内部类和枚举类
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-10-15T08:58:24.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-10-15</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>2.1k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/Java%E5%9F%BA%E7%A1%80/" class="post-meta-link">Java基础</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="内部类和枚举类"><a href="#内部类和枚举类" class="headerlink" title="内部类和枚举类"></a>内部类和枚举类</h1><span id="more"></span>
+
+<h2 id="instanceof"><a href="#instanceof" class="headerlink" title="instanceof"></a>instanceof</h2><p>它的作用是测试它左边的对象是否是它右边的类的实例，或者右边的类的子类实例，返回 boolean 的数据类型。</p>
+<pre class="highlight"><span class="line">String a = &quot;啊啊啊&quot;;</span><br><span class="line">// instanceof 判断 -&gt; boolean true/false</span><br><span class="line">System.out.println(a instanceof String);//true a一定是String类型，因为String没什么子类</span><br><span class="line">System.out.println(a instanceof Object);//前面的对像是后面的实例或子类都可以是true</span><br><span class="line">Object obj = new Object();</span><br><span class="line">System.out.println(obj instanceof String);  //false</span><br></pre>
+
+
+
+<h2 id="非静态内部类"><a href="#非静态内部类" class="headerlink" title="非静态内部类"></a>非静态内部类</h2><pre class="highlight"><span class="line">//外部类</span><br><span class="line">public class InnerClassDemo &#123;</span><br><span class="line">    private int a = 10;</span><br><span class="line"></span><br><span class="line">    //一个类中包含的元素：属性 方法 构造器 内部类</span><br><span class="line"></span><br><span class="line">    public void test()&#123;</span><br><span class="line">        System.out.println(a);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //内部类</span><br><span class="line"></span><br><span class="line">    class Info&#123;</span><br><span class="line">        private int a = 20;</span><br><span class="line"></span><br><span class="line">        public int info()&#123;</span><br><span class="line">            int a = 30;</span><br><span class="line">            return a;   //访问优先级：就近原则 return a = 30</span><br><span class="line">            //如果没有30  就返回20</span><br><span class="line">            //如果没有30 没有20 返回10</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//Tt是外部类</span><br><span class="line">// 一个文件里public类只能有一个，并且public修饰的类名必须和文件名一样</span><br><span class="line">//相当于在外部定义了一个类Tt</span><br><span class="line">class Tt&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<h3 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h3><pre class="highlight"><span class="line">//外部类</span><br><span class="line">public class InnerClassDemo &#123;</span><br><span class="line">    //实例成员，想访问10 要现在外面创建实例，然后实例名.</span><br><span class="line">    private int a = 10;</span><br><span class="line"></span><br><span class="line">    //类成员   不用创建实例，直接 类名.</span><br><span class="line">    private static int b = 12;</span><br><span class="line"></span><br><span class="line">    //一个类中包含的元素：属性 方法 构造器 内部类</span><br><span class="line"></span><br><span class="line">    public void test()&#123;</span><br><span class="line">        System.out.println(a);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //内部类</span><br><span class="line"></span><br><span class="line">    class Info&#123;</span><br><span class="line">        private int a = 20;</span><br><span class="line"></span><br><span class="line">        public int info()&#123;</span><br><span class="line">            int a = 30;</span><br><span class="line">            return a;   //访问优先级：就近原则 return a = 30</span><br><span class="line">            //如果没有30  就返回20</span><br><span class="line">            //如果没有30 没有20 返回10</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //静态内部类</span><br><span class="line">    static class InfoStatic&#123;</span><br><span class="line">        int c = 10;</span><br><span class="line">        static int d = 20;</span><br><span class="line">        void demo()&#123;</span><br><span class="line">            //System.out.println(a);  访问不了，因为static先加载，非静态还没加载</span><br><span class="line">            System.out.println(b);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//Tt是外部类</span><br><span class="line">// 一个文件里public类只能有一个，并且public修饰的类名必须和文件名一样</span><br><span class="line">//相当于在外部定义了一个类Tt</span><br><span class="line">class Tt&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<h4 id="非静态内部类与静态内部类的实例化"><a href="#非静态内部类与静态内部类的实例化" class="headerlink" title="非静态内部类与静态内部类的实例化"></a>非静态内部类与静态内部类的实例化</h4><pre class="highlight"><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">        //非静态内部类 实例化：用外部类的实例 去实例化内部类 。再用内部类的实例去调用内部类的方法</span><br><span class="line">        InnerClassDemo incerClassDemo = new InnerClassDemo();</span><br><span class="line">        InnerClassDemo.Info info = incerClassDemo.new Info();</span><br><span class="line">        info.info();</span><br><span class="line"></span><br><span class="line">        //静态内部类 实例化： 用外部类的类名 直接实例化内部类 。 再用内部类的实例去调用内部类的方法</span><br><span class="line">        InnerClassDemo.InfoStatic infoStatic = new InnerClassDemo.InfoStatic();</span><br><span class="line">        infoStatic.demo();</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br></pre>
+
+
+
+<h3 id="匿名内部类"><a href="#匿名内部类" class="headerlink" title="匿名内部类"></a>匿名内部类</h3><p>匿名内部类适合创建那种只需要一次使用的类，定义匿名内部类的语法格式如下：</p>
+<p>new 父类构造器（抽象类/接口）</p>
+<p>{</p>
+<p>​      //匿名内部类的 类体部分</p>
+<p>}</p>
+<p>匿名内部类不能是抽象类，匿名内部类不能定义构造器</p>
+<p>抽象类：</p>
+<pre class="highlight"><span class="line">public class AnonymousMain &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public static void testBase()&#123;</span><br><span class="line">        //匿名内部类，适用于只使用一次的类</span><br><span class="line">        //隐含的含义是：抽象类没有实例，new BaseAnonymous</span><br><span class="line">        //会创建一个匿名的内部类，这个内部类继承BaseAnonymous</span><br><span class="line">        // ba 指向这个匿名内部类的实例</span><br><span class="line">        //方法内部的局部匿名内部类</span><br><span class="line">        BaseAnonymous ba = new BaseAnonymous()&#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void anonymous() &#123;</span><br><span class="line">                setName(&quot;张三&quot;);</span><br><span class="line">                System.out.println(&quot;anonymous&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        ba.anonymous();</span><br><span class="line">        System.out.println(ba.getName());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<pre class="highlight"><span class="line">public abstract class BaseAnonymous &#123;</span><br><span class="line"></span><br><span class="line">    private String name;</span><br><span class="line"></span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public abstract void anonymous();</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<ul>
+<li><p>接口是用来实现的</p>
+</li>
+<li><p>抽象类是用来继承的</p>
+</li>
+</ul>
+<p>接口：</p>
+<p>匿名内部类不能是抽象类，也不能定义构造器</p>
+<h4 id="局部内部类"><a href="#局部内部类" class="headerlink" title="局部内部类"></a>局部内部类</h4><p>如果把一个内部类放在方法里定义，这就是局部内部类，仅仅在这个方法里有效。</p>
+<p>局部内部类不能在外部类以外的地方使用，那么局部内部类也不能使用访部控制符和static修饰</p>
+<pre class="highlight"><span class="line">public static void test()&#123;</span><br><span class="line">      class Inner&#123;</span><br><span class="line">          </span><br><span class="line">      &#125;</span><br><span class="line">      Inner inner = new Inner();</span><br><span class="line">  &#125;</span><br></pre>
+
+
+
+<h3 id="枚举类"><a href="#枚举类" class="headerlink" title="枚举类"></a>枚举类</h3><p>J2SE1.5新增了一个enum关键字，用以定义枚举类。正如前面看到，枚举类是一种特殊的类，它一样可以有自己的方法和属性，可以实现一个或者多个接口，也可以定义自己的构造器。</p>
+<p>当我们要定义一组常量的时候，我们去使用枚举。</p>
+<p>枚举类也是一种类，只是它是一种<strong>比较特殊的类</strong>，因此它一样可以使用属性和方法</p>
+<p>枚举类可以实现一个或多个接口，使用enum定义的枚举类默认继承了java.lang.Enum类，而不是继承Object类(间接继承)。其中java.lang.Enum类实现了java.lang.Serializable和java.lang.Comparable两个接口。</p>
+<p>枚举类的构造器只能使用private访问控制符，如果省略了其构造器的访问控制符，则默认使用private修饰；如果强制指定访问控制符，则只能指定private修饰符。</p>
+<p>枚举类的所有实例必须在枚举类中<strong>显式列出</strong>，否则这个枚举类将永远都不能产生实例。列出这些实例时系统会自动添加public static final修饰，无需程序员显式添加。</p>
+<pre class="highlight"><span class="line">public enum Animal &#123;</span><br><span class="line">    PIG,DOG,MONKEY;</span><br><span class="line">    public int age;</span><br><span class="line"></span><br><span class="line">    private Animal()&#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+<p>所有枚举类都提供了一个values方法，该方法可以很方便地遍历所有的枚举值。 </p>
+<pre class="highlight"><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">       Animal[] animals = Animal.values();</span><br><span class="line">       for (Animal anim:animals) &#123;</span><br><span class="line">           System.out.println(anim);</span><br><span class="line">           System.out.println(anim.age);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre>
+
+<p>枚举类通常应该设计成不可变类，也就说它的属性值不应该允许改变，这样会更安全，而且代码更加简洁。为此，我们应该将枚举类的属性都使用private final修饰。</p>
+<p>一旦为枚举类显式定义了带参数的构造器，则列出枚举值时也必须对应地传入参数。  </p>
+<pre class="highlight"><span class="line">public enum Animal &#123;</span><br><span class="line">    PIG(10),DOG(20),MONKEY(30);</span><br><span class="line">    private final int age; // 推荐</span><br><span class="line"></span><br><span class="line">    private Animal(int age)&#123;</span><br><span class="line">      this.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>枚举类也可以实现一个或多个接口。与普通类实现一个或多个接口完全一样，枚举类实现一个或多个接口时，也需要实现该接口所包含的方法。 </p>
+<p>如果需要每个枚举值在调用同一个方法时呈现出不同的行为方式，则可以让每个枚举值分别来实现该方法，每个枚举值提供不同的实现方式，从而让不同枚举值调用同一个方法时具有不同的行为方式</p>
+<pre class="highlight"><span class="line">public interface EnumInterface &#123;</span><br><span class="line">    void play();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<pre class="highlight"><span class="line">public enum Animal implements EnumInterface&#123;</span><br><span class="line">    PIG(10)&#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void play() &#123;</span><br><span class="line">            System.out.println(&quot;拱白菜&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,DOG(20)&#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void play() &#123;</span><br><span class="line">            System.out.println(&quot;啃骨头&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,MONKEY(30);</span><br><span class="line">    private final int age;</span><br><span class="line"></span><br><span class="line">    private Animal(int age)&#123;</span><br><span class="line">      this.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void play() &#123;</span><br><span class="line">        System.out.println(&quot;耍&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>可以在枚举类里定义一个抽象方法，然后把这个抽象方法交给各枚举值去实现即可。</p>
+<p>包含抽象方法，理解为抽象枚举类，abstract是不需要写的</p>
+<p>枚举类的实例都要实现内部所定义的抽象方法，每个实例理解为匿名内部类的实例</p>
+<p>这个实例可以选择重写枚举类的所有方法，但至少要重写所有的抽象方法</p>
+<pre class="highlight"><span class="line">PIG(10)&#123;</span><br><span class="line">       @Override</span><br><span class="line">       public void play() &#123;</span><br><span class="line">           System.out.println(&quot;拱白菜&quot;);</span><br><span class="line">       &#125;</span><br><span class="line">       // 类中包含抽象方法，要为每个实例提供相应的实现</span><br><span class="line">       @Override</span><br><span class="line">       public void yelling() &#123;</span><br><span class="line">           </span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre>
+
+<pre class="highlight"><span class="line">// 枚举类内部定义</span><br><span class="line">    public abstract void yelling(); </span><br><span class="line"></span><br></pre>
+
+
+
+
+
+<h2 id="Object类"><a href="#Object类" class="headerlink" title="Object类"></a>Object类</h2><p>Object类是所有类、数组、枚举类的父类，也就是说，Java允许把所有任何类型的对象赋给Object类型的变量。当定义一个类时没有使用extends关键字为它显式指定父类，则该类默认继承Object父类。</p>
+<p>打印对象和toString方法：toString方法是系统将会输出该对象的“自我描述”信息，用以告诉外界对象具有的状态信息。Object 类提供的toString方法总是返回该对象实现类的类名 + @ +hashCode值。</p>
+<p>==和equals比较运算符：==要求两个引用变量指向同一个对象才会返回true。equals方法则允许用户提供自定义的相等规则。</p>
+<p>Object类提供的equals方法判断两个对象相等的标准与==完全相同。因此开发者通常需要重写equals方法。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/10/15/%E5%86%85%E9%83%A8%E7%B1%BB%E5%92%8C%E6%9E%9A%E4%B8%BE%E7%B1%BB/">http://www.codekop.com/2019/10/15/%E5%86%85%E9%83%A8%E7%B1%BB%E5%92%8C%E6%9E%9A%E4%B8%BE%E7%B1%BB/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/15/%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%92%8C%E6%8E%A5%E5%8F%A3/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">抽象类和接口 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/10/15/Java%E5%86%85%E5%AD%98%E5%88%86%E6%9E%90/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">Java内存分析 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E9%83%A8%E7%B1%BB%E5%92%8C%E6%9E%9A%E4%B8%BE%E7%B1%BB"><span class="toc-text">内部类和枚举类</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#instanceof"><span class="toc-text">instanceof</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">非静态内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">静态内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB%E4%B8%8E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8C%96"><span class="toc-text">非静态内部类与静态内部类的实例化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8C%BF%E5%90%8D%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">匿名内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B1%80%E9%83%A8%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">局部内部类</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%9A%E4%B8%BE%E7%B1%BB"><span class="toc-text">枚举类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Object%E7%B1%BB"><span class="toc-text">Object类</span></a></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E9%83%A8%E7%B1%BB%E5%92%8C%E6%9E%9A%E4%B8%BE%E7%B1%BB"><span class="toc-text">内部类和枚举类</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#instanceof"><span class="toc-text">instanceof</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">非静态内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">静态内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB%E4%B8%8E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8C%96"><span class="toc-text">非静态内部类与静态内部类的实例化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8C%BF%E5%90%8D%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">匿名内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B1%80%E9%83%A8%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">局部内部类</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%9A%E4%B8%BE%E7%B1%BB"><span class="toc-text">枚举类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Object%E7%B1%BB"><span class="toc-text">Object类</span></a></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E9%83%A8%E7%B1%BB%E5%92%8C%E6%9E%9A%E4%B8%BE%E7%B1%BB"><span class="toc-text">内部类和枚举类</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#instanceof"><span class="toc-text">instanceof</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">非静态内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">静态内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB%E4%B8%8E%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BB%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8C%96"><span class="toc-text">非静态内部类与静态内部类的实例化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8C%BF%E5%90%8D%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">匿名内部类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B1%80%E9%83%A8%E5%86%85%E9%83%A8%E7%B1%BB"><span class="toc-text">局部内部类</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%9A%E4%B8%BE%E7%B1%BB"><span class="toc-text">枚举类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Object%E7%B1%BB"><span class="toc-text">Object类</span></a></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

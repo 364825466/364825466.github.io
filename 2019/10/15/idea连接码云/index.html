@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>idea连接码云</title>
+  
+  
+  <meta property="og:title" content="idea连接码云">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/index.html">
+  
+  
+  <meta property="og:img" content="/blogImg/idea连接码云/mayun.jpg">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;idea连接码云流程&#34;&gt;&lt;a href=&#34;#idea连接码云流程&#34; class=&#34;headerlink&#34; title=&#34;idea连接码云流程&#34;&gt;&lt;/a&gt;idea连接码云流程&lt;/h1&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-10-15">
+  <meta property="og:article:modified_time" content="2021-06-07">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="git">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<div class="image-wrapper">
+  <img src="/blogImg/idea连接码云/mayun.jpg" data-src="/blogImg/idea连接码云/mayun.jpg"
+    srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
+    class="image lozad"
+    alt="thumbnail"
+  >
+</div>
+
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      idea连接码云
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-10-15T09:33:27.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-10-15</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>329 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/git/" class="post-meta-link">git</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="idea连接码云流程"><a href="#idea连接码云流程" class="headerlink" title="idea连接码云流程"></a>idea连接码云流程</h1><span id="more"></span>
+
+<h3 id="一、打开码云网站注册并登陆"><a href="#一、打开码云网站注册并登陆" class="headerlink" title="一、打开码云网站注册并登陆"></a>一、打开码云网站注册并登陆</h3><h3 id="二、建立远程仓库"><a href="#二、建立远程仓库" class="headerlink" title="二、建立远程仓库"></a>二、建立远程仓库</h3><h3 id="队长操作"><a href="#队长操作" class="headerlink" title="队长操作"></a>队长操作</h3><h4 id="（1）右上角新建仓库"><a href="#（1）右上角新建仓库" class="headerlink" title="（1）右上角新建仓库"></a>（1）右上角新建仓库</h4><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565791822270.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565791822270.png"></p>
+<h4 id><a href="#" class="headerlink" title></a></h4><h4 id="（2）填写好仓库信息完成创建"><a href="#（2）填写好仓库信息完成创建" class="headerlink" title="（2）填写好仓库信息完成创建"></a>（2）填写好仓库信息完成创建</h4><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792111816.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792111816.png"></p>
+<h4 id="（3）点击管理-》项目成员管理-》管理员-》右上角添加用户成员邀请小组成员"><a href="#（3）点击管理-》项目成员管理-》管理员-》右上角添加用户成员邀请小组成员" class="headerlink" title="（3）点击管理-》项目成员管理-》管理员-》右上角添加用户成员邀请小组成员"></a>（3）点击管理-》项目成员管理-》管理员-》右上角添加用户成员邀请小组成员</h4><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792215397.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792215397.png"></p>
+<h3 id="队员操作"><a href="#队员操作" class="headerlink" title="队员操作"></a>队员操作</h3><p>​    <img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792255924.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792255924.png"></p>
+<h4 id="（1）点击右上角消息"><a href="#（1）点击右上角消息" class="headerlink" title="（1）点击右上角消息"></a>（1）点击右上角消息</h4><h4 id="（2）点击私信进入同意请求"><a href="#（2）点击私信进入同意请求" class="headerlink" title="（2）点击私信进入同意请求"></a>（2）点击私信进入同意请求</h4><h3 id="三、本地idea连接码云"><a href="#三、本地idea连接码云" class="headerlink" title="三、本地idea连接码云"></a>三、本地idea连接码云</h3><h4 id="1-用idea新建一个项目"><a href="#1-用idea新建一个项目" class="headerlink" title="1.用idea新建一个项目"></a>1.用idea新建一个项目</h4><h4 id="2-点击vcs-》import…-gt-create…初始化git（等于git-init）"><a href="#2-点击vcs-》import…-gt-create…初始化git（等于git-init）" class="headerlink" title="2.点击vcs-》import…-&gt;create…初始化git（等于git init）"></a>2.点击vcs-》import…-&gt;create…初始化git（等于git init）</h4><h4 id="-1"><a href="#-1" class="headerlink" title></a><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792511638.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792511638.png"></h4><h4 id="3-建立忽略"><a href="#3-建立忽略" class="headerlink" title="3.建立忽略"></a>3.建立忽略</h4><h5 id="1-右键项目根目录新建忽略文件，文件名为-gitignore"><a href="#1-右键项目根目录新建忽略文件，文件名为-gitignore" class="headerlink" title="(1)右键项目根目录新建忽略文件，文件名为.gitignore"></a>(1)右键项目根目录新建忽略文件，文件名为.gitignore</h5><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792762340.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565792762340.png"></p>
+<h5 id="（2）复制以下代码到该文件，也可以百度查idea-git的忽略文件"><a href="#（2）复制以下代码到该文件，也可以百度查idea-git的忽略文件" class="headerlink" title="（2）复制以下代码到该文件，也可以百度查idea         git的忽略文件"></a>（2）复制以下代码到该文件，也可以百度查idea         git的忽略文件</h5><pre class="highlight"><span class="line">HELP.md</span><br><span class="line">target/</span><br><span class="line">!.mvn/wrapper/maven-wrapper.jar</span><br><span class="line">!**/src/main/**</span><br><span class="line">!**/src/test/**</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">### IntelliJ IDEA ###</span><br><span class="line">.idea</span><br><span class="line">*.iws</span><br><span class="line">*.iml</span><br><span class="line">*.ipr</span><br></pre>
+
+<h4 id="4-连接远程仓库"><a href="#4-连接远程仓库" class="headerlink" title="4.连接远程仓库"></a>4.连接远程仓库</h4><p>点击vcs-&gt;git-&gt;remote-&gt;将远程仓库地址添加进去</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565794705641.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565794705641.png"></p>
+<h4 id="5-队长建立项目初始的结构"><a href="#5-队长建立项目初始的结构" class="headerlink" title="5.队长建立项目初始的结构"></a>5.队长建立项目初始的结构</h4><h5 id="（1）在根目录右键选择git-gt-点击-add-再点击commit-directory"><a href="#（1）在根目录右键选择git-gt-点击-add-再点击commit-directory" class="headerlink" title="（1）在根目录右键选择git -&gt;点击 add 再点击commit directory"></a>（1）在根目录右键选择git -&gt;点击 add 再点击commit directory</h5><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565793577092.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565793577092.png"></p>
+<h5 id="（2）在中间输入此次提交的备注信息"><a href="#（2）在中间输入此次提交的备注信息" class="headerlink" title="（2）在中间输入此次提交的备注信息"></a>（2）在中间输入此次提交的备注信息</h5><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565793938190.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565793938190.png"></p>
+<h5 id="（3）在根目录点击vcs-》git-》-push"><a href="#（3）在根目录点击vcs-》git-》-push" class="headerlink" title="（3）在根目录点击vcs-》git -》 push"></a>（3）在根目录点击vcs-》git -》 push</h5><p>点击此处可以修改想提交的分支</p>
+<p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565794249339.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565794249339.png"></p>
+<h4 id="6-队员在根目录点击vcs-gt-git-gt-pull先点击下图的刷新按钮然后点击pull拉取远程分支的代码"><a href="#6-队员在根目录点击vcs-gt-git-gt-pull先点击下图的刷新按钮然后点击pull拉取远程分支的代码" class="headerlink" title="6.队员在根目录点击vcs-&gt;git-&gt;pull先点击下图的刷新按钮然后点击pull拉取远程分支的代码"></a>6.队员在根目录点击vcs-&gt;git-&gt;pull先点击下图的刷新按钮然后点击pull拉取远程分支的代码</h4><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565794579646.png" class="lozad post-image"src="/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/1565794579646.png"></p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/">http://www.codekop.com/2019/10/15/idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/15/%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%89%93%E5%BC%80%E8%BD%AF%E4%BB%B6/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">命令行打开软件 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/10/15/%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%92%8C%E6%8E%A5%E5%8F%A3/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">抽象类和接口 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91%E6%B5%81%E7%A8%8B"><span class="toc-text">idea连接码云流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%89%93%E5%BC%80%E7%A0%81%E4%BA%91%E7%BD%91%E7%AB%99%E6%B3%A8%E5%86%8C%E5%B9%B6%E7%99%BB%E9%99%86"><span class="toc-text">一、打开码云网站注册并登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BB%BA%E7%AB%8B%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">二、建立远程仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%9F%E9%95%BF%E6%93%8D%E4%BD%9C"><span class="toc-text">队长操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%96%B0%E5%BB%BA%E4%BB%93%E5%BA%93"><span class="toc-text">（1）右上角新建仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%A1%AB%E5%86%99%E5%A5%BD%E4%BB%93%E5%BA%93%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%88%90%E5%88%9B%E5%BB%BA"><span class="toc-text">（2）填写好仓库信息完成创建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E7%82%B9%E5%87%BB%E7%AE%A1%E7%90%86-%E3%80%8B%E9%A1%B9%E7%9B%AE%E6%88%90%E5%91%98%E7%AE%A1%E7%90%86-%E3%80%8B%E7%AE%A1%E7%90%86%E5%91%98-%E3%80%8B%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B7%E6%88%90%E5%91%98%E9%82%80%E8%AF%B7%E5%B0%8F%E7%BB%84%E6%88%90%E5%91%98"><span class="toc-text">（3）点击管理-》项目成员管理-》管理员-》右上角添加用户成员邀请小组成员</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%9F%E5%91%98%E6%93%8D%E4%BD%9C"><span class="toc-text">队员操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E7%82%B9%E5%87%BB%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%B6%88%E6%81%AF"><span class="toc-text">（1）点击右上角消息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E7%82%B9%E5%87%BB%E7%A7%81%E4%BF%A1%E8%BF%9B%E5%85%A5%E5%90%8C%E6%84%8F%E8%AF%B7%E6%B1%82"><span class="toc-text">（2）点击私信进入同意请求</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%9C%AC%E5%9C%B0idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91"><span class="toc-text">三、本地idea连接码云</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%94%A8idea%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AA%E9%A1%B9%E7%9B%AE"><span class="toc-text">1.用idea新建一个项目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%82%B9%E5%87%BBvcs-%E3%80%8Bimport%E2%80%A6-gt-create%E2%80%A6%E5%88%9D%E5%A7%8B%E5%8C%96git%EF%BC%88%E7%AD%89%E4%BA%8Egit-init%EF%BC%89"><span class="toc-text">2.点击vcs-》import…-&gt;create…初始化git（等于git init）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-1"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%BB%BA%E7%AB%8B%E5%BF%BD%E7%95%A5"><span class="toc-text">3.建立忽略</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E5%8F%B3%E9%94%AE%E9%A1%B9%E7%9B%AE%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%96%B0%E5%BB%BA%E5%BF%BD%E7%95%A5%E6%96%87%E4%BB%B6%EF%BC%8C%E6%96%87%E4%BB%B6%E5%90%8D%E4%B8%BA-gitignore"><span class="toc-text">(1)右键项目根目录新建忽略文件，文件名为.gitignore</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%A4%8D%E5%88%B6%E4%BB%A5%E4%B8%8B%E4%BB%A3%E7%A0%81%E5%88%B0%E8%AF%A5%E6%96%87%E4%BB%B6%EF%BC%8C%E4%B9%9F%E5%8F%AF%E4%BB%A5%E7%99%BE%E5%BA%A6%E6%9F%A5idea-git%E7%9A%84%E5%BF%BD%E7%95%A5%E6%96%87%E4%BB%B6"><span class="toc-text">（2）复制以下代码到该文件，也可以百度查idea         git的忽略文件</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%BF%9E%E6%8E%A5%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">4.连接远程仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E9%98%9F%E9%95%BF%E5%BB%BA%E7%AB%8B%E9%A1%B9%E7%9B%AE%E5%88%9D%E5%A7%8B%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-text">5.队长建立项目初始的结构</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%8F%B3%E9%94%AE%E9%80%89%E6%8B%A9git-gt-%E7%82%B9%E5%87%BB-add-%E5%86%8D%E7%82%B9%E5%87%BBcommit-directory"><span class="toc-text">（1）在根目录右键选择git -&gt;点击 add 再点击commit directory</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%9C%A8%E4%B8%AD%E9%97%B4%E8%BE%93%E5%85%A5%E6%AD%A4%E6%AC%A1%E6%8F%90%E4%BA%A4%E7%9A%84%E5%A4%87%E6%B3%A8%E4%BF%A1%E6%81%AF"><span class="toc-text">（2）在中间输入此次提交的备注信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%82%B9%E5%87%BBvcs-%E3%80%8Bgit-%E3%80%8B-push"><span class="toc-text">（3）在根目录点击vcs-》git -》 push</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E9%98%9F%E5%91%98%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%82%B9%E5%87%BBvcs-gt-git-gt-pull%E5%85%88%E7%82%B9%E5%87%BB%E4%B8%8B%E5%9B%BE%E7%9A%84%E5%88%B7%E6%96%B0%E6%8C%89%E9%92%AE%E7%84%B6%E5%90%8E%E7%82%B9%E5%87%BBpull%E6%8B%89%E5%8F%96%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="toc-text">6.队员在根目录点击vcs-&gt;git-&gt;pull先点击下图的刷新按钮然后点击pull拉取远程分支的代码</span></a></li></ol></li></ol></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91%E6%B5%81%E7%A8%8B"><span class="toc-text">idea连接码云流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%89%93%E5%BC%80%E7%A0%81%E4%BA%91%E7%BD%91%E7%AB%99%E6%B3%A8%E5%86%8C%E5%B9%B6%E7%99%BB%E9%99%86"><span class="toc-text">一、打开码云网站注册并登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BB%BA%E7%AB%8B%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">二、建立远程仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%9F%E9%95%BF%E6%93%8D%E4%BD%9C"><span class="toc-text">队长操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%96%B0%E5%BB%BA%E4%BB%93%E5%BA%93"><span class="toc-text">（1）右上角新建仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%A1%AB%E5%86%99%E5%A5%BD%E4%BB%93%E5%BA%93%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%88%90%E5%88%9B%E5%BB%BA"><span class="toc-text">（2）填写好仓库信息完成创建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E7%82%B9%E5%87%BB%E7%AE%A1%E7%90%86-%E3%80%8B%E9%A1%B9%E7%9B%AE%E6%88%90%E5%91%98%E7%AE%A1%E7%90%86-%E3%80%8B%E7%AE%A1%E7%90%86%E5%91%98-%E3%80%8B%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B7%E6%88%90%E5%91%98%E9%82%80%E8%AF%B7%E5%B0%8F%E7%BB%84%E6%88%90%E5%91%98"><span class="toc-text">（3）点击管理-》项目成员管理-》管理员-》右上角添加用户成员邀请小组成员</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%9F%E5%91%98%E6%93%8D%E4%BD%9C"><span class="toc-text">队员操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E7%82%B9%E5%87%BB%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%B6%88%E6%81%AF"><span class="toc-text">（1）点击右上角消息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E7%82%B9%E5%87%BB%E7%A7%81%E4%BF%A1%E8%BF%9B%E5%85%A5%E5%90%8C%E6%84%8F%E8%AF%B7%E6%B1%82"><span class="toc-text">（2）点击私信进入同意请求</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%9C%AC%E5%9C%B0idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91"><span class="toc-text">三、本地idea连接码云</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%94%A8idea%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AA%E9%A1%B9%E7%9B%AE"><span class="toc-text">1.用idea新建一个项目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%82%B9%E5%87%BBvcs-%E3%80%8Bimport%E2%80%A6-gt-create%E2%80%A6%E5%88%9D%E5%A7%8B%E5%8C%96git%EF%BC%88%E7%AD%89%E4%BA%8Egit-init%EF%BC%89"><span class="toc-text">2.点击vcs-》import…-&gt;create…初始化git（等于git init）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-1"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%BB%BA%E7%AB%8B%E5%BF%BD%E7%95%A5"><span class="toc-text">3.建立忽略</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E5%8F%B3%E9%94%AE%E9%A1%B9%E7%9B%AE%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%96%B0%E5%BB%BA%E5%BF%BD%E7%95%A5%E6%96%87%E4%BB%B6%EF%BC%8C%E6%96%87%E4%BB%B6%E5%90%8D%E4%B8%BA-gitignore"><span class="toc-text">(1)右键项目根目录新建忽略文件，文件名为.gitignore</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%A4%8D%E5%88%B6%E4%BB%A5%E4%B8%8B%E4%BB%A3%E7%A0%81%E5%88%B0%E8%AF%A5%E6%96%87%E4%BB%B6%EF%BC%8C%E4%B9%9F%E5%8F%AF%E4%BB%A5%E7%99%BE%E5%BA%A6%E6%9F%A5idea-git%E7%9A%84%E5%BF%BD%E7%95%A5%E6%96%87%E4%BB%B6"><span class="toc-text">（2）复制以下代码到该文件，也可以百度查idea         git的忽略文件</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%BF%9E%E6%8E%A5%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">4.连接远程仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E9%98%9F%E9%95%BF%E5%BB%BA%E7%AB%8B%E9%A1%B9%E7%9B%AE%E5%88%9D%E5%A7%8B%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-text">5.队长建立项目初始的结构</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%8F%B3%E9%94%AE%E9%80%89%E6%8B%A9git-gt-%E7%82%B9%E5%87%BB-add-%E5%86%8D%E7%82%B9%E5%87%BBcommit-directory"><span class="toc-text">（1）在根目录右键选择git -&gt;点击 add 再点击commit directory</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%9C%A8%E4%B8%AD%E9%97%B4%E8%BE%93%E5%85%A5%E6%AD%A4%E6%AC%A1%E6%8F%90%E4%BA%A4%E7%9A%84%E5%A4%87%E6%B3%A8%E4%BF%A1%E6%81%AF"><span class="toc-text">（2）在中间输入此次提交的备注信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%82%B9%E5%87%BBvcs-%E3%80%8Bgit-%E3%80%8B-push"><span class="toc-text">（3）在根目录点击vcs-》git -》 push</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E9%98%9F%E5%91%98%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%82%B9%E5%87%BBvcs-gt-git-gt-pull%E5%85%88%E7%82%B9%E5%87%BB%E4%B8%8B%E5%9B%BE%E7%9A%84%E5%88%B7%E6%96%B0%E6%8C%89%E9%92%AE%E7%84%B6%E5%90%8E%E7%82%B9%E5%87%BBpull%E6%8B%89%E5%8F%96%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="toc-text">6.队员在根目录点击vcs-&gt;git-&gt;pull先点击下图的刷新按钮然后点击pull拉取远程分支的代码</span></a></li></ol></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91%E6%B5%81%E7%A8%8B"><span class="toc-text">idea连接码云流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%89%93%E5%BC%80%E7%A0%81%E4%BA%91%E7%BD%91%E7%AB%99%E6%B3%A8%E5%86%8C%E5%B9%B6%E7%99%BB%E9%99%86"><span class="toc-text">一、打开码云网站注册并登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BB%BA%E7%AB%8B%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">二、建立远程仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%9F%E9%95%BF%E6%93%8D%E4%BD%9C"><span class="toc-text">队长操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%96%B0%E5%BB%BA%E4%BB%93%E5%BA%93"><span class="toc-text">（1）右上角新建仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%A1%AB%E5%86%99%E5%A5%BD%E4%BB%93%E5%BA%93%E4%BF%A1%E6%81%AF%E5%AE%8C%E6%88%90%E5%88%9B%E5%BB%BA"><span class="toc-text">（2）填写好仓库信息完成创建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E7%82%B9%E5%87%BB%E7%AE%A1%E7%90%86-%E3%80%8B%E9%A1%B9%E7%9B%AE%E6%88%90%E5%91%98%E7%AE%A1%E7%90%86-%E3%80%8B%E7%AE%A1%E7%90%86%E5%91%98-%E3%80%8B%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B7%E6%88%90%E5%91%98%E9%82%80%E8%AF%B7%E5%B0%8F%E7%BB%84%E6%88%90%E5%91%98"><span class="toc-text">（3）点击管理-》项目成员管理-》管理员-》右上角添加用户成员邀请小组成员</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%9F%E5%91%98%E6%93%8D%E4%BD%9C"><span class="toc-text">队员操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E7%82%B9%E5%87%BB%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%B6%88%E6%81%AF"><span class="toc-text">（1）点击右上角消息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E7%82%B9%E5%87%BB%E7%A7%81%E4%BF%A1%E8%BF%9B%E5%85%A5%E5%90%8C%E6%84%8F%E8%AF%B7%E6%B1%82"><span class="toc-text">（2）点击私信进入同意请求</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%9C%AC%E5%9C%B0idea%E8%BF%9E%E6%8E%A5%E7%A0%81%E4%BA%91"><span class="toc-text">三、本地idea连接码云</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%94%A8idea%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AA%E9%A1%B9%E7%9B%AE"><span class="toc-text">1.用idea新建一个项目</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%82%B9%E5%87%BBvcs-%E3%80%8Bimport%E2%80%A6-gt-create%E2%80%A6%E5%88%9D%E5%A7%8B%E5%8C%96git%EF%BC%88%E7%AD%89%E4%BA%8Egit-init%EF%BC%89"><span class="toc-text">2.点击vcs-》import…-&gt;create…初始化git（等于git init）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-1"><span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%BB%BA%E7%AB%8B%E5%BF%BD%E7%95%A5"><span class="toc-text">3.建立忽略</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E5%8F%B3%E9%94%AE%E9%A1%B9%E7%9B%AE%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%96%B0%E5%BB%BA%E5%BF%BD%E7%95%A5%E6%96%87%E4%BB%B6%EF%BC%8C%E6%96%87%E4%BB%B6%E5%90%8D%E4%B8%BA-gitignore"><span class="toc-text">(1)右键项目根目录新建忽略文件，文件名为.gitignore</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%A4%8D%E5%88%B6%E4%BB%A5%E4%B8%8B%E4%BB%A3%E7%A0%81%E5%88%B0%E8%AF%A5%E6%96%87%E4%BB%B6%EF%BC%8C%E4%B9%9F%E5%8F%AF%E4%BB%A5%E7%99%BE%E5%BA%A6%E6%9F%A5idea-git%E7%9A%84%E5%BF%BD%E7%95%A5%E6%96%87%E4%BB%B6"><span class="toc-text">（2）复制以下代码到该文件，也可以百度查idea         git的忽略文件</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%BF%9E%E6%8E%A5%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="toc-text">4.连接远程仓库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E9%98%9F%E9%95%BF%E5%BB%BA%E7%AB%8B%E9%A1%B9%E7%9B%AE%E5%88%9D%E5%A7%8B%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-text">5.队长建立项目初始的结构</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%8F%B3%E9%94%AE%E9%80%89%E6%8B%A9git-gt-%E7%82%B9%E5%87%BB-add-%E5%86%8D%E7%82%B9%E5%87%BBcommit-directory"><span class="toc-text">（1）在根目录右键选择git -&gt;点击 add 再点击commit directory</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%9C%A8%E4%B8%AD%E9%97%B4%E8%BE%93%E5%85%A5%E6%AD%A4%E6%AC%A1%E6%8F%90%E4%BA%A4%E7%9A%84%E5%A4%87%E6%B3%A8%E4%BF%A1%E6%81%AF"><span class="toc-text">（2）在中间输入此次提交的备注信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%82%B9%E5%87%BBvcs-%E3%80%8Bgit-%E3%80%8B-push"><span class="toc-text">（3）在根目录点击vcs-》git -》 push</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E9%98%9F%E5%91%98%E5%9C%A8%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%82%B9%E5%87%BBvcs-gt-git-gt-pull%E5%85%88%E7%82%B9%E5%87%BB%E4%B8%8B%E5%9B%BE%E7%9A%84%E5%88%B7%E6%96%B0%E6%8C%89%E9%92%AE%E7%84%B6%E5%90%8E%E7%82%B9%E5%87%BBpull%E6%8B%89%E5%8F%96%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="toc-text">6.队员在根目录点击vcs-&gt;git-&gt;pull先点击下图的刷新按钮然后点击pull拉取远程分支的代码</span></a></li></ol></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

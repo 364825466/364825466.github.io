@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>SpringBoot搭建Elasticsearch</title>
+  
+  
+  <meta property="og:title" content="SpringBoot搭建Elasticsearch">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/10/15/SpringBoot%E6%90%AD%E5%BB%BAElasticsearch/index.html">
+  
+  
+  <meta property="og:img" content="/img/head2.png">
+  
+  
+  <meta property="og:img" content="&lt;h1 id=&#34;SpringBoot搭建Elasticsearch&#34;&gt;&lt;a href=&#34;#SpringBoot搭建Elasticsearch&#34; class=&#34;headerlink&#34; title=&#34;SpringBoot搭建Elasticsearch&#34;&gt;&lt;/a&gt;SpringBoot搭建Elasticsearch&lt;/h1&gt;&lt;h2 id=&#34;前提环境：&#34;&gt;&lt;a href=&#34;#前提环境：&#34; class=&#34;headerlink&#34; title=&#34;前提环境：&#34;&gt;&lt;/a&gt;前提环境：&lt;/h2&gt;&lt;p&gt;已成功配置好Elasticsearch和Elasticsearch-head插件，并已经对Elasticsearch有一点了解&lt;/p&gt;
+&lt;p&gt;本文档所使用各个软件版本为：&lt;/p&gt;
+&lt;p&gt;springboot2.1.4&lt;/p&gt;
+&lt;p&gt;jdk1.8&lt;/p&gt;
+&lt;p&gt;elasticsearch-6.2.4&lt;/p&gt;
+&lt;p&gt;所使用的Spring提供的封装套件：&lt;/p&gt;
+&lt;p&gt;Spring Data Elasticsearch&lt;/p&gt;
+&lt;h2 id=&#34;开始准备：&#34;&gt;&lt;a href=&#34;#开始准备：&#34; class=&#34;headerlink&#34; title=&#34;开始准备：&#34;&gt;&lt;/a&gt;开始准备：&lt;/h2&gt;">
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-10-15">
+  <meta property="og:article:modified_time" content="2019-11-19">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="es">
+  
+  <meta property="og:article:tag" content="技术分享">
+  
+  <meta property="og:article:tag" content="SpringBoot">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      SpringBoot搭建Elasticsearch
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-10-15T10:48:41.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-10-15</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>1.8k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/es/" class="post-meta-link">es</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" class="post-meta-link">技术分享</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/SpringBoot/" class="post-meta-link">SpringBoot</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h1 id="SpringBoot搭建Elasticsearch"><a href="#SpringBoot搭建Elasticsearch" class="headerlink" title="SpringBoot搭建Elasticsearch"></a>SpringBoot搭建Elasticsearch</h1><h2 id="前提环境："><a href="#前提环境：" class="headerlink" title="前提环境："></a>前提环境：</h2><p>已成功配置好Elasticsearch和Elasticsearch-head插件，并已经对Elasticsearch有一点了解</p>
+<p>本文档所使用各个软件版本为：</p>
+<p>springboot2.1.4</p>
+<p>jdk1.8</p>
+<p>elasticsearch-6.2.4</p>
+<p>所使用的Spring提供的封装套件：</p>
+<p>Spring Data Elasticsearch</p>
+<h2 id="开始准备："><a href="#开始准备：" class="headerlink" title="开始准备："></a>开始准备：</h2><span id="more"></span>
+
+<p>新建一个springboot项目，默认依赖只需引入web即可</p>
+<p>具体操作：略</p>
+<p>开启Elasticsearch主程序</p>
+<p>具体操作，详见环境搭建</p>
+<p>开启Elasticsearch-head可视化客户端插件</p>
+<p>具体操作，详见环境搭建</p>
+<h2 id="开始搭建"><a href="#开始搭建" class="headerlink" title="开始搭建"></a>开始搭建</h2><h2 id="一、依赖引入"><a href="#一、依赖引入" class="headerlink" title="一、依赖引入"></a>一、依赖引入</h2><p>只需额外引入</p>
+<pre class="highlight"><span class="line">&lt;!-- elasticsearch启动器 (必须)--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">   &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">   &lt;artifactId&gt;spring-boot-starter-data-elasticsearch&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line">&lt;!-- 测试所需--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">   &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">   &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;</span><br><span class="line">   &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre>
+
+<h2 id="二、目录结构"><a href="#二、目录结构" class="headerlink" title="二、目录结构"></a>二、目录结构</h2><p><img  srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/2019/10/15/SpringBoot%E6%90%AD%E5%BB%BAElasticsearch/1569309246712.png" class="lozad post-image"src="/2019/10/15/SpringBoot%E6%90%AD%E5%BB%BAElasticsearch/1569309246712.png"></p>
+<h2 id="三、配置文件application-properties"><a href="#三、配置文件application-properties" class="headerlink" title="三、配置文件application.properties"></a>三、配置文件application.properties</h2><pre class="highlight"><span class="line">spring.data.elasticsearch.cluster-name=my-application</span><br><span class="line">spring.data.elasticsearch.cluster-nodes=127.0.0.1:9300</span><br></pre>
+
+<p>其中：spring.data.elasticsearch.cluster-name为elasticsearch主程序根目录下的conf文件夹中yml配置文件中cluster.name名称一样</p>
+<h2 id="四、新建实体类："><a href="#四、新建实体类：" class="headerlink" title="四、新建实体类："></a>四、新建实体类：</h2><pre class="highlight"><span class="line">import org.springframework.data.annotation.Id;</span><br><span class="line">import org.springframework.data.elasticsearch.annotations.Document;</span><br><span class="line">import org.springframework.data.elasticsearch.annotations.Field;</span><br><span class="line">import org.springframework.data.elasticsearch.annotations.FieldType;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * indexName索引名（数据库名称）, 必须为小写</span><br><span class="line"> * type   文档类型（表名）, 必须为小写</span><br><span class="line"> */</span><br><span class="line">@Document(indexName = &quot;item&quot;,type = &quot;item&quot;, shards = 4, replicas = 0)</span><br><span class="line">public class Item &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @Description: @Id注解必须是springframework包下的</span><br><span class="line">     * org.springframework.data.annotation.Id</span><br><span class="line">     *@Author: https://blog.csdn.net/chen_2890</span><br><span class="line">     */</span><br><span class="line">    @Id</span><br><span class="line">    private int id;</span><br><span class="line"></span><br><span class="line">    @Field(type = FieldType.Text, analyzer = &quot;ik_max_word&quot;)</span><br><span class="line">    private String title; //标题</span><br><span class="line"></span><br><span class="line">    @Field(type = FieldType.Keyword)</span><br><span class="line">    private String category;// 分类</span><br><span class="line"></span><br><span class="line">    @Field(type = FieldType.Keyword)</span><br><span class="line">    private String brand; // 品牌</span><br><span class="line"></span><br><span class="line">    @Field(type = FieldType.Double)</span><br><span class="line">    private Double price; // 价格</span><br><span class="line"></span><br><span class="line">    @Field(index = false, type = FieldType.Keyword)</span><br><span class="line">    private String images; // 图片地址</span><br><span class="line"></span><br><span class="line">    public int getId() &#123;</span><br><span class="line">        return id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setId(int id) &#123;</span><br><span class="line">        this.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String getTitle() &#123;</span><br><span class="line">        return title;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setTitle(String title) &#123;</span><br><span class="line">        this.title = title;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String getCategory() &#123;</span><br><span class="line">        return category;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setCategory(String category) &#123;</span><br><span class="line">        this.category = category;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String getBrand() &#123;</span><br><span class="line">        return brand;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setBrand(String brand) &#123;</span><br><span class="line">        this.brand = brand;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Double getPrice() &#123;</span><br><span class="line">        return price;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setPrice(Double price) &#123;</span><br><span class="line">        this.price = price;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String getImages() &#123;</span><br><span class="line">        return images;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setImages(String images) &#123;</span><br><span class="line">        this.images = images;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Item(int id, String title, String category, String brand, Double price, String images) &#123;</span><br><span class="line">        this.id = id;</span><br><span class="line">        this.title = title;</span><br><span class="line">        this.category = category;</span><br><span class="line">        this.brand = brand;</span><br><span class="line">        this.price = price;</span><br><span class="line">        this.images = images;</span><br><span class="line">    &#125;</span><br><span class="line">    public Item() &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public String toString() &#123;</span><br><span class="line">        return &quot;Item&#123;&quot; +</span><br><span class="line">                &quot;id=&quot; + id +</span><br><span class="line">                &quot;, title=&#x27;&quot; + title + &#x27;\&#x27;&#x27; +</span><br><span class="line">                &quot;, category=&#x27;&quot; + category + &#x27;\&#x27;&#x27; +</span><br><span class="line">                &quot;, brand=&#x27;&quot; + brand + &#x27;\&#x27;&#x27; +</span><br><span class="line">                &quot;, price=&quot; + price +</span><br><span class="line">                &quot;, images=&#x27;&quot; + images + &#x27;\&#x27;&#x27; +</span><br><span class="line">                &#x27;&#125;&#x27;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<h5 id="注意事项！！！！"><a href="#注意事项！！！！" class="headerlink" title="注意事项！！！！"></a>注意事项！！！！</h5><p>一定要包含空参构造方法，有参构造方法，get/set方法，不然会出现各种问题</p>
+<h3 id="实体类中注解："><a href="#实体类中注解：" class="headerlink" title="实体类中注解："></a>实体类中注解：</h3><p>@Document 作用在类，标记实体类为文档对象，一般有两个属性<br>            indexName：对应索引库名称<br>            type：对应在索引库中的类型<br>            shards：分片数量，默认5<br>            replicas：副本数量，默认1<br>@Id 作用在成员变量，标记一个字段作为id主键<br>@Field 作用在成员变量，标记为文档的字段，并指定字段映射属性：<br>            type：字段类型，是枚举：FieldType，可以是text、long、short、date、integer、object等<br>            text：存储数据时候，会自动分词，并生成索引<br>            keyword：存储数据时候，不会分词建立索引<br>Numerical：数值类型，分两类<br>基本数据类型：long、interger、short、byte、double、float、half_float<br>浮点数的高精度类型：scaled_float<br>需要指定一个精度因子，比如10或100。elasticsearch会把真实值乘以这个因子后存储，取出时再还原。<br>Date：日期类型<br>elasticsearch可以对日期格式化为字符串存储，但是建议我们存储为毫秒值，存储为long，节省空间。<br>index：是否索引，布尔类型，默认是true<br>store：是否存储，布尔类型，默认是false<br>analyzer：分词器名称，这里的ik_max_word即使用ik分词器</p>
+<h2 id="五、创建索引对应的接口"><a href="#五、创建索引对应的接口" class="headerlink" title="五、创建索引对应的接口"></a>五、创建索引对应的接口</h2><pre class="highlight"><span class="line">public interface ItemRepository extends ElasticsearchRepository&lt;Item,Long&gt; &#123;</span><br><span class="line">&#125;</span><br></pre>
+
+<h3 id="注：以下所有操作均用test类测试"><a href="#注：以下所有操作均用test类测试" class="headerlink" title="注：以下所有操作均用test类测试"></a>注：以下所有操作均用test类测试</h3><h2 id="六、索引操作"><a href="#六、索引操作" class="headerlink" title="六、索引操作"></a>六、索引操作</h2><pre class="highlight"><span class="line">/**</span><br><span class="line"> *创建索引</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void createIndex() &#123;</span><br><span class="line">   elasticsearchTemplate.createIndex(Item.class);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 删除索引</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void deleteIndex() &#123;</span><br><span class="line">   elasticsearchTemplate.deleteIndex(Item.class);</span><br><span class="line">&#125;</span><br></pre>
+
+<h2 id="七、增加数据操作："><a href="#七、增加数据操作：" class="headerlink" title="七、增加数据操作："></a>七、增加数据操作：</h2><pre class="highlight"><span class="line">@Test</span><br><span class="line">public void insert() &#123;</span><br><span class="line">   User user = new User(1,&quot;guo&quot;,&quot;guo&quot;,&quot;郭振江&quot;);</span><br><span class="line">   userService.save(user);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 插入多条数据</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void insertList() &#123;</span><br><span class="line">   List&lt;Item&gt; list = new ArrayList&lt;&gt;();</span><br><span class="line">   list.add(new Item(2, &quot;坚果手机R1&quot;, &quot; 手机&quot;, &quot;锤子&quot;, 3699.00, &quot;http://image.baidu.com/13123.jpg&quot;));</span><br><span class="line">   list.add(new Item(6, &quot;坚果手机R1&quot;, &quot; 手机&quot;, &quot;锤子&quot;, 3699.00, &quot;http://image.baidu.com/13123.jpg&quot;));</span><br><span class="line">   list.add(new Item(7, &quot;坚果手机R1&quot;, &quot; 手机&quot;, &quot;锤子&quot;, 3699.00, &quot;http://image.baidu.com/13123.jpg&quot;));</span><br><span class="line">   list.add(new Item(8, &quot;坚果手机R1&quot;, &quot; 手机&quot;, &quot;锤子&quot;, 3699.00, &quot;http://image.baidu.com/13123.jpg&quot;));</span><br><span class="line">   list.add(new Item(3, &quot;华为META10&quot;, &quot; 手机&quot;, &quot;华为&quot;, 4499.00, &quot;http://image.baidu.com/13123.jpg&quot;));</span><br><span class="line">   list.add(new Item(4, &quot;神州战神&quot;, &quot; 电脑&quot;, &quot;神州&quot;, 6499.00, &quot;http://image.baidu.com/13123.jpg&quot;));</span><br><span class="line">   list.add(new Item(5, &quot;王者荣耀满铭文满英雄号&quot;, &quot;账号&quot;, &quot;随易宝有限公司&quot;, 500.00, &quot;www.langzitan.cn&quot;));</span><br><span class="line">   // 接收对象集合，实现批量新增</span><br><span class="line">   itemRepository.saveAll(list);</span><br><span class="line">&#125;</span><br></pre>
+
+<h2 id="八、查询："><a href="#八、查询：" class="headerlink" title="八、查询："></a>八、查询：</h2><pre class="highlight"><span class="line">/**</span><br><span class="line"> * 查询指定索引下的全部信息</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void getAll()&#123;</span><br><span class="line">   Iterable&lt;Item&gt; list = this.itemRepository.findAll();</span><br><span class="line">   //按照价格升序查询</span><br><span class="line">   //Iterable&lt;Item&gt; list1 = this.itemRepository.findAll(Sort.by(&quot;price&quot;).ascending());</span><br><span class="line">   //按照价格降序查询</span><br><span class="line">   //Iterable&lt;Item&gt; list2 = this.itemRepository.findAll(Sort.by(&quot;price&quot;).descending());</span><br><span class="line"></span><br><span class="line">   for (Item item:list)&#123;</span><br><span class="line">      System.out.println(item);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+<h2 id="九、自定义方法"><a href="#九、自定义方法" class="headerlink" title="九、自定义方法"></a>九、自定义方法</h2><p>Spring Data 的另一个强大功能，是根据方法名称自动实现功能。</p>
+<p>比如：你的方法名叫做：findByTitle，那么它就知道你是根据title查询，然后自动帮你完成，无需写实现类。</p>
+<p>当然，方法名称要符合一定的约定：</p>
+<pre class="highlight"><span class="line">/**</span><br><span class="line"> * 自定义方法例子，具体使用，请参考文档</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void queryByPriceBetween()&#123;</span><br><span class="line">   List&lt;Item&gt; list = this.itemRepository.findByPriceBetween(600.00, 5500.00);</span><br><span class="line">   for (Item item : list) &#123;</span><br><span class="line">      System.out.println(&quot;item = &quot; + item);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<h2 id="十、分词查找："><a href="#十、分词查找：" class="headerlink" title="十、分词查找："></a>十、分词查找：</h2><pre class="highlight"><span class="line">/**</span><br><span class="line"> * 分词查找，最大优点！！！！</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void testMatchQuery()&#123;</span><br><span class="line">   // 构建查询条件</span><br><span class="line">   NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();</span><br><span class="line">   // 添加基本分词查询</span><br><span class="line">   queryBuilder.withQuery(QueryBuilders.matchQuery(&quot;title&quot;, &quot;王者满铭文&quot;));</span><br><span class="line">   // 搜索，获取结果</span><br><span class="line">   Page&lt;Item&gt; items = this.itemRepository.search(queryBuilder.build());</span><br><span class="line">   // 总条数</span><br><span class="line">   long total = items.getTotalElements();</span><br><span class="line">   System.out.println(&quot;total = &quot; + total);</span><br><span class="line">   for (Item item : items) &#123;</span><br><span class="line">      System.out.println(item);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<h2 id="十二、分页查找："><a href="#十二、分页查找：" class="headerlink" title="十二、分页查找："></a>十二、分页查找：</h2><pre class="highlight"><span class="line">/**</span><br><span class="line"> * 分页查找</span><br><span class="line"> */</span><br><span class="line">@Test</span><br><span class="line">public void searchByPage()&#123;</span><br><span class="line">   // 构建查询条件</span><br><span class="line">   NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();</span><br><span class="line">   // 添加基本分词查询</span><br><span class="line">   queryBuilder.withQuery(QueryBuilders.termQuery(&quot;brand&quot;, &quot;锤子&quot;));</span><br><span class="line">   // 设置分页属性：</span><br><span class="line">   int page = 0;</span><br><span class="line">   int size = 2;</span><br><span class="line">   queryBuilder.withPageable(PageRequest.of(page,size));</span><br><span class="line">   // 搜索，获取结果</span><br><span class="line">   Page&lt;Item&gt; items = this.itemRepository.search(queryBuilder.build());</span><br><span class="line">   // 总条数</span><br><span class="line">   long total = items.getTotalElements();</span><br><span class="line">   System.out.println(&quot;总条数 = &quot; + total);</span><br><span class="line">   // 总页数</span><br><span class="line">   System.out.println(&quot;总页数 = &quot; + items.getTotalPages());</span><br><span class="line">   // 当前页</span><br><span class="line">   System.out.println(&quot;当前页：&quot; + items.getNumber());</span><br><span class="line">   // 每页大小</span><br><span class="line">   System.out.println(&quot;每页大小：&quot; + items.getSize());</span><br><span class="line"></span><br><span class="line">   for (Item item : items) &#123;</span><br><span class="line">      System.out.println(item);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre>
+
+<p>——————来自技术分享，张博文</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/10/15/SpringBoot%E6%90%AD%E5%BB%BAElasticsearch/">http://www.codekop.com/2019/10/15/SpringBoot%E6%90%AD%E5%BB%BAElasticsearch/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/10/22/mysql%E7%9A%84zip%E5%AE%89%E8%A3%85/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">mysql的zip安装 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/10/15/Elasticsearch-head%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">Elasticsearch-head插件使用 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringBoot%E6%90%AD%E5%BB%BAElasticsearch"><span class="toc-text">SpringBoot搭建Elasticsearch</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E6%8F%90%E7%8E%AF%E5%A2%83%EF%BC%9A"><span class="toc-text">前提环境：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E5%87%86%E5%A4%87%EF%BC%9A"><span class="toc-text">开始准备：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E6%90%AD%E5%BB%BA"><span class="toc-text">开始搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BE%9D%E8%B5%96%E5%BC%95%E5%85%A5"><span class="toc-text">一、依赖引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-text">二、目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6application-properties"><span class="toc-text">三、配置文件application.properties</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%96%B0%E5%BB%BA%E5%AE%9E%E4%BD%93%E7%B1%BB%EF%BC%9A"><span class="toc-text">四、新建实体类：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">注意事项！！！！</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E4%BD%93%E7%B1%BB%E4%B8%AD%E6%B3%A8%E8%A7%A3%EF%BC%9A"><span class="toc-text">实体类中注解：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95%E5%AF%B9%E5%BA%94%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="toc-text">五、创建索引对应的接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%EF%BC%9A%E4%BB%A5%E4%B8%8B%E6%89%80%E6%9C%89%E6%93%8D%E4%BD%9C%E5%9D%87%E7%94%A8test%E7%B1%BB%E6%B5%8B%E8%AF%95"><span class="toc-text">注：以下所有操作均用test类测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%B4%A2%E5%BC%95%E6%93%8D%E4%BD%9C"><span class="toc-text">六、索引操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A2%9E%E5%8A%A0%E6%95%B0%E6%8D%AE%E6%93%8D%E4%BD%9C%EF%BC%9A"><span class="toc-text">七、增加数据操作：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%9F%A5%E8%AF%A2%EF%BC%9A"><span class="toc-text">八、查询：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95"><span class="toc-text">九、自定义方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E5%88%86%E8%AF%8D%E6%9F%A5%E6%89%BE%EF%BC%9A"><span class="toc-text">十、分词查找：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E5%88%86%E9%A1%B5%E6%9F%A5%E6%89%BE%EF%BC%9A"><span class="toc-text">十二、分页查找：</span></a></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringBoot%E6%90%AD%E5%BB%BAElasticsearch"><span class="toc-text">SpringBoot搭建Elasticsearch</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E6%8F%90%E7%8E%AF%E5%A2%83%EF%BC%9A"><span class="toc-text">前提环境：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E5%87%86%E5%A4%87%EF%BC%9A"><span class="toc-text">开始准备：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E6%90%AD%E5%BB%BA"><span class="toc-text">开始搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BE%9D%E8%B5%96%E5%BC%95%E5%85%A5"><span class="toc-text">一、依赖引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-text">二、目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6application-properties"><span class="toc-text">三、配置文件application.properties</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%96%B0%E5%BB%BA%E5%AE%9E%E4%BD%93%E7%B1%BB%EF%BC%9A"><span class="toc-text">四、新建实体类：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">注意事项！！！！</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E4%BD%93%E7%B1%BB%E4%B8%AD%E6%B3%A8%E8%A7%A3%EF%BC%9A"><span class="toc-text">实体类中注解：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95%E5%AF%B9%E5%BA%94%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="toc-text">五、创建索引对应的接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%EF%BC%9A%E4%BB%A5%E4%B8%8B%E6%89%80%E6%9C%89%E6%93%8D%E4%BD%9C%E5%9D%87%E7%94%A8test%E7%B1%BB%E6%B5%8B%E8%AF%95"><span class="toc-text">注：以下所有操作均用test类测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%B4%A2%E5%BC%95%E6%93%8D%E4%BD%9C"><span class="toc-text">六、索引操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A2%9E%E5%8A%A0%E6%95%B0%E6%8D%AE%E6%93%8D%E4%BD%9C%EF%BC%9A"><span class="toc-text">七、增加数据操作：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%9F%A5%E8%AF%A2%EF%BC%9A"><span class="toc-text">八、查询：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95"><span class="toc-text">九、自定义方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E5%88%86%E8%AF%8D%E6%9F%A5%E6%89%BE%EF%BC%9A"><span class="toc-text">十、分词查找：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E5%88%86%E9%A1%B5%E6%9F%A5%E6%89%BE%EF%BC%9A"><span class="toc-text">十二、分页查找：</span></a></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SpringBoot%E6%90%AD%E5%BB%BAElasticsearch"><span class="toc-text">SpringBoot搭建Elasticsearch</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E6%8F%90%E7%8E%AF%E5%A2%83%EF%BC%9A"><span class="toc-text">前提环境：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E5%87%86%E5%A4%87%EF%BC%9A"><span class="toc-text">开始准备：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E6%90%AD%E5%BB%BA"><span class="toc-text">开始搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BE%9D%E8%B5%96%E5%BC%95%E5%85%A5"><span class="toc-text">一、依赖引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-text">二、目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6application-properties"><span class="toc-text">三、配置文件application.properties</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%96%B0%E5%BB%BA%E5%AE%9E%E4%BD%93%E7%B1%BB%EF%BC%9A"><span class="toc-text">四、新建实体类：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%EF%BC%81%EF%BC%81%EF%BC%81%EF%BC%81"><span class="toc-text">注意事项！！！！</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E4%BD%93%E7%B1%BB%E4%B8%AD%E6%B3%A8%E8%A7%A3%EF%BC%9A"><span class="toc-text">实体类中注解：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95%E5%AF%B9%E5%BA%94%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="toc-text">五、创建索引对应的接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%EF%BC%9A%E4%BB%A5%E4%B8%8B%E6%89%80%E6%9C%89%E6%93%8D%E4%BD%9C%E5%9D%87%E7%94%A8test%E7%B1%BB%E6%B5%8B%E8%AF%95"><span class="toc-text">注：以下所有操作均用test类测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%B4%A2%E5%BC%95%E6%93%8D%E4%BD%9C"><span class="toc-text">六、索引操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A2%9E%E5%8A%A0%E6%95%B0%E6%8D%AE%E6%93%8D%E4%BD%9C%EF%BC%9A"><span class="toc-text">七、增加数据操作：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%9F%A5%E8%AF%A2%EF%BC%9A"><span class="toc-text">八、查询：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95"><span class="toc-text">九、自定义方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E5%88%86%E8%AF%8D%E6%9F%A5%E6%89%BE%EF%BC%9A"><span class="toc-text">十、分词查找：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E5%88%86%E9%A1%B5%E6%9F%A5%E6%89%BE%EF%BC%9A"><span class="toc-text">十二、分页查找：</span></a></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>

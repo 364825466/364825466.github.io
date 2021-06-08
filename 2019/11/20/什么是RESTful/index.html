@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html 
+  lang="zh-CN" > <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <meta name="description" content="Hexo">
+  <link rel="icon" href="https://demo.theme-kaze.top/img/Kaze.png">
+  <title>什么是RESTful</title>
+  
+  
+  <meta property="og:title" content="什么是RESTful">
+  
+  
+  <meta property="og:url" content="http://www.codekop.com/2019/11/20/%E4%BB%80%E4%B9%88%E6%98%AFRESTful/index.html">
+  
+  
+  <meta property="og:img" content="/blogImg/什么是RESTful/1.jpg">
+  
+  
+  
+  <meta property="og:type" content="article">
+  <meta property="og:article:published_time" content="2019-11-20">
+  <meta property="og:article:modified_time" content="2021-06-07">
+  <meta property="og:article:author" content="刘一峰">
+  
+  
+  <meta property="og:article:tag" content="SpringMVC">
+  
+  <meta property="og:article:tag" content="RESTful">
+  
+  
+  
+  
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  <!-- TODO: New Prefetch Plan -->
+  
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.js" as="script">
+  <link rel="preload" href="/js/lib/lightbox/baguetteBox.min.css" as="style" >
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_i1kgafibvw.css">
+  
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+  
+  <link rel="stylesheet" href="/js/lib/lightbox/baguetteBox.min.css">
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div class="wrapper">
+       <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="https://demo.theme-kaze.top/img/Kaze.png" alt="logo">
+      
+      <span class="navbar-logo-dsc">CodeKop的博客</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">
+    
+    首页
+    
+    </a>
+    
+    <a href="/archives" class="navbar-menu-item">
+    
+    归档
+    
+    </a>
+    
+    <a href="/tags" class="navbar-menu-item">
+    
+    标签
+    
+    </a>
+    
+    <a href="/categories" class="navbar-menu-item">
+    
+    分类
+    
+    </a>
+    
+    <a href="/about" class="navbar-menu-item">
+    
+    关于
+    
+    </a>
+    
+    <a href="/links" class="navbar-menu-item">
+    
+    友链
+    
+    </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+    <a class="navbar-menu-item searchnavbar" id="search"><i class="iconfont icon-search" style="font-size: 1.2rem; font-weight: 400;"></i></a>
+  </div>
+</nav> 
+      <div id="local-search" style="display: none">
+        <input
+          class="navbar-menu-item"
+          id="search-input"
+          placeholder="请输入搜索内容..."
+        />
+        <div id="search-content"></div>
+      </div>
+      
+      <div class="section-wrap">
+        <div class="container">
+          <div class="columns">
+            <main class="main-column">
+<div class="image-wrapper">
+  <img src="/blogImg/什么是RESTful/1.jpg" data-src="/blogImg/什么是RESTful/1.jpg"
+    srcset="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20viewBox=&#39;0%200%20300%20300&#39;%3E%3C/svg%3E"
+    class="image lozad"
+    alt="thumbnail"
+  >
+</div>
+
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      什么是RESTful
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2019-11-20T06:27:12.000Z">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2019-11-20</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>541 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/SpringMVC/" class="post-meta-link">SpringMVC</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/RESTful/" class="post-meta-link">RESTful</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <span id="more"></span>
+
+<h1 id="RESTful风格概述"><a href="#RESTful风格概述" class="headerlink" title="RESTful风格概述"></a>RESTful风格概述</h1><h2 id="什么是RESTful？"><a href="#什么是RESTful？" class="headerlink" title="什么是RESTful？"></a>什么是RESTful？</h2><p>REST：Representational State Transfer（表述性状态转移）</p>
+<p>REST并不是一种创新技术，它指的是一组架构约束条件和原则</p>
+<p>符合REST的约束条件和原则的架构，就称他为RESTful架构</p>
+<h2 id="RESTful核心内容"><a href="#RESTful核心内容" class="headerlink" title="RESTful核心内容"></a>RESTful核心内容</h2><ol>
+<li><p>资源与URI</p>
+<p>表述性状态转移，指的就是资源的表述。那么什么是资源呢？</p>
+<p>在一个系统中，只要一个事务有被引用的必要，那么它就是一个资源</p>
+<p>它可以是一个文本，可以是一首歌曲，也可以是一个服务，总之是一个真实存在的资源</p>
+<p>那么让资源可以被识别，就需要有一个唯一标识，也就是URI，URI就是资源的地址</p>
+</li>
+<li><p>资源的表述</p>
+<p>资源在客户端和服务器之间传送</p>
+</li>
+<li><p>状态转移</p>
+<p>指资源在客户端发生变迁，然后进入到一个后续的状态，客户端获取资源之后，可能会对资源进行修改，使他跟咱们在服务器保存的状态不一样，那么这个就是状态转移</p>
+</li>
+</ol>
+<h2 id="RESTful架构的特点"><a href="#RESTful架构的特点" class="headerlink" title="RESTful架构的特点"></a>RESTful架构的特点</h2><ol>
+<li>统一了客户端访问资源的接口</li>
+<li>url更加简洁，易于理解，便于扩展</li>
+<li>有利于不同系统之间的资源共享</li>
+</ol>
+<p>RESTful具体来说就是HTTP协议的四种形式表示四种基本操作</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>CRUD</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td>获取资源</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>新建资源</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>修改资源</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>删除资源</td>
+</tr>
+</tbody></table>
+<h2 id="RESTful开发风格"><a href="#RESTful开发风格" class="headerlink" title="RESTful开发风格"></a>RESTful开发风格</h2><p>demo：</p>
+<p>查询课程：<a target="_blank" rel="noopener" href="http://localhost:8080/id">http://localhost:8080/id</a> method=’get’</p>
+<pre class="highlight"><span class="line">// 通过id查询课程</span><br><span class="line"></span><br><span class="line">Controller:</span><br><span class="line"></span><br><span class="line">@GetMapping(value=&quot;/getById/&#123;id&#125;&quot;)</span><br><span class="line">public ModelAndView getById(@PathVariable(value=&quot;id&quot;) int id)&#123;</span><br><span class="line">	ModelAndView modelAndView = new ModelAndView();</span><br><span class="line">	modelAndView.setViewName(&quot;edit&quot;);</span><br><span class="line">	modelAndView.addObject(&quot;course&quot;,courseDAO.getById(id));</span><br><span class="line">	return modelAndView;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">前端:</span><br><span class="line">&lt;form action=&quot;$&#123;pageContext.request.contextPath&#125;/getById/$&#123;course.id&#125;&quot; method=&quot;get&quot;&gt;</span><br></pre>
+
+
+
+<p>添加课程：<a target="_blank" rel="noopener" href="http://localhost:8080/course">http://localhost:8080/course</a> method=’post’</p>
+<pre class="highlight"><span class="line">@PostMapping(value=&quot;/add&quot;)</span><br><span class="line">public String add(Course course)&#123;</span><br><span class="line">	courseDAO.add(course);</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<p>删除课程：<a target="_blank" rel="noopener" href="http://localhost:8080/id">http://localhost:8080/id</a> method=’delete’</p>
+<pre class="highlight"><span class="line">@DeleteMapping(value=&quot;/delete/&#123;id&#125;&quot;)&#123;</span><br><span class="line">	courseDAO.deleteById(id);</span><br><span class="line">	return &quot;redirect:/getAll&quot;;</span><br><span class="line">&#125;</span><br></pre>
+
+
+
+<p>修改课程：<a target="_blank" rel="noopener" href="http://localhost:8080/course">http://localhost:8080/course</a> method=’put’</p>
+<pre class="highlight"><span class="line">@PutMapping(value=&quot;/update&quot;)</span><br><span class="line">public String update(Course course)&#123;</span><br><span class="line">	courseDAO.update(course);</span><br><span class="line">	return &quot;redirect:/getAll&quot;;</span><br><span class="line">&#125;</span><br></pre>
+
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="/about">刘一峰</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://www.codekop.com/2019/11/20/%E4%BB%80%E4%B9%88%E6%98%AFRESTful/">http://www.codekop.com/2019/11/20/%E4%BB%80%E4%B9%88%E6%98%AFRESTful/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2019/11/25/idea%E4%BB%8Esvn%E6%8B%89%E6%8B%BD%E7%9A%84ssh%E9%A1%B9%E7%9B%AE%E6%90%AD%E5%BB%BA/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">idea从svn拉拽的ssh项目搭建 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2019/11/20/%E5%88%9D%E8%AF%86MyBatisPlus/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">初识MyBatisPlus </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#RESTful%E9%A3%8E%E6%A0%BC%E6%A6%82%E8%BF%B0"><span class="toc-text">RESTful风格概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFRESTful%EF%BC%9F"><span class="toc-text">什么是RESTful？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E6%A0%B8%E5%BF%83%E5%86%85%E5%AE%B9"><span class="toc-text">RESTful核心内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E6%9E%B6%E6%9E%84%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-text">RESTful架构的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E5%BC%80%E5%8F%91%E9%A3%8E%E6%A0%BC"><span class="toc-text">RESTful开发风格</span></a></li></ol></li></ol>
+</div></main>
+            <aside class="left-column">
+              
+              <div class="card card-author">
+                
+<img src="/img/head2.png" class="author-img">
+
+<p class="author-name">刘一峰</p>
+<p class="author-description">只争朝夕 不负韶华</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>55</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>28</span>
+    <span>标签</span>
+  </a>
+</div>
+
+<div class="author-card-society">
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/364825466">
+        <i class="iconfont icon-github society-icon"></i>
+      </a>
+    </div>
+  
+    <div class="author-card-society-icon">
+      <a target="_blank" rel="noopener" href="https://github.com/theme-kaze/hexo-theme-kaze">
+        <i class="iconfont icon-wechat society-icon"></i>
+      </a>
+    </div>
+  
+</div>
+
+              </div>
+               <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#RESTful%E9%A3%8E%E6%A0%BC%E6%A6%82%E8%BF%B0"><span class="toc-text">RESTful风格概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFRESTful%EF%BC%9F"><span class="toc-text">什么是RESTful？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E6%A0%B8%E5%BF%83%E5%86%85%E5%AE%B9"><span class="toc-text">RESTful核心内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E6%9E%B6%E6%9E%84%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-text">RESTful架构的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E5%BC%80%E5%8F%91%E9%A3%8E%E6%A0%BC"><span class="toc-text">RESTful开发风格</span></a></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content categories-widget">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content tags-widget">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="/tags/MySQL/" title="MySQL"><div class="tags-list-item">MySQL</div></a>
+    
+    <a href="/tags/%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB/" title="技术分享"><div class="tags-list-item">技术分享</div></a>
+    
+    <a href="/tags/bug/" title="bug"><div class="tags-list-item">bug</div></a>
+    
+    <a href="/tags/SpringBoot/" title="SpringBoot"><div class="tags-list-item">SpringBoot</div></a>
+    
+    <a href="/tags/Java%E5%9F%BA%E7%A1%80/" title="Java基础"><div class="tags-list-item">Java基础</div></a>
+    
+    <a href="/tags/hexo/" title="hexo"><div class="tags-list-item">hexo</div></a>
+    
+    <a href="/tags/SpringCloud/" title="SpringCloud"><div class="tags-list-item">SpringCloud</div></a>
+    
+    <a href="/tags/es/" title="es"><div class="tags-list-item">es</div></a>
+    
+    <a href="/tags/course/" title="course"><div class="tags-list-item">course</div></a>
+    
+    <a href="/tags/SpringMVC/" title="SpringMVC"><div class="tags-list-item">SpringMVC</div></a>
+    
+    <a href="/tags/MongoDB/" title="MongoDB"><div class="tags-list-item">MongoDB</div></a>
+    
+    <a href="/tags/git/" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="/tags/%E6%9D%82%E8%B0%88/" title="杂谈"><div class="tags-list-item">杂谈</div></a>
+    
+    <a href="/tags/excel/" title="excel"><div class="tags-list-item">excel</div></a>
+    
+    <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" title="多线程"><div class="tags-list-item">多线程</div></a>
+    
+    <a href="/tags/%E7%94%B5%E8%84%91/" title="电脑"><div class="tags-list-item">电脑</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+            <aside class="right-column">
+              <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#RESTful%E9%A3%8E%E6%A0%BC%E6%A6%82%E8%BF%B0"><span class="toc-text">RESTful风格概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFRESTful%EF%BC%9F"><span class="toc-text">什么是RESTful？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E6%A0%B8%E5%BF%83%E5%86%85%E5%AE%B9"><span class="toc-text">RESTful核心内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E6%9E%B6%E6%9E%84%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-text">RESTful架构的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESTful%E5%BC%80%E5%8F%91%E9%A3%8E%E6%A0%BC"><span class="toc-text">RESTful开发风格</span></a></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-06-04</div>
+        <a href="/2021/06/04/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><div class="recent-posts-item-content">多线程基础</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-04-22</div>
+        <a href="/2021/04/22/PDMan%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7/"><div class="recent-posts-item-content">PDMan数据库建模工具</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-02-19</div>
+        <a href="/2021/02/19/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD%E6%80%A7/"><div class="recent-posts-item-content">Spring事务传播性</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2020-10-10</div>
+        <a href="/2020/10/10/Nginx%E5%88%9D%E8%AF%86/"><div class="recent-posts-item-content">Nginx初识</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+     <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2020 -
+          
+          2021
+        </span>
+        &nbsp;
+        <a href="/" class="footer-link">CodeKop的博客 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer> <a role="button" id="scrollbutton" class="basebutton"  aria-label="回到顶部">
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton" aria-label="控制中心">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget" aria-label="夜色模式">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+<a role="button" id="searchbutton" class="basebutton searchwidget" aria-label="搜索">
+  <i class="iconfont icon-search button-icon"></i>
+</a>    <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img')
+    var i
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a')
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'))
+      wrapper.setAttribute('aria-label', 'illustration')
+      wrapper.style.cssText =
+        'width: 100%; display: flex; justify-content: center;'
+      if (img[i].alt) wrapper.dataset.caption = img[i].alt
+      wrapper.dataset.nolink = true
+      img[i].before(wrapper)
+      wrapper.append(img[i])
+      var divWrap = document.createElement('div')
+      divWrap.classList.add('gallery')
+      wrapper.before(divWrap)
+      divWrap.append(wrapper)
+    }
+    baguetteBox.run('.gallery')
+  }
+</script>
+<script>
+  loadScript(
+    "/js/lib/lightbox/baguetteBox.min.js",
+    addImgLayout
+  )
+</script>
+   <script src="/js/main.js"></script> 
+    <script>
+      loadScript('/js/lib/busuanzi.min.js')
+    </script>
+     
+    <script>
+      var addLazyload = function () {
+        var observer = lozad('.lozad', {
+          load: function (el) {
+            el.srcset = el.getAttribute('data-src')
+          },
+          loaded: function (el) {
+            el.classList.add('loaded')
+          },
+        })
+        observer.observe()
+      }
+    </script>
+    <script>
+      loadScript('/js/lib/lozad.min.js', addLazyload)
+    </script>
+     
+    
+  </body>
+</html>
