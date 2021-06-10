@@ -253,16 +253,16 @@
         <div class="tags-list-item">设计模式</div>
       </a>
       
-      <a href="/tags/JavaWeb/" title="JavaWeb">
-        <div class="tags-list-item">JavaWeb</div>
-      </a>
-      
       <a href="/tags/%E7%BD%91%E7%BB%9C/" title="网络">
         <div class="tags-list-item">网络</div>
       </a>
       
       <a href="/tags/%E7%AE%97%E6%B3%95/" title="算法">
         <div class="tags-list-item">算法</div>
+      </a>
+      
+      <a href="/tags/JavaWeb/" title="JavaWeb">
+        <div class="tags-list-item">JavaWeb</div>
       </a>
       
       <a href="/tags/RESTful/" title="RESTful">
@@ -1023,6 +1023,11 @@
       loadScript('/js/lib/lozad.min.js', addLazyload)
     </script>
      
+    
+    <script>
+      setTimeout(() => {
+        localSearch('search.json')}, 0)
+    </script>
     
   </body>
 </html>
